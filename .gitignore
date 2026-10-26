@@ -34,6 +34,11 @@ yarn-error.log*
 .env*
 !.env.example
 
+# облікові дані (паролі акаунтів) — лише локально, ніколи в git
+/accounts*
+# окремий виняток: зашифрований архів з акаунтами (AES-256) комітимо
+!/accounts.zip
+
 # справжні назви клієнтів для npm run spec:check — лише локально (див. product/denylist.txt);
 # зірочка ловить і denylist.local.txt.txt, якщо Провідник Windows приховав розширення
 /product/denylist.local*
