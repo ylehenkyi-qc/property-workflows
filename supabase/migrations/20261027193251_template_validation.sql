@@ -11,6 +11,17 @@
 -- Блок спрацьовує лише для незмінених початкових даних (за фіксованими id і назвами), деструктивних операцій немає.
 
 -- ── 1. Унікальність назви шаблону: без урахування регістру й пробілів по краях (AC-EDITOR-23) ───────
+-- Індекс не створився б, якби в базі вже були назви-дублікати (їх міг створити адміністратор до цієї валідації): спершу
+-- дублікатам, крім найстарішого шаблону, додаємо суфікс « (N)». Без дублікатів (звичайний випадок) нічого не змінюється.
+with ranked as (
+  select t.id, row_number() over (partition by lower(btrim(t.name)) order by t.created_at, t.id) as rn
+  from public.templates as t
+)
+update public.templates as t
+set name = btrim(t.name) || ' (' || ranked.rn || ')'
+from ranked
+where ranked.id = t.id and ranked.rn > 1;
+
 create unique index templates_name_unique_idx on public.templates (lower(btrim(name)));
 
 -- ── 2. create_template: назва обов'язкова й унікальна ─────────────────────────────────────────
@@ -125,17 +136,29 @@ end;
 $$;
 
 -- ── 4. Початкові дані: «Tenant move-in» — секції з 2 і 3 задачами, як у прикладах PM ───────────────
--- Робоча копія: «Send welcome information» → кінець секції «Move-in day» (позиція 3). Лише якщо задача ще в «Before move-in».
-update public.template_tasks
+-- Робоча копія: «Send welcome information» → кінець секції «Move-in day» (позиція 3). Лише якщо задача ще така, якою її
+-- створив сид (та сама секція, назва, позиція 3, необов'язкова), а позиція 3 у «Move-in day» вільна (інакше порушився б
+-- унікальний ключ (section_id, position)).
+update public.template_tasks as t
 set section_id = 'a0000000-0000-4000-8000-000000000012', position = 3
-where id = 'a0000000-0000-4000-8000-000000000103'
-  and section_id = 'a0000000-0000-4000-8000-000000000011';
+where t.id = 'a0000000-0000-4000-8000-000000000103'
+  and t.section_id = 'a0000000-0000-4000-8000-000000000011'
+  and t.name = 'Send welcome information'
+  and t.position = 3
+  and not t.required
+  and not exists (
+    select 1 from public.template_tasks as other
+    where other.section_id = 'a0000000-0000-4000-8000-000000000012' and other.position = 3
+  );
 
--- Знімок версії 1: те саме для задачі з цією назвою в секції «Before move-in» версії 1 шаблону.
+-- Знімок версії 1: те саме для задачі з цією назвою в секції «Before move-in» версії 1 шаблону. Ідентифікатори знімка
+-- бекфіл не фіксував, тому ключ — назва, секція, позиція 3 і «необов'язкова» (початковий стан); позиція 3 у цільовій секції вільна.
 update public.template_version_tasks as vt
 set section_id = target.id, position = 3
 from public.template_version_sections as source, public.template_version_sections as target
 where vt.name = 'Send welcome information'
+  and vt.position = 3
+  and not vt.required
   and vt.section_id = source.id
   and source.template_id = 'a0000000-0000-4000-8000-000000000001'
   and source.version = 1
