@@ -54,7 +54,7 @@ Done when: AC-EDITOR-02, AC-EDITOR-03, AC-EDITOR-10, AC-EDITOR-11, AC-EDITOR-12,
 ## 6. Нові AC з міграцією
 
 - [x] 6.1 Нова міграція (`npx supabase migration new template_validation`, `create or replace` для `private.publish_template` і `private.create_template`, унікальний індекс імені): секція без задач — «Every section needs at least one task» (AC-EDITOR-15); порожня назва секції чи задачі — «Every section and task needs a name» (AC-EDITOR-20); шаблон без назви — «Enter a template name» (AC-EDITOR-19); унікальність назви без регістру й пробілів при створенні — «A template with this name already exists» (AC-EDITOR-23). Відмова не змінює версій і робочої копії.
-- [ ] 6.2 Тести PGlite на кожен відмовний AC (відмова **і** «дані не змінились»), тексти помилок у сторінках дій; мутація: прибрати перевірку секцій без задач → червоний `AC-EDITOR-15`, прибрати перевірку назв → червоний `AC-EDITOR-20` (≥2 AC, видимий червоний прогін).
+- [x] 6.2 Тести PGlite на кожен відмовний AC (відмова **і** «дані не змінились»), тексти помилок у сторінках дій; мутація: прибрати перевірку секцій без задач → червоний `AC-EDITOR-15`, прибрати перевірку назв → червоний `AC-EDITOR-20` (≥2 AC, видимий червоний прогін).
 
 Done when: AC-EDITOR-15, AC-EDITOR-19, AC-EDITOR-20, AC-EDITOR-23
 
