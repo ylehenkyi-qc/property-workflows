@@ -29,6 +29,7 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - `npm run dev` · `npm run build` (має показати `ƒ Proxy (Middleware)`) · `npm run lint` (0 warnings)
 - `npm run typecheck` (`next typegen && tsc --noEmit`) · `npm test` (Vitest)
 - `npm run spec:validate` · `npm run spec:check` · `npm run ac:coverage`
+- `npm run check:design` — у сторінках лише токени (жодного hex, `bg-[#…]`, сирої палітри чи кольору в inline style, крім посилання на токен `var(--токен)`); `npm run check:boundary` — секретний ключ і admin-клієнт лише в серверному коді (обидва — у `.github/workflows/architecture.yml`)
 - `node scripts/check-migration-order.mjs` — нова міграція новіша за `origin/main`, застосовані не змінено (у CI — `db-check`)
 - `npx supabase migration new <назва>` → SQL → PR. Застосовує міграції у вашу базу ЛИШЕ CI (`db-deploy` після merge у `main`)
 - Типи БД: готовий `database.types.ts` — у Summary прогону job `db-check` (Docker не потрібен); або `npm run db:types`
@@ -131,6 +132,16 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
   репозиторію `koldovsky/2026-quitcode-06-leave-portal-demo`): `security invoker`, або `security definer` лише в
   схемі `private` з `set search_path = ''`.
 - Авторизація на сервері — `supabase.auth.getClaims()`, ніколи `getSession()`.
+
+## Дизайн-система
+
+Правила вигляду — у `DESIGN.md` (його імпортує `CLAUDE.md`; Cursor читає цей розділ). Перед будь-якою зміною інтерфейсу прочитай `DESIGN.md`.
+
+- Кольори — лише семантичні токени з `DESIGN.md` (`bg-primary text-primary-foreground`, `text-muted-foreground`, `bg-status-*`); токени живуть у `src/app/globals.css` (`:root`, `@media (prefers-color-scheme: dark)`, `@theme inline`). Ніколи hex, `bg-[#…]`, сирі палітри (`zinc-500`, `bg-white`) і колір у `style={{…}}` (дозволено лише `var(--токен)`): `npm run check:design` це ловить (виняток — коментар `design-ok: <причина>` у тому самому рядку).
+- Компоненти — лише з `@/components/ui` (shadcn/ui: `Button`, `Input`, `Label`, `Card`, `Table`, `Badge`, `Dialog`, `Select`, `Alert`) і наші обгортки в `src/components/`: `PageShell` (макет сторінки), `PageMessage` (відмова, «not found», порожній стан), `StatusBadge` (статус: слово + колір із `src/lib/ui/status.ts`), `AppSelect` (кожен випадний список). Власний `<button>`, `<input>`, `<label>`, `<table>` у сторінці — ні. Нові компоненти — `npx shadcn@latest add <назва>`.
+- **Без системних віджетів.** Нативні `<select>`/`<option>`/`<datalist>`, `<input type="date|time|datetime-local|month|week|color|range|file">`, `alert()`/`confirm()`/`prompt()` заборонені: їхні списки, календарі й вікна малює ОС, і вони не відповідають темі. Випадний список — `AppSelect`; дата — `Calendar` + `Popover` (`npx shadcn@latest add calendar popover`; нова залежність — спитай спершу); підтвердження — `Dialog`. Кожен новий інтерактивний елемент — наш компонент у темі; таблиця замін — `DESIGN.md`, розділ 5. `npm run lint` падає на нативних (`no-restricted-syntax` в `eslint.config.mjs`, виняток — лише `src/components/ui`).
+- Статус ніколи не лише кольором: поруч завжди слово. Одна головна дія екрана — `Button` `default`; небезпечні дії — `Dialog` з «This cannot be undone».
+- Тексти інтерфейсу — англійською; повідомлення з AC — дослівно. Новий токен — за розділом 9 `DESIGN.md` (значення в обох темах і контраст ≥ 4.5:1 для тексту, ≥ 3:1 для меж і фокусу).
 
 ## Секрети
 

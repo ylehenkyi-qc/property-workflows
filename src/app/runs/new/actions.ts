@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isSelfAssignee } from "@/lib/runs/assignees";
 import { launchErrorCode, type LaunchErrorCode } from "@/lib/runs/launchErrors";
 import { validateCaseName } from "@/lib/runs/validateCaseName";
 
@@ -32,7 +33,7 @@ export async function launchRun(formData: FormData) {
   const assignments: { template_task_id: string; assignee_id: string }[] = [];
   for (const [field, value] of formData.entries()) {
     const match = ASSIGNEE_FIELD.exec(field);
-    if (match && typeof value === "string" && value !== "") {
+    if (match && typeof value === "string" && !isSelfAssignee(value)) {
       assignments.push({ template_task_id: match[1], assignee_id: value });
     }
   }

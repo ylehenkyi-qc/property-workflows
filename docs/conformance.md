@@ -36,12 +36,12 @@
 | AC-RUN-01 | запуск шаблону створює один запуск «in progress» з усіма 5 задачами «to do» | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run), `supabase/migrations/20261020091923_run_schema_and_seed.sql`, `src/app/runs/new/page.tsx` (форма) | — | відкладено (DB-тести не запускаються в CI) |
 | AC-RUN-02 | зміна шаблону не змінює вже створений запуск | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run), `supabase/migrations/20261020091923_run_schema_and_seed.sql` | — | відкладено (DB-тести не запускаються в CI) |
 | AC-RUN-03 | порожня назва випадку або лише пробіли відхиляється з повідомленням «Enter a case name» | `src/lib/runs/validateCaseName.ts`, `src/app/runs/new/actions.ts` (launchRun), `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | `src/lib/runs/validateCaseName.test.ts`, `src/app/runs/new/actions.test.ts` | реалізовано |
-| AC-RUN-04 | менеджер призначає іншого виконавцем двох задач, решта — запускач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run), `src/app/runs/new/page.tsx` (форма) | — | відкладено (DB-тести не запускаються в CI) |
+| AC-RUN-04 | менеджер призначає іншого виконавцем двох задач, решта — запускач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run), `src/app/runs/new/actions.ts` (launchRun) | `src/app/runs/new/actions.test.ts` | відкладено (дія launchRun покрита тестом; правило launch_run — DB-тест на PGlite у групі 2) |
 | AC-RUN-05 | адміністратор запускає шаблон і стає менеджером запуску | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | — | відкладено (DB-тести не запускаються в CI) |
 | AC-RUN-06 | менеджер, що запустив шаблон, стає менеджером запуску | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | — | відкладено (DB-тести не запускаються в CI) |
 | AC-RUN-07 | назва випадку у 101 символ відхиляється з повідомленням «Case name must be at most 100 characters» | `src/lib/runs/validateCaseName.ts`, `src/app/runs/new/actions.ts` (launchRun), `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | `src/lib/runs/validateCaseName.test.ts`, `src/app/runs/new/actions.test.ts` | реалізовано |
-| AC-RUN-08 | без призначення виконавців менеджер — виконавець усіх 5 задач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | — | відкладено (DB-тести не запускаються в CI) |
-| AC-RUN-09 | без призначення виконавців адміністратор — виконавець усіх 5 задач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | — | відкладено (DB-тести не запускаються в CI) |
+| AC-RUN-08 | без призначення виконавців менеджер — виконавець усіх 5 задач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run), `src/app/runs/new/actions.ts` (launchRun) | `src/app/runs/new/actions.test.ts` | відкладено (дія launchRun покрита тестом; правило launch_run — DB-тест на PGlite у групі 2) |
+| AC-RUN-09 | без призначення виконавців адміністратор — виконавець усіх 5 задач | `supabase/migrations/20261020091927_launch_run_functions.sql` (launch_run) | — | відкладено (правило launch_run — DB-тест на PGlite у групі 2; дія від ролі не залежить) |
 | AC-RUN-10 | у виборі виконавця менеджер бачить лише email інших користувачів, без імен і ролей | — | — | відкладено (чекає реалізації) |
 | AC-RUN-11 | назва випадку зі 100 символів і пробілом на початку зберігається обрізаною | — | — | відкладено (чекає реалізації) |
 | AC-RUN-12 | зміна секцій шаблону не змінює секції створеного запуску | — | — | відкладено (чекає реалізації) |
@@ -63,10 +63,10 @@
 | AC-TASK-16 | скасування підтвердження останньої обов'язкової задачі лишає задачу «to do» і запуск «in progress» | — | — | відкладено (чекає реалізації) |
 | AC-TASK-17 | виконавець бачить у списку запусків прогрес «2 of 5 done» чужого запуску | — | — | відкладено (чекає реалізації) |
 | AC-TASK-18 | «позначити виконаною» пропонується лише на задачі, яку користувач може позначити | — | — | відкладено (чекає реалізації) |
-| AC-DSYS-01 | статуси «in progress» і «completed» однакові словом і кольором у списку й на сторінках запусків | — | — | відкладено (чекає реалізації) |
+| AC-DSYS-01 | статуси «in progress» і «completed» однакові словом і кольором у списку й на сторінках запусків | `src/lib/ui/status.ts`, `src/components/status-badge.tsx`, `src/app/runs/page.tsx`, `src/app/runs/[id]/page.tsx`, `src/app/globals.css` | `src/app/runs/design-system.test.tsx` | реалізовано |
 | AC-DSYS-02 | менеджер на редакторі за прямим посиланням бачить «Not enough rights» і «Back to templates» у загальному макеті | — | — | відкладено (чекає реалізації) |
 | AC-DSYS-03 | відвідувач без входу на сторінці запуску бачить вхід у загальному макеті без даних | — | — | відкладено (чекає реалізації) |
-| AC-DSYS-04 | порожній список запусків: «No runs yet. Launch a template to start one.» і посилання, без таблиці | — | — | відкладено (чекає реалізації) |
+| AC-DSYS-04 | порожній список запусків: «No runs yet. Launch a template to start one.» і посилання, без таблиці | `src/components/page-message.tsx`, `src/app/runs/page.tsx` | `src/app/runs/design-system.test.tsx` | реалізовано |
 | AC-EDITOR-01 | зміни без збереження версії не втрачаються, на шаблоні «Unpublished changes» | — | — | відкладено (чекає реалізації) |
 | AC-EDITOR-02 | менеджер бачить лише поточну збережену версію без непублікованих змін | — | — | відкладено (чекає реалізації) |
 | AC-EDITOR-03 | збереження шаблону створює версію 2, «Unpublished changes» зникає | — | — | відкладено (чекає реалізації) |
