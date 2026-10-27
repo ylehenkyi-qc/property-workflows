@@ -317,7 +317,7 @@ export function TemplateEditor({
         >
           Add section
         </Button>
-        <Button type="button" disabled={publishing} onClick={() => void saveVersion()}>
+        <Button type="button" disabled={publishing || !dirty} onClick={() => void saveVersion()}>
           Save version
         </Button>
         <Link href={`/templates/${templateId}/versions`} className="text-sm text-muted-foreground underline">
