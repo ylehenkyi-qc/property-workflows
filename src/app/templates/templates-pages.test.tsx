@@ -296,6 +296,7 @@ describe("AC-EDITOR-06: запуск зберігає версію шаблон�
   it("AC-EDITOR-06: сторінка запуску показує «Template version 1» і 5 задач версії 1", async () => {
     mocks.client = fakeSupabase({
       tables: {
+        ...asManager,
         runs: { data: { id: RUN_ID, case_name: "Case", status: "in_progress", template_version: 1 } },
         run_sections: { data: SECTIONS },
         run_tasks: {

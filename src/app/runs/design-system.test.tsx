@@ -76,6 +76,7 @@ describe("список запусків і сторінка запуску", () 
     ] as const) {
       mocks.client = fakeSupabase({
         tables: {
+          profiles: { data: { role: "manager" } },
           runs: { data: run },
           run_sections: { data: [{ id: "s1", name: "Before move-in", position: 1 }] },
           run_tasks: {
@@ -96,6 +97,7 @@ describe("список запусків і сторінка запуску", () 
     // статус задачі на сторінці запуску: слово й сірий токен «to do» (DESIGN.md, розділ 2)
     mocks.client = fakeSupabase({
       tables: {
+        profiles: { data: { role: "manager" } },
         runs: { data: runs[0] },
         run_sections: { data: [{ id: "s1", name: "Before move-in", position: 1 }] },
         run_tasks: {
