@@ -12,7 +12,7 @@ describe("canMarkDone", () => {
     expect(canMarkDone(todo, RUN, { userId: "c", role: "manager" })).toBe(false);
   });
 
-  it("виконану задачу позначати нема що", () => {
+  it("AC-TASK-18: на виконаній задачі («done») кнопки немає, навіть менеджеру запуску", () => {
     expect(canMarkDone({ ...todo, status: "done" }, RUN, { userId: "a", role: "manager" })).toBe(false);
   });
 });

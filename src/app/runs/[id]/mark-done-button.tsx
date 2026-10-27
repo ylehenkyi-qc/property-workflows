@@ -48,8 +48,10 @@ export function MarkDoneButton({
         onOpenChange={setOpen}
         title={`Mark “${taskName}” as done?`}
         onConfirm={() => {
-          startTransition(() => {
-            void markTaskDone(taskId, runId);
+          // Async-перехід: pending тримається, доки server action не завершиться, і повторний клік неможливий.
+          // Штатний redirect дії обробляє Next.js; несподівану помилку перехід передає в error boundary.
+          startTransition(async () => {
+            await markTaskDone(taskId, runId);
           });
         }}
       />

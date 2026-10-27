@@ -166,7 +166,7 @@ describe("кнопка «Mark as done»", () => {
     expect(rows.filter((row) => row.includes("Mark as done"))).toHaveLength(2);
   });
 
-  it("задача «done» кнопки не має", async () => {
+  it("AC-TASK-18: на виконаній задачі («done») кнопки немає, навіть менеджеру запуску", async () => {
     const { rows } = await renderRun({
       viewer: "user-a",
       tasks: [task("td", "Finished task", "s1", 1, false, "user-b", "done")],
