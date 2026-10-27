@@ -16,7 +16,7 @@ import { createClient } from "@/lib/supabase/server";
 import { linkButtonClass } from "@/lib/ui/link-button";
 import { buildRunList } from "@/lib/runs/runList";
 
-// Список запусків (AC-TASK-06, AC-TASK-09, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
+// Список запусків (AC-TASK-06, 09, 13, 14, 17, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
 // admin — усі, manager — де він менеджер запуску або виконавець хоча б однієї задачі.
 export default async function RunsPage() {
   const supabase = await createClient();
@@ -29,7 +29,7 @@ export default async function RunsPage() {
 
   const { data: runs, error: runsError } = await supabase
     .from("runs")
-    .select("id, case_name, status, created_at")
+    .select("id, case_name, status, created_at, template_id")
     .order("created_at", { ascending: false });
   // Помилку не маскуємо порожнім списком: error.tsx покаже «Something went wrong».
   if (runsError) {
@@ -45,7 +45,16 @@ export default async function RunsPage() {
     throw new Error("Failed to load run tasks");
   }
 
-  const items = buildRunList(runs ?? [], tasks ?? []);
+  // Назви шаблонів — окремим запитом (як задачі): менеджер читає шаблони зі збереженою версією, а запуск іде лише з такого.
+  const templateIds = [...new Set((runs ?? []).flatMap((run) => (run.template_id ? [run.template_id] : [])))];
+  const { data: templates, error: templatesError } = templateIds.length
+    ? await supabase.from("templates").select("id, name").in("id", templateIds)
+    : { data: [], error: null };
+  if (templatesError) {
+    throw new Error("Failed to load templates");
+  }
+
+  const items = buildRunList(runs ?? [], tasks ?? [], templates ?? []);
 
   return (
     <PageShell>
@@ -72,6 +81,7 @@ export default async function RunsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Case</TableHead>
+              <TableHead>Template</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Progress</TableHead>
             </TableRow>
@@ -84,6 +94,7 @@ export default async function RunsPage() {
                     {item.caseName}
                   </Link>
                 </TableCell>
+                <TableCell className="text-muted-foreground">{item.templateName}</TableCell>
                 <TableCell>
                   <StatusBadge status={item.status} />
                 </TableCell>
