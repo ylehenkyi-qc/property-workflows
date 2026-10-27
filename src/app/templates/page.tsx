@@ -10,13 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
-import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
+import { ENTER_TEMPLATE_NAME, NOT_ENOUGH_RIGHTS, TEMPLATE_NAME_TAKEN } from "@/lib/templates/messages";
 import { linkButtonClass } from "@/lib/ui/link-button";
 import { createTemplate } from "./actions";
 
-// Тексти цих двох помилок вимогами не задані (формулювання розробника).
+// «Enter a template name» і «A template with this name already exists» — дослівно з AC-EDITOR-19, 23; решта — формулювання
+// розробника (вимогами не задані).
 const ERRORS: Record<string, string> = {
   forbidden: NOT_ENOUGH_RIGHTS,
+  name_empty: ENTER_TEMPLATE_NAME,
+  name_taken: TEMPLATE_NAME_TAKEN,
   create_failed: "Could not create the template",
 };
 

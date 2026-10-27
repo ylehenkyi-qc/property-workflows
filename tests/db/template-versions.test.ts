@@ -17,14 +17,15 @@ const SEEDED: Content = [
     tasks: [
       { name: "Inspect the apartment", required: true },
       { name: "Collect the signed lease", required: true },
-      { name: "Send welcome information", required: false },
     ],
   },
   {
     name: "Move-in day",
+    // «Send welcome information» перенесено сюди міграцією 20261027193251: секції мають 2 і 3 задачі, як у прикладах PM
     tasks: [
       { name: "Hand over the keys", required: true },
       { name: "Record meter readings", required: false },
+      { name: "Send welcome information", required: false },
     ],
   },
 ];
@@ -377,9 +378,10 @@ describe("запуск шаблону (launch_run)", () => {
       [run],
     );
 
+    // як у прикладі PM: запуск лишає «Before move-in» із 2 задачами й «Move-in day» із 3
     expect(sections).toEqual([
-      { name: "Before move-in", n: 3 },
-      { name: "Move-in day", n: 2 },
+      { name: "Before move-in", n: 2 },
+      { name: "Move-in day", n: 3 },
     ]);
   });
 });

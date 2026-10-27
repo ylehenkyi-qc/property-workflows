@@ -169,6 +169,35 @@ describe("createTemplate", () => {
     expect(await redirectedTo(() => createTemplate(new FormData()))).toBe("/templates?error=forbidden");
   });
 
+  it("AC-EDITOR-19: порожня назва — повернення на список із кодом name_empty, без переходу в редактор", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "22023", message: "Enter a template name" } });
+
+    expect(await redirectedTo(() => createTemplate(new FormData()))).toBe("/templates?error=name_empty");
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("AC-EDITOR-23: наявна назва — повернення на список із кодом name_taken", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "23505", message: "A template with this name already exists" } });
+    const form = new FormData();
+    form.set("name", " tenant MOVE-IN ");
+
+    expect(await redirectedTo(() => createTemplate(form))).toBe("/templates?error=name_taken");
+  });
+
+  it("AC-EDITOR-15: секція без задач — дослівне повідомлення, сторінки не оновлюються", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "22023", message: "Every section needs at least one task" } });
+
+    expect(await publishTemplate(TEMPLATE_ID)).toEqual({ ok: false, error: "Every section needs at least one task" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("AC-EDITOR-20: секція чи задача без назви — дослівне повідомлення, сторінки не оновлюються", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "22023", message: "Every section and task needs a name" } });
+
+    expect(await publishTemplate(TEMPLATE_ID)).toEqual({ ok: false, error: "Every section and task needs a name" });
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("збій бази повертає на список із кодом помилки", async () => {
     mocks.rpc.mockResolvedValue({ data: null, error: { code: "XX000", message: "boom" } });
 

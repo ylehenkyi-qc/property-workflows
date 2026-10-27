@@ -5,7 +5,13 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import type { DraftContent } from "@/lib/templates/draft";
-import { DRAFT_NOT_SAVED, NOT_ENOUGH_RIGHTS, publishErrorMessage } from "@/lib/templates/messages";
+import {
+  DRAFT_NOT_SAVED,
+  ENTER_TEMPLATE_NAME,
+  NOT_ENOUGH_RIGHTS,
+  publishErrorMessage,
+  TEMPLATE_NAME_TAKEN,
+} from "@/lib/templates/messages";
 
 export type SaveResult = { ok: true } | { ok: false; error: string };
 export type PublishResult = { ok: true; version: number } | { ok: false; error: string };
@@ -23,6 +29,9 @@ export async function createTemplate(formData: FormData) {
   const { data: id, error } = await auth.supabase.rpc("create_template", {
     p_name: String(formData.get("name") ?? ""),
   });
+  // Відмови правил назви (AC-EDITOR-19, 23) — окремі коди: текст показує сторінка списку, а не адреса.
+  if (error?.message === ENTER_TEMPLATE_NAME) redirect("/templates?error=name_empty");
+  if (error?.message === TEMPLATE_NAME_TAKEN) redirect("/templates?error=name_taken");
   if (error || !id) redirect("/templates?error=create_failed");
 
   revalidatePath("/templates");
