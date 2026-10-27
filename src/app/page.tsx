@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { PageShell } from "@/components/page-shell";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
+import { linkButtonClass } from "@/lib/ui/link-button";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 
@@ -34,10 +35,10 @@ export default async function Home() {
         <dd data-testid="user-role">{profile?.role ?? "profile not found"}</dd>
       </dl>
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/runs/new" className={buttonVariants()}>
+        <Link href="/runs/new" className={linkButtonClass()}>
           New run
         </Link>
-        <Link href="/runs" className={buttonVariants({ variant: "outline" })}>
+        <Link href="/runs" className={linkButtonClass({ variant: "outline" })}>
           Runs
         </Link>
       </div>

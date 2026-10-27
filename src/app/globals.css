@@ -112,6 +112,10 @@
     border-color: var(--border);
     @apply outline-ring/50;
   }
+  html {
+    /* усе, що ще малює браузер (смуги прокручування, автозаповнення, системні поля), слідує за темою системи */
+    color-scheme: light dark;
+  }
   body {
     @apply bg-background text-foreground font-sans;
   }

@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
-import { buttonVariants } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
+import { linkButtonClass } from "@/lib/ui/link-button";
 import { buildRunList } from "@/lib/runs/runList";
 
 // Список запусків (AC-TASK-06, AC-TASK-09, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
@@ -54,7 +54,7 @@ export default async function RunsPage() {
       <div className="flex items-baseline justify-between gap-4">
         <h1 className="text-2xl font-semibold">Runs</h1>
         {items.length > 0 ? (
-          <Link href="/runs/new" className={buttonVariants()}>
+          <Link href="/runs/new" className={linkButtonClass()}>
             New run
           </Link>
         ) : null}

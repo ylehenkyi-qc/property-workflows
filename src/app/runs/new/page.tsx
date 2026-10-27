@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppSelect } from "@/components/app-select";
 import { PageShell } from "@/components/page-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { createClient } from "@/lib/supabase/server";
+import { ASSIGNEE_ME } from "@/lib/runs/assignees";
 import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
 import { launchRun } from "./actions";
 
@@ -65,16 +66,13 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
       <form method="get" action="/runs/new" className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <Label htmlFor="template">Template</Label>
-          <NativeSelect id="template" name="template" defaultValue={selected?.id ?? ""} className="w-full">
-            <NativeSelectOption value="" disabled>
-              Choose a template
-            </NativeSelectOption>
-            {(templates ?? []).map((t) => (
-              <NativeSelectOption key={t.id} value={t.id}>
-                {t.name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <AppSelect
+            id="template"
+            name="template"
+            placeholder="Choose a template"
+            defaultValue={selected?.id}
+            options={(templates ?? []).map((t) => ({ value: t.id, label: t.name }))}
+          />
         </div>
         <Button type="submit" variant="outline" className="self-start">
           Choose template
@@ -102,19 +100,12 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
                 .map((task) => (
                   <div key={task.id} className="flex flex-col gap-2">
                     <Label htmlFor={`assignee_${task.id}`}>{task.name}</Label>
-                    <NativeSelect
+                    <AppSelect
                       id={`assignee_${task.id}`}
                       name={`assignee_${task.id}`}
-                      defaultValue=""
-                      className="w-full"
-                    >
-                      <NativeSelectOption value="">Me</NativeSelectOption>
-                      {otherUsers.map((u) => (
-                        <NativeSelectOption key={u.id} value={u.id}>
-                          {u.email}
-                        </NativeSelectOption>
-                      ))}
-                    </NativeSelect>
+                      defaultValue={ASSIGNEE_ME}
+                      options={[{ value: ASSIGNEE_ME, label: "Me" }, ...otherUsers.map((u) => ({ value: u.id, label: u.email ?? "—" }))]}
+                    />
                   </div>
                 ))}
             </fieldset>

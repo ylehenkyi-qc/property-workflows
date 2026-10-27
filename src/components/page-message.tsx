@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { linkButtonClass } from "@/lib/ui/link-button";
 
 export type PageMessageLink = { href: string; label: string };
 
@@ -24,7 +23,7 @@ export function PageMessage({
       <Heading className={level === 1 ? "text-2xl font-semibold" : "text-lg font-semibold"}>{title}</Heading>
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       {link ? (
-        <Link href={link.href} className={cn(buttonVariants({ variant: "link" }), "h-auto px-0")}>
+        <Link href={link.href} className={linkButtonClass({ variant: "link" }, "h-auto px-0")}>
           {link.label}
         </Link>
       ) : null}

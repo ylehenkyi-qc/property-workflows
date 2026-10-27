@@ -62,7 +62,8 @@ function SelectContent({
   sideOffset = 4,
   align = "center",
   alignOffset = 0,
-  alignItemWithTrigger = true,
+  // false: список відкривається під полем і не перекриває його (DESIGN.md, розділ 5); shadcn за замовчуванням true
+  alignItemWithTrigger = false,
   ...props
 }: SelectPrimitive.Popup.Props &
   Pick<
