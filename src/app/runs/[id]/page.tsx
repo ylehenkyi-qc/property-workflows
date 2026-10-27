@@ -4,35 +4,35 @@ import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
-import { createClient } from "@/lib/supabase/server";
 import { groupTasksBySection } from "@/lib/runs/groupTasksBySection";
 import { assigneeLabel } from "@/lib/runs/labels";
 import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors";
+import { canMarkDone, isLastRequiredTask } from "@/lib/runs/permissions";
 import { formatRunProgress } from "@/lib/runs/progress";
-import { markTaskDone } from "./actions";
+import { MarkDoneButton } from "./mark-done-button";
 
 // Сторінка запуску (AC-TASK-05, AC-TASK-08, AC-DSYS-01, AC-EDITOR-06): прогрес, статус, версія шаблону, задачі за секціями
-// зі статусом, обов'язковістю й виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found». Кнопка «Mark as done» (AC-TASK-01, 02, 03, 07) стоїть
-// на кожній задачі «to do» для всіх, хто бачить запуск; право позначати перевіряє база.
+// зі статусом, обов'язковістю й виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found» (AC-TASK-10).
+// Кнопка «Mark as done» (AC-TASK-01, 02, 07, 18) — лише на задачі «to do», яку користувач може позначити; для останньої
+// обов'язкової задачі спершу підтвердження (AC-TASK-04, 16). Право позначати перевіряє база.
 export default async function RunPage({ params, searchParams }: PageProps<"/runs/[id]">) {
-  const supabase = await createClient();
-
   const { id } = await params;
 
-  // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) {
-    redirect(loginPath(`/runs/${id}`));
-  }
+  // requireRole: getClaims() перевіряє JWT (getSession() не використовуємо), роль — з profiles.role.
+  const auth = await requireRole(["manager", "admin"]);
+  if (auth.status === "unauthenticated") redirect(loginPath(`/runs/${id}`));
+  // Користувач без ролі нічого не бачить: те саме «Run not found», що й для чужого запуску.
+  if (auth.status === "forbidden") notFound();
+  const { supabase, userId, role } = auth;
 
   const { error } = await searchParams;
   const errorMessage = isMarkTaskErrorCode(error) ? MARK_TASK_ERRORS[error] : undefined;
   const { data: run, error: runError } = await supabase
     .from("runs")
-    .select("id, case_name, status, template_version")
+    .select("id, case_name, status, template_version, manager_id")
     .eq("id", id)
     .maybeSingle();
   if (runError) {
@@ -105,12 +105,13 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
                   <span className="flex flex-wrap items-center gap-3 text-muted-foreground">
                     <StatusBadge status={task.status} />
                     <span>{assigneeLabel(task.assignee_id, users)}</span>
-                    {task.status === "to_do" ? (
-                      <form action={markTaskDone.bind(null, task.id, run.id)}>
-                        <Button type="submit" variant="outline" size="sm">
-                          Mark as done
-                        </Button>
-                      </form>
+                    {canMarkDone(task, run, { userId, role }) ? (
+                      <MarkDoneButton
+                        taskId={task.id}
+                        runId={run.id}
+                        taskName={task.name}
+                        needsConfirmation={isLastRequiredTask(allTasks, task.id)}
+                      />
                     ) : null}
                   </span>
                 </Card>
