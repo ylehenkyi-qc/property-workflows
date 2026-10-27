@@ -46,7 +46,7 @@ export async function saveTemplateDraft(templateId: string, content: DraftConten
 // Збереження версії (AC-EDITOR-03, AC-EDITOR-04): правило «є обов'язкова задача» перевіряє publish_template.
 export async function publishTemplate(templateId: string): Promise<PublishResult> {
   const auth = await requireRole("admin");
-  if (auth.status === "unauthenticated") redirect(loginPath(`/templates/${templateId}/edit`));
+  if (auth.status === "unauthenticated") return { ok: false, error: "Sign in to continue" };
   if (auth.status === "forbidden") return { ok: false, error: NOT_ENOUGH_RIGHTS };
 
   const { data: version, error } = await auth.supabase.rpc("publish_template", { p_template_id: templateId });
