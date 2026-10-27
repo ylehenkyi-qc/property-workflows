@@ -11,7 +11,7 @@
   --card-foreground: oklch(0.21 0.02 255);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.21 0.02 255);
-  --primary: oklch(0.45 0.15 295);
+  --primary: oklch(0.45 0.11 165);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.96 0.006 255);
   --secondary-foreground: oklch(0.21 0.02 255);
@@ -23,7 +23,7 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.9 0.005 255);
   --input: oklch(0.6 0.01 255);
-  --ring: oklch(0.5 0.15 295);
+  --ring: oklch(0.5 0.11 165);
   --status-todo: oklch(0.93 0.005 255);
   --status-todo-foreground: oklch(0.35 0.02 255);
   --status-progress: oklch(0.92 0.05 255);
@@ -42,8 +42,8 @@
     --card-foreground: oklch(0.96 0.005 255);
     --popover: oklch(0.22 0.012 255);
     --popover-foreground: oklch(0.96 0.005 255);
-    --primary: oklch(0.72 0.14 295);
-    --primary-foreground: oklch(0.2 0.02 295);
+    --primary: oklch(0.75 0.14 160);
+    --primary-foreground: oklch(0.2 0.03 160);
     --secondary: oklch(0.26 0.012 255);
     --secondary-foreground: oklch(0.96 0.005 255);
     --muted: oklch(0.26 0.012 255);
@@ -54,7 +54,7 @@
     --destructive-foreground: oklch(0.2 0.02 25);
     --border: oklch(0.3 0.01 255);
     --input: oklch(0.55 0.015 255);
-    --ring: oklch(0.72 0.14 295);
+    --ring: oklch(0.75 0.14 160);
     --status-todo: oklch(0.3 0.01 255);
     --status-todo-foreground: oklch(0.9 0.01 255);
     --status-progress: oklch(0.3 0.07 255);

@@ -7,6 +7,7 @@ export type RunTaskRow = { run_id: string; status: string };
 export type RunListItem = {
   id: string;
   caseName: string;
+  status: string;
   statusLabel: string;
   progress: string;
 };
@@ -22,6 +23,7 @@ export function buildRunList(
     .map((run) => ({
       id: run.id,
       caseName: run.case_name,
+      status: run.status,
       statusLabel: runStatusLabel(run.status),
       progress: formatRunProgress(tasks.filter((task) => task.run_id === run.id)),
     }));

@@ -1,9 +1,21 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageMessage } from "@/components/page-message";
+import { PageShell } from "@/components/page-shell";
+import { StatusBadge } from "@/components/status-badge";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { createClient } from "@/lib/supabase/server";
 import { buildRunList } from "@/lib/runs/runList";
 
-// Список запусків (AC-TASK-06, AC-TASK-09). Які запуски бачить користувач, вирішує RLS:
+// Список запусків (AC-TASK-06, AC-TASK-09, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
 // admin — усі, manager — де він менеджер запуску або виконавець хоча б однієї задачі.
 export default async function RunsPage() {
   const supabase = await createClient();
@@ -35,36 +47,51 @@ export default async function RunsPage() {
   const items = buildRunList(runs ?? [], tasks ?? []);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
-      <Link href="/" className="text-sm text-zinc-500 underline">
+    <PageShell>
+      <Link href="/" className="text-sm text-muted-foreground underline">
         Home
       </Link>
       <div className="flex items-baseline justify-between gap-4">
         <h1 className="text-2xl font-semibold">Runs</h1>
-        <Link href="/runs/new" className="text-sm underline">
-          New run
-        </Link>
+        {items.length > 0 ? (
+          <Link href="/runs/new" className={buttonVariants()}>
+            New run
+          </Link>
+        ) : null}
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-zinc-500">No runs yet</p>
+        <PageMessage
+          level={2}
+          title="No runs yet. Launch a template to start one."
+          link={{ href: "/runs/new", label: "Launch a template" }}
+        />
       ) : (
-        <ul className="flex flex-col gap-3">
-          {items.map((item) => (
-            <li key={item.id}>
-              <Link
-                href={`/runs/${item.id}`}
-                className="flex items-baseline justify-between gap-4 rounded border border-zinc-300 px-4 py-3 dark:border-zinc-700"
-              >
-                <span className="font-medium">{item.caseName}</span>
-                <span className="text-sm text-zinc-500">
-                  {item.statusLabel} · {item.progress}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Case</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Progress</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell className="font-medium">
+                  <Link href={`/runs/${item.id}`} className="underline underline-offset-4">
+                    {item.caseName}
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <StatusBadge status={item.status} />
+                </TableCell>
+                <TableCell className="tabular-nums text-muted-foreground">{item.progress}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       )}
-    </main>
+    </PageShell>
   );
 }

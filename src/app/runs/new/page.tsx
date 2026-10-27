@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageShell } from "@/components/page-shell";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { createClient } from "@/lib/supabase/server";
 import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
 import { launchRun } from "./actions";
-
-const inputClass =
-  "rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900";
 
 // Запуск шаблону: крок 1 — вибір шаблону (GET), крок 2 — назва випадку й виконавці задач (AC-RUN-01…09).
 export default async function NewRunPage({ searchParams }: PageProps<"/runs/new">) {
@@ -53,80 +56,75 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   const otherUsers = (users ?? []).filter((u) => u.id !== claims.sub);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
-      <Link href="/" className="text-sm text-zinc-500 underline">
+    <PageShell>
+      <Link href="/" className="text-sm text-muted-foreground underline">
         Home
       </Link>
       <h1 className="text-2xl font-semibold">New run</h1>
 
       <form method="get" action="/runs/new" className="flex flex-col gap-4">
-        <label className="flex flex-col gap-1 text-sm">
-          Template
-          <select name="template" defaultValue={selected?.id ?? ""} className={inputClass}>
-            <option value="" disabled>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="template">Template</Label>
+          <NativeSelect id="template" name="template" defaultValue={selected?.id ?? ""} className="w-full">
+            <NativeSelectOption value="" disabled>
               Choose a template
-            </option>
+            </NativeSelectOption>
             {(templates ?? []).map((t) => (
-              <option key={t.id} value={t.id}>
+              <NativeSelectOption key={t.id} value={t.id}>
                 {t.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="self-start rounded border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
-        >
+          </NativeSelect>
+        </div>
+        <Button type="submit" variant="outline" className="self-start">
           Choose template
-        </button>
+        </Button>
       </form>
 
       {selected ? (
         <form action={launchRun} className="flex flex-col gap-6">
           <input type="hidden" name="template_id" value={selected.id} />
-          <label className="flex flex-col gap-1 text-sm">
-            Case name
-            <input name="case_name" type="text" className={inputClass} />
-          </label>
+          {errorMessage ? (
+            <Alert variant="destructive">
+              <AlertDescription>{errorMessage}</AlertDescription>
+            </Alert>
+          ) : null}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="case_name">Case name</Label>
+            <Input id="case_name" name="case_name" type="text" />
+          </div>
 
           {sections.map((section) => (
             <fieldset key={section.id} className="flex flex-col gap-3">
-              <legend className="text-sm font-medium">{section.name}</legend>
+              <legend className="mb-2 text-lg font-semibold">{section.name}</legend>
               {tasks
                 .filter((task) => task.section_id === section.id)
                 .map((task) => (
-                  <label key={task.id} className="flex flex-col gap-1 text-sm">
-                    {task.name}
-                    <select
+                  <div key={task.id} className="flex flex-col gap-2">
+                    <Label htmlFor={`assignee_${task.id}`}>{task.name}</Label>
+                    <NativeSelect
+                      id={`assignee_${task.id}`}
                       name={`assignee_${task.id}`}
                       defaultValue=""
-                      className={inputClass}
+                      className="w-full"
                     >
-                      <option value="">Me</option>
+                      <NativeSelectOption value="">Me</NativeSelectOption>
                       {otherUsers.map((u) => (
-                        <option key={u.id} value={u.id}>
+                        <NativeSelectOption key={u.id} value={u.id}>
                           {u.email}
-                        </option>
+                        </NativeSelectOption>
                       ))}
-                    </select>
-                  </label>
+                    </NativeSelect>
+                  </div>
                 ))}
             </fieldset>
           ))}
 
-          {errorMessage ? (
-            <p role="alert" className="text-sm text-red-600">
-              {errorMessage}
-            </p>
-          ) : null}
-          <button
-            type="submit"
-            className="self-start rounded bg-foreground px-4 py-2 font-medium text-background"
-          >
+          <Button type="submit" className="self-start">
             Launch
-          </button>
+          </Button>
         </form>
       ) : null}
-    </main>
+    </PageShell>
   );
 }

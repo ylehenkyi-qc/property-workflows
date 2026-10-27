@@ -10,21 +10,21 @@
 
 ## 2. Кольори
 
-Семантичні токени з іменами shadcn/ui. Значення — OKLCH, мої (PM кольорів не задав; відтінок головного акценту — TODO: питання PM). У сторінках — лише утиліти з колонки «Клас», ніколи hex, `bg-[#…]` чи сирі палітри (`zinc-500`, `bg-white`). Темна тема — за системою (`prefers-color-scheme`); PM темну тему поза межами вимоги, тож вона лише побічний ефект токенів (TODO: питання PM — solomchaak/property-workflows-spec#34).
+Семантичні токени з іменами shadcn/ui. Значення — OKLCH, мої (PM кольорів не задав; головний акцент — зелений за вибором розробника, конкретний відтінок — TODO: питання PM). Зелений акцент (`primary`) схожий на зелений статус «done»/«completed» (`status-done`): їх розрізняє форма й слово (кнопка проти бейджа зі словом статусу) і відтінок (акцент насиченіший і темніший, статус — світла плашка); `primary` не використовуємо для статусів. У сторінках — лише утиліти з колонки «Клас», ніколи hex, `bg-[#…]` чи сирі палітри (`zinc-500`, `bg-white`). Темна тема — за системою (`prefers-color-scheme`); PM темну тему поза межами вимоги, тож вона лише побічний ефект токенів (TODO: питання PM — solomchaak/property-workflows-spec#34).
 
 | Токен | Для чого | Світла | Темна | Клас |
 |---|---|---|---|---|
 | `background` / `foreground` | тло сторінки й основний текст | `oklch(0.985 0.002 255)` / `oklch(0.21 0.02 255)` | `oklch(0.18 0.01 255)` / `oklch(0.96 0.005 255)` | `bg-background`, `text-foreground` |
 | `card` / `card-foreground` | картки, панелі, рядки списків | `oklch(1 0 0)` / `oklch(0.21 0.02 255)` | `oklch(0.22 0.012 255)` / `oklch(0.96 0.005 255)` | `bg-card`, `text-card-foreground` |
 | `popover` / `popover-foreground` | діалоги, випадні списки | як `card` | як `card` | `bg-popover`, `text-popover-foreground` |
-| `primary` / `primary-foreground` | **головна дія екрана** («Launch», «Save version») — один сильний акцент, не використовується ні для чого іншого | `oklch(0.45 0.15 295)` / `oklch(0.985 0 0)` | `oklch(0.72 0.14 295)` / `oklch(0.2 0.02 295)` | `bg-primary`, `text-primary-foreground` |
+| `primary` / `primary-foreground` | **головна дія екрана** («Launch», «Save version») — один сильний акцент (зелений, вибір розробника), не використовується ні для чого іншого | `oklch(0.45 0.11 165)` / `oklch(0.985 0 0)` | `oklch(0.75 0.14 160)` / `oklch(0.2 0.03 160)` | `bg-primary`, `text-primary-foreground` |
 | `secondary` / `secondary-foreground` | другорядна дія | `oklch(0.96 0.006 255)` / `oklch(0.21 0.02 255)` | `oklch(0.26 0.012 255)` / `oklch(0.96 0.005 255)` | `bg-secondary`, `text-secondary-foreground` |
 | `muted` / `muted-foreground` | приглушене тло, підписи, допоміжний текст | `oklch(0.96 0.006 255)` / `oklch(0.45 0.02 255)` | `oklch(0.26 0.012 255)` / `oklch(0.72 0.015 255)` | `bg-muted`, `text-muted-foreground` |
 | `accent` / `accent-foreground` | наведення, вибраний рядок | `oklch(0.95 0.01 255)` / `oklch(0.21 0.02 255)` | `oklch(0.28 0.014 255)` / `oklch(0.96 0.005 255)` | `bg-accent`, `text-accent-foreground` |
 | `destructive` / `destructive-foreground` | небезпечна дія (завжди з підтвердженням «This cannot be undone»), текст помилки — **червоний** | `oklch(0.5 0.2 27)` / `oklch(0.985 0 0)` | `oklch(0.72 0.17 25)` / `oklch(0.2 0.02 25)` | `bg-destructive`, `text-destructive` |
 | `border` | розділювачі, межі карток | `oklch(0.9 0.005 255)` | `oklch(0.3 0.01 255)` | `border-border` |
 | `input` | межа поля вводу | `oklch(0.6 0.01 255)` | `oklch(0.55 0.015 255)` | `border-input` |
-| `ring` | кільце фокусу | `oklch(0.5 0.15 295)` | `oklch(0.72 0.14 295)` | `ring-ring` |
+| `ring` | кільце фокусу | `oklch(0.5 0.11 165)` | `oklch(0.75 0.14 160)` | `ring-ring` |
 | `status-todo` / `-foreground` | статус «to do» — нейтральний сірий | `oklch(0.93 0.005 255)` / `oklch(0.35 0.02 255)` | `oklch(0.3 0.01 255)` / `oklch(0.9 0.01 255)` | `bg-status-todo`, `text-status-todo-foreground` |
 | `status-progress` / `-foreground` | статус «in progress» — синій | `oklch(0.92 0.05 255)` / `oklch(0.35 0.12 255)` | `oklch(0.3 0.07 255)` / `oklch(0.9 0.05 255)` | `bg-status-progress`, `text-status-progress-foreground` |
 | `status-done` / `-foreground` | статуси «done» і «completed» — зелений | `oklch(0.93 0.07 150)` / `oklch(0.35 0.09 150)` | `oklch(0.3 0.06 150)` / `oklch(0.9 0.07 150)` | `bg-status-done`, `text-status-done-foreground` |
@@ -41,14 +41,14 @@
 | `foreground` на `background` | 16.96 | 16.74 | ≥ 4.5 |
 | `muted-foreground` на `background` | 7.12 | 7.59 | ≥ 4.5 |
 | `muted-foreground` на `card` | 7.43 | 6.98 | ≥ 4.5 |
-| `primary-foreground` на `primary` | 7.62 | 7.00 | ≥ 4.5 |
+| `primary-foreground` на `primary` | 6.59 | 8.57 | ≥ 4.5 |
 | `destructive` на `card` | 6.66 | 6.48 | ≥ 4.5 |
 | `status-todo-foreground` на `status-todo` | 9.19 | 10.12 | ≥ 4.5 |
 | `status-progress-foreground` на `status-progress` | 8.96 | 10.16 | ≥ 4.5 |
 | `status-done-foreground` на `status-done` | 9.06 | 10.13 | ≥ 4.5 |
 | `status-unpublished-foreground` на `status-unpublished` | 8.46 | 10.06 | ≥ 4.5 |
 | `input` на `card` | 3.94 | 3.57 | ≥ 3 |
-| `ring` на `background` | 6.13 | 7.25 | ≥ 3 |
+| `ring` на `background` | 5.39 | 8.97 | ≥ 3 |
 
 ## 3. Типографіка
 

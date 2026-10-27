@@ -1,15 +1,21 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { PageShell } from "@/components/page-shell";
+import { StatusBadge } from "@/components/status-badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { createClient } from "@/lib/supabase/server";
 import { groupTasksBySection } from "@/lib/runs/groupTasksBySection";
-import { assigneeLabel, runStatusLabel, taskStatusLabel } from "@/lib/runs/labels";
+import { assigneeLabel } from "@/lib/runs/labels";
 import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors";
 import { formatRunProgress } from "@/lib/runs/progress";
 import { markTaskDone } from "./actions";
 
-// Сторінка запуску (AC-TASK-05, AC-TASK-08): прогрес, статус, задачі за секціями зі статусом, обов'язковістю й виконавцем.
-// Чужий запуск RLS не повертає — сторінка «Run not found». Кнопка «Mark as done» (AC-TASK-01, 02, 03, 07) стоїть на кожній
-// задачі «to do» для всіх, хто бачить запуск; право позначати перевіряє база.
+// Сторінка запуску (AC-TASK-05, AC-TASK-08, AC-DSYS-01): прогрес, статус, задачі за секціями зі статусом, обов'язковістю й
+// виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found». Кнопка «Mark as done» (AC-TASK-01, 02, 03, 07) стоїть
+// на кожній задачі «to do» для всіх, хто бачить запуск; право позначати перевіряє база.
 export default async function RunPage({ params, searchParams }: PageProps<"/runs/[id]">) {
   const supabase = await createClient();
 
@@ -56,61 +62,58 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
   const groups = groupTasksBySection(sections, allTasks);
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
-      <Link href="/runs" className="text-sm text-zinc-500 underline">
+    <PageShell>
+      <Link href="/runs" className="text-sm text-muted-foreground underline">
         Runs
       </Link>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold" data-testid="run-case-name">
           {run.case_name}
         </h1>
-        <p className="text-sm text-zinc-500">
-          <span data-testid="run-status">{runStatusLabel(run.status)}</span>
-          {" · "}
-          <span data-testid="run-progress">{formatRunProgress(allTasks)}</span>
+        <p className="flex items-center gap-3 text-sm text-muted-foreground">
+          <span data-testid="run-status">
+            <StatusBadge status={run.status} />
+          </span>
+          <span data-testid="run-progress" className="tabular-nums">
+            {formatRunProgress(allTasks)}
+          </span>
         </p>
       </div>
 
       {errorMessage ? (
-        <p role="alert" className="text-sm text-red-600">
-          {errorMessage}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       ) : null}
 
       {groups.map(({ section, tasks: sectionTasks }) => (
         <section key={section.id} className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium">{section.name}</h2>
+          <h2 className="text-lg font-semibold">{section.name}</h2>
           <ul className="flex flex-col gap-2">
             {sectionTasks.map((task) => (
-              <li
-                key={task.id}
-                data-testid="run-task"
-                className="flex items-baseline justify-between gap-4 rounded border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
-              >
-                <span>
-                  {task.name}
-                  <span className="ml-2 text-zinc-500">
-                    {task.required ? "required" : "optional"}
+              <li key={task.id} data-testid="run-task">
+                <Card className="flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span className="flex flex-wrap items-center gap-2">
+                    {task.name}
+                    <Badge variant="outline">{task.required ? "required" : "optional"}</Badge>
                   </span>
-                </span>
-                <span className="flex items-baseline gap-3 text-zinc-500">
-                  {taskStatusLabel(task.status)} · {assigneeLabel(task.assignee_id, users)}
-                  {task.status === "to_do" ? (
-                    <form action={markTaskDone.bind(null, task.id, run.id)}>
-                      <button
-                        type="submit"
-                        className="rounded border border-zinc-300 px-3 py-1 text-xs text-foreground dark:border-zinc-700"
-                      >
-                        Mark as done
-                      </button>
-                    </form>
-                  ) : null}
-                </span>
+                  <span className="flex flex-wrap items-center gap-3 text-muted-foreground">
+                    <StatusBadge status={task.status} />
+                    <span>{assigneeLabel(task.assignee_id, users)}</span>
+                    {task.status === "to_do" ? (
+                      <form action={markTaskDone.bind(null, task.id, run.id)}>
+                        <Button type="submit" variant="outline" size="sm">
+                          Mark as done
+                        </Button>
+                      </form>
+                    ) : null}
+                  </span>
+                </Card>
               </li>
             ))}
           </ul>
         </section>
       ))}
-    </main>
+    </PageShell>
   );
 }

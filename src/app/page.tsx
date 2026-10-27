@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageShell } from "@/components/page-shell";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "./login/actions";
 
-// Головна сторінка шаблону: хто увійшов і з якою роллю (з таблиці profiles).
+// Головна сторінка: хто увійшов і з якою роллю (з таблиці profiles).
 // Сторінка читає cookies, тому рендериться динамічно (шаблон зібрано з --no-cache-components).
 export default async function Home() {
   const supabase = await createClient();
@@ -23,28 +25,27 @@ export default async function Home() {
     .maybeSingle();
 
   return (
-    <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-16">
-      <h1 className="text-2xl font-semibold">Проєкт команди</h1>
+    <PageShell>
+      <h1 className="text-2xl font-semibold">Property Workflows</h1>
       <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm">
-        <dt className="text-zinc-500">Email</dt>
+        <dt className="text-muted-foreground">Email</dt>
         <dd data-testid="user-email">{profile?.email ?? claims.email ?? "—"}</dd>
-        <dt className="text-zinc-500">Роль</dt>
-        <dd data-testid="user-role">{profile?.role ?? "профіль не знайдено"}</dd>
+        <dt className="text-muted-foreground">Role</dt>
+        <dd data-testid="user-role">{profile?.role ?? "profile not found"}</dd>
       </dl>
-      <Link href="/runs" className="text-sm underline">
-        Runs
-      </Link>
-      <Link href="/runs/new" className="text-sm underline">
-        New run
-      </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link href="/runs/new" className={buttonVariants()}>
+          New run
+        </Link>
+        <Link href="/runs" className={buttonVariants({ variant: "outline" })}>
+          Runs
+        </Link>
+      </div>
       <form action={signOut}>
-        <button
-          type="submit"
-          className="rounded border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
-        >
-          Вийти
-        </button>
+        <Button type="submit" variant="ghost">
+          Sign out
+        </Button>
       </form>
-    </main>
+    </PageShell>
   );
 }
