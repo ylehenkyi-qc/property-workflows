@@ -117,6 +117,8 @@ export function TemplateEditor({
   function change(next: Draft) {
     latest.current = next;
     unsaved.current = true;
+    // нова правка ще не відправлена: «All changes kept» не показуємо, доки не завершиться автозбереження
+    setSaveState("idle");
     setDraft(next);
     setDirty(true);
     setNotice(null);

@@ -36,6 +36,7 @@ async function submit(fields: Record<string, string>): Promise<string> {
 
 beforeEach(() => {
   mocks.signInWithPassword.mockReset();
+  mocks.revalidatePath.mockReset();
   mocks.signInWithPassword.mockResolvedValue({ error: null });
 });
 
