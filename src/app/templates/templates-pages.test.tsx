@@ -353,6 +353,24 @@ describe("AC-EDITOR-06: запуск зберігає версію шаблон�
   });
 });
 
+describe("помилки створення шаблону", () => {
+  it("AC-EDITOR-19: після відмови список показує «Enter a template name»", async () => {
+    mocks.client = fakeSupabase({ tables: { ...asAdmin, templates: { data: [TEMPLATE] } } });
+
+    const markup = html(await TemplatesPage(listPage({ error: "name_empty" })));
+
+    expect(markup).toContain("Enter a template name");
+  });
+
+  it("AC-EDITOR-23: після відмови список показує «A template with this name already exists»", async () => {
+    mocks.client = fakeSupabase({ tables: { ...asAdmin, templates: { data: [TEMPLATE] } } });
+
+    const markup = html(await TemplatesPage(listPage({ error: "name_taken" })));
+
+    expect(markup).toContain("A template with this name already exists");
+  });
+});
+
 describe("порожні стани", () => {
   it("AC-EDITOR-17: менеджер без збережених шаблонів бачить повідомлення без порожньої таблиці", async () => {
     mocks.client = fakeSupabase({ tables: { ...asManager, templates: { data: [] } } });
