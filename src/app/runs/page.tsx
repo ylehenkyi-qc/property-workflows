@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { loginPath } from "@/lib/auth/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { linkButtonClass } from "@/lib/ui/link-button";
 import { buildRunList } from "@/lib/runs/runList";
@@ -23,7 +24,7 @@ export default async function RunsPage() {
   // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) {
-    redirect("/login");
+    redirect(loginPath("/runs"));
   }
 
   const { data: runs, error: runsError } = await supabase

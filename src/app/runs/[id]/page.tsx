@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { loginPath } from "@/lib/auth/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { groupTasksBySection } from "@/lib/runs/groupTasksBySection";
 import { assigneeLabel } from "@/lib/runs/labels";
@@ -13,24 +14,25 @@ import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors
 import { formatRunProgress } from "@/lib/runs/progress";
 import { markTaskDone } from "./actions";
 
-// Сторінка запуску (AC-TASK-05, AC-TASK-08, AC-DSYS-01): прогрес, статус, задачі за секціями зі статусом, обов'язковістю й
-// виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found». Кнопка «Mark as done» (AC-TASK-01, 02, 03, 07) стоїть
+// Сторінка запуску (AC-TASK-05, AC-TASK-08, AC-DSYS-01, AC-EDITOR-06): прогрес, статус, версія шаблону, задачі за секціями
+// зі статусом, обов'язковістю й виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found». Кнопка «Mark as done» (AC-TASK-01, 02, 03, 07) стоїть
 // на кожній задачі «to do» для всіх, хто бачить запуск; право позначати перевіряє база.
 export default async function RunPage({ params, searchParams }: PageProps<"/runs/[id]">) {
   const supabase = await createClient();
 
+  const { id } = await params;
+
   // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) {
-    redirect("/login");
+    redirect(loginPath(`/runs/${id}`));
   }
 
-  const { id } = await params;
   const { error } = await searchParams;
   const errorMessage = isMarkTaskErrorCode(error) ? MARK_TASK_ERRORS[error] : undefined;
   const { data: run, error: runError } = await supabase
     .from("runs")
-    .select("id, case_name, status")
+    .select("id, case_name, status, template_version")
     .eq("id", id)
     .maybeSingle();
   if (runError) {
@@ -77,6 +79,9 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
           <span data-testid="run-progress" className="tabular-nums">
             {formatRunProgress(allTasks)}
           </span>
+          {run.template_version != null ? (
+            <span data-testid="run-template-version">Template version {run.template_version}</span>
+          ) : null}
         </p>
       </div>
 

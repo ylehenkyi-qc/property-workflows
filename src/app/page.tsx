@@ -41,6 +41,9 @@ export default async function Home() {
         <Link href="/runs" className={linkButtonClass({ variant: "outline" })}>
           Runs
         </Link>
+        <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
+          Templates
+        </Link>
       </div>
       <form action={signOut}>
         <Button type="submit" variant="ghost">

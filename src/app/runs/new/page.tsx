@@ -6,9 +6,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginPath } from "@/lib/auth/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { ASSIGNEE_ME } from "@/lib/runs/assignees";
 import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
+import { loadVersionContent } from "@/lib/templates/load-version";
 import { launchRun } from "./actions";
 
 // Запуск шаблону: крок 1 — вибір шаблону (GET), крок 2 — назва випадку й виконавці задач (AC-RUN-01…09).
@@ -19,7 +21,7 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   if (!claims) {
-    redirect("/login");
+    redirect(loginPath("/runs/new"));
   }
 
   const { template, error } = await searchParams;
@@ -35,28 +37,7 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
 
   // Секції й задачі — зі знімка ПОТОЧНОЇ версії (а не з робочої копії): менеджер її не бачить, а launch_run копіює знімок.
   const sections =
-    selected?.current_version != null
-      ? ((
-          await supabase
-            .from("template_version_sections")
-            .select("id, name, position")
-            .eq("template_id", selected.id)
-            .eq("version", selected.current_version)
-            .order("position")
-        ).data ?? [])
-      : [];
-  const tasks = sections.length
-    ? ((
-        await supabase
-          .from("template_version_tasks")
-          .select("id, name, position, section_id")
-          .in(
-            "section_id",
-            sections.map((s) => s.id),
-          )
-          .order("position")
-      ).data ?? [])
-    : [];
+    selected?.current_version != null ? await loadVersionContent(supabase, selected.id, selected.current_version) : [];
 
   // Виконавця можна обрати з manager/admin: лише id і email (без ролі й іншого профілю).
   const { data: users } = selected
@@ -103,19 +84,17 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
           {sections.map((section) => (
             <fieldset key={section.id} className="flex flex-col gap-3">
               <legend className="mb-2 text-lg font-semibold">{section.name}</legend>
-              {tasks
-                .filter((task) => task.section_id === section.id)
-                .map((task) => (
-                  <div key={task.id} className="flex flex-col gap-2">
-                    <Label htmlFor={`assignee_${task.id}`}>{task.name}</Label>
-                    <AppSelect
-                      id={`assignee_${task.id}`}
-                      name={`assignee_${task.id}`}
-                      defaultValue={ASSIGNEE_ME}
-                      options={[{ value: ASSIGNEE_ME, label: "Me" }, ...otherUsers.map((u) => ({ value: u.id, label: u.email ?? "—" }))]}
-                    />
-                  </div>
-                ))}
+              {section.tasks.map((task) => (
+                <div key={task.id} className="flex flex-col gap-2">
+                  <Label htmlFor={`assignee_${task.id}`}>{task.name}</Label>
+                  <AppSelect
+                    id={`assignee_${task.id}`}
+                    name={`assignee_${task.id}`}
+                    defaultValue={ASSIGNEE_ME}
+                    options={[{ value: ASSIGNEE_ME, label: "Me" }, ...otherUsers.map((u) => ({ value: u.id, label: u.email ?? "—" }))]}
+                  />
+                </div>
+              ))}
             </fieldset>
           ))}
 
