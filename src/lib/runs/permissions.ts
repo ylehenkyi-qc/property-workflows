@@ -9,7 +9,7 @@ export function canMarkDone(
   viewer: Viewer,
 ): boolean {
   if (task.status !== "to_do") return false;
-  return viewer.role === "admin" || viewer.role === "manager";
+  return viewer.role === "admin" || viewer.userId === run.manager_id || viewer.userId === task.assignee_id;
 }
 
 // Остання обов'язкова задача: вона обов'язкова, ще «to do», а всі інші обов'язкові задачі запуску вже «done».
@@ -20,5 +20,5 @@ export function isLastRequiredTask(
 ): boolean {
   const task = tasks.find((item) => item.id === taskId);
   if (!task || !task.required || task.status === "done") return false;
-  return true;
+  return tasks.every((item) => item.id === taskId || !item.required || item.status === "done");
 }
