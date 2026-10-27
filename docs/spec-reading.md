@@ -11,9 +11,9 @@
 Для PM це матеріал нотатки «порівняння реалізацій»: де одні вимоги прочитали по-різному.
 -->
 
-Вимоги: solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-26
+Вимоги: solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-27
 
-<!-- Розділи нижче до «Зріз 2» — зріз 1 (WS6, знімок 2026-10-19). Зріз 2 (WS7, знімок 2026-10-26) — розділ «Зріз 2» унизу. -->
+<!-- Розділи нижче до «Зріз 2» — зріз 1 (WS6, знімок 2026-10-19). Зріз 2 (WS7, знімок 2026-10-27) — розділ «Зріз 2» унизу. -->
 
 ## Зріз 1
 
@@ -69,7 +69,7 @@
 
 ## Зріз 2
 
-Вимоги зрізу 2 (WS7, знімок 2026-10-26): solomchaak/property-workflows-spec#19 (`requirements/19-use-one-design-system.md`, AC-DSYS-01…04), solomchaak/property-workflows-spec#20 (`requirements/20-edit-a-template-with-version-control.md`, AC-EDITOR-01…09); уточнені solomchaak/property-workflows-spec#2 (AC-RUN-10…12), solomchaak/property-workflows-spec#3 (AC-TASK-10…18, зміни AC-TASK-01, 02, 04, 07) і Продукт solomchaak/property-workflows-spec#1. Специфікація: зміна `add-templates-editor` (PR «Специфікація»).
+Вимоги зрізу 2 (WS7, знімок 2026-10-27): solomchaak/property-workflows-spec#19 (`requirements/19-use-one-design-system.md`, AC-DSYS-01…08), solomchaak/property-workflows-spec#20 (`requirements/20-edit-a-template-with-version-control.md`, AC-EDITOR-01…29); уточнені solomchaak/property-workflows-spec#2 (AC-RUN-10…12), solomchaak/property-workflows-spec#3 (AC-TASK-10…18, зміни AC-TASK-01, 02, 04, 07) і Продукт solomchaak/property-workflows-spec#1. Специфікація: зміни `add-templates-editor` і `update-templates-editor` (PR «Специфікація»).
 
 ### Скан за таксономією (зріз 2)
 
@@ -116,8 +116,7 @@
 
 ### Власні припущення (зріз 2)
 
-- Після збереження версії показуємо «Version N saved» (приклад тексту успіху з «Вигляд і тон» Продукту); PM у AC цього не вимагає, тому в тестах це не критерій.
-- Робочі припущення до Q5, Q6 і Q12 — у таблиці вище; решта прогалин (Q7–Q11, Q13–Q19) — робочі рішення в `design.md` плану `impl-<зріз>`, із посиланням на питання.
+- Власних припущень понад вимоги PM немає: усі питання Q5–Q22 закрито PM 2026-10-27, їхні відповіді стали AC (AC-EDITOR-10…29, AC-DSYS-05…08) і припущеннями PM у `requirements/`; «Version N saved» — тепер вимога PM (AC-EDITOR-03).
 
 ### Що пропустив би без скіла / що скіл знайшов зайве (зріз 2)
 
