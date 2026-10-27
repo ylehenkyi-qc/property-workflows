@@ -59,7 +59,7 @@ export default async function TemplateVersionsPage({ params }: PageProps<"/templ
       <h1 className="text-2xl font-semibold">Versions</h1>
 
       {rows.length === 0 ? (
-        <PageMessage level={2} title="No saved versions yet." />
+        <PageMessage level={2} title="No versions yet. Save the template to create version 1." />
       ) : (
         <Table>
           <TableHeader>

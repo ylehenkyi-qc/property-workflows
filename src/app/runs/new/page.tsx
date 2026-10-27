@@ -13,7 +13,8 @@ import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
 import { loadVersionContent } from "@/lib/templates/load-version";
 import { launchRun } from "./actions";
 
-// Запуск шаблону: крок 1 — вибір шаблону (GET), крок 2 — назва випадку й виконавці задач (AC-RUN-01…09).
+// Запуск шаблону: крок 1 — вибір шаблону (GET), крок 2 — назва випадку й виконавці задач (AC-RUN-01…09); шаблон без
+// збереженої версії адміністратор бачить недоступним (AC-EDITOR-10).
 export default async function NewRunPage({ searchParams }: PageProps<"/runs/new">) {
   const supabase = await createClient();
 
@@ -27,13 +28,12 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   const { template, error } = await searchParams;
   const errorMessage = isLaunchErrorCode(error) ? LAUNCH_ERRORS[error] : undefined;
 
-  // Запуск іде лише зі збереженої версії: шаблон без версії (чернетка) не пропонуємо нікому, навіть адміністратору.
-  const { data: templates } = await supabase
-    .from("templates")
-    .select("id, name, current_version")
-    .not("current_version", "is", null)
-    .order("name");
-  const selected = templates?.find((t) => t.id === template);
+  // Запуск іде лише зі збереженої версії (AC-EDITOR-10, 11): шаблон без версії ніхто не обирає. RLS віддає такий шаблон лише
+  // адміністратору, і ми показуємо його окремо як недоступний; менеджер його не бачить.
+  const { data: allTemplates } = await supabase.from("templates").select("id, name, current_version").order("name");
+  const templates = (allTemplates ?? []).filter((t) => t.current_version != null);
+  const unavailable = (allTemplates ?? []).filter((t) => t.current_version == null);
+  const selected = templates.find((t) => t.id === template);
 
   // Секції й задачі — зі знімка ПОТОЧНОЇ версії (а не з робочої копії): менеджер її не бачить, а launch_run копіює знімок.
   const sections =
@@ -60,9 +60,18 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
             name="template"
             placeholder="Choose a template"
             defaultValue={selected?.id}
-            options={(templates ?? []).map((t) => ({ value: t.id, label: t.name }))}
+            options={templates.map((t) => ({ value: t.id, label: t.name }))}
           />
         </div>
+        {unavailable.length > 0 ? (
+          <ul data-testid="unavailable-templates" className="flex flex-col gap-1 text-sm text-muted-foreground">
+            {unavailable.map((t) => (
+              <li key={t.id} data-testid="unavailable-template">
+                {t.name} — Save the template to launch it
+              </li>
+            ))}
+          </ul>
+        ) : null}
         <Button type="submit" variant="outline" className="self-start">
           Choose template
         </Button>

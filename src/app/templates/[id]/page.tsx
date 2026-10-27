@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { requireRole } from "@/lib/auth/require-role";
@@ -13,11 +14,12 @@ import { linkButtonClass } from "@/lib/ui/link-button";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Шаблон: поточна збережена версія — секції й задачі з «required»/«optional» (AC-EDITOR-02). Менеджеру RLS не віддає ні
+// Шаблон: поточна збережена версія — секції й задачі з «required»/«optional» (AC-EDITOR-02), після збереження — «Version N saved» (AC-EDITOR-03). Менеджеру RLS не віддає ні
 // непублікованих змін, ні шаблону без збереженої версії (тоді «Template not found»); повідомлення «Unpublished changes»
 // читає лише адміністратор.
-export default async function TemplatePage({ params }: PageProps<"/templates/[id]">) {
+export default async function TemplatePage({ params, searchParams }: PageProps<"/templates/[id]">) {
   const { id } = await params;
+  const { saved } = await searchParams;
 
   const auth = await requireRole(["manager", "admin"]);
   if (auth.status === "unauthenticated") redirect(loginPath(`/templates/${id}`));
@@ -56,11 +58,20 @@ export default async function TemplatePage({ params }: PageProps<"/templates/[id
     hasUnpublishedChanges = draft?.has_unpublished_changes ?? template.current_version == null;
   }
 
+  // «Version N saved» після збереження (AC-EDITOR-03): параметр лише підказка, показуємо тільки коли N — поточна версія.
+  const savedVersion = typeof saved === "string" && /^[0-9]+$/.test(saved) ? Number(saved) : null;
+  const justSaved = isAdmin && savedVersion !== null && savedVersion === template.current_version;
+
   return (
     <PageShell>
       <Link href="/templates" className="text-sm text-muted-foreground underline">
         Templates
       </Link>
+      {justSaved ? (
+        <Alert data-testid="version-saved">
+          <AlertDescription>{`Version ${savedVersion} saved`}</AlertDescription>
+        </Alert>
+      ) : null}
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-semibold" data-testid="template-name">
           {template.name}

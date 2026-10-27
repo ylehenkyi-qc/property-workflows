@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AppSelect } from "@/components/app-select";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -25,7 +26,7 @@ import {
   toContent,
   type Draft,
 } from "@/lib/templates/draft";
-import { DRAFT_NOT_SAVED } from "@/lib/templates/messages";
+import { ALL_CHANGES_KEPT, DRAFT_NOT_SAVED } from "@/lib/templates/messages";
 import { publishTemplate, saveTemplateDraft } from "../../actions";
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -48,6 +49,7 @@ export function TemplateEditor({
   initialDraft: Draft;
   initialDirty: boolean;
 }) {
+  const router = useRouter();
   const [draft, setDraft] = useState<Draft>(initialDraft);
   const [dirty, setDirty] = useState(initialDirty);
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -132,7 +134,8 @@ export function TemplateEditor({
       );
       if (result.ok) {
         setDirty(unsaved.current);
-        setNotice({ kind: "success", text: `Version ${result.version} saved` });
+        // «Version N saved» показує сторінка шаблону (AC-EDITOR-03)
+        router.push(`/templates/${templateId}?saved=${result.version}`);
       } else {
         setNotice({ kind: "error", text: result.error });
       }
@@ -165,17 +168,21 @@ export function TemplateEditor({
               <StatusBadge status="unpublished" />
             </span>
           ) : null}
-          <span data-testid="save-state">
-            {saveState === "saving" ? "Saving…" : saveState === "saved" ? "All changes saved" : null}
+          <span
+            data-testid="save-state"
+            className={saveState === "error" ? "text-destructive" : undefined}
+          >
+            {saveState === "saving"
+              ? "Saving…"
+              : saveState === "saved"
+                ? ALL_CHANGES_KEPT
+                : saveState === "error"
+                  ? (saveError ?? DRAFT_NOT_SAVED)
+                  : null}
           </span>
         </p>
       </div>
 
-      {saveState === "error" && saveError ? (
-        <Alert variant="destructive">
-          <AlertDescription>{saveError}</AlertDescription>
-        </Alert>
-      ) : null}
       {notice ? (
         <Alert variant={notice.kind === "error" ? "destructive" : "default"}>
           <AlertDescription>{notice.text}</AlertDescription>
@@ -310,7 +317,7 @@ export function TemplateEditor({
         >
           Add section
         </Button>
-        <Button type="button" disabled={publishing} onClick={() => void saveVersion()}>
+        <Button type="button" disabled={publishing || !dirty} onClick={() => void saveVersion()}>
           Save version
         </Button>
         <Link href={`/templates/${templateId}/versions`} className="text-sm text-muted-foreground underline">
