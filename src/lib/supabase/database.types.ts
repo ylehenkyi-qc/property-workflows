@@ -85,14 +85,14 @@ isOneToOne: false
                   ]
                 },"runs": {
                   Row: {
-                    "case_name": string,"created_at": string,"id": string,"manager_id": string,"status": string,"template_id": string | null
+                    "case_name": string,"created_at": string,"id": string,"manager_id": string,"status": string,"template_id": string | null,"template_version": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "case_name": string,"created_at"?: string,"id"?: string,"manager_id": string,"status"?: string,"template_id"?: string | null
+                    "case_name": string,"created_at"?: string,"id"?: string,"manager_id": string,"status"?: string,"template_id"?: string | null,"template_version"?: number | null
                   }
                   Update: {
-                    "case_name"?: string,"created_at"?: string,"id"?: string,"manager_id"?: string,"status"?: string,"template_id"?: string | null
+                    "case_name"?: string,"created_at"?: string,"id"?: string,"manager_id"?: string,"status"?: string,"template_id"?: string | null,"template_version"?: number | null
                   }
                   Relationships: [
                     {
@@ -149,16 +149,72 @@ isOneToOne: false
       referencedColumns: ["id","template_id"]
     }
                   ]
-                },"templates": {
+                },"template_drafts": {
                   Row: {
-                    "created_at": string,"id": string,"name": string
+                    "has_unpublished_changes": boolean,"template_id": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"name": string
+                    "has_unpublished_changes"?: boolean,"template_id": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"name"?: string
+                    "has_unpublished_changes"?: boolean,"template_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"template_version_sections": {
+                  Row: {
+                    "id": string,"name": string,"position": number,"template_id": string,"version": number,"version_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"name": string,"position": number,"template_id": string,"version": number,"version_id": string
+                  }
+                  Update: {
+                    "id"?: string,"name"?: string,"position"?: number,"template_id"?: string,"version"?: number,"version_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"template_version_tasks": {
+                  Row: {
+                    "id": string,"name": string,"position": number,"required": boolean,"section_id": string,"version_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"name": string,"position": number,"required": boolean,"section_id": string,"version_id": string
+                  }
+                  Update: {
+                    "id"?: string,"name"?: string,"position"?: number,"required"?: boolean,"section_id"?: string,"version_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"template_versions": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"id": string,"template_id": string,"version": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"template_id": string,"version": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"id"?: string,"template_id"?: string,"version"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"templates": {
+                  Row: {
+                    "created_at": string,"current_version": number | null,"id": string,"name": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"current_version"?: number | null,"id"?: string,"name": string
+                  }
+                  Update: {
+                    "created_at"?: string,"current_version"?: number | null,"id"?: string,"name"?: string
                   }
                   Relationships: [
                     
@@ -169,7 +225,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "launch_run":
+            "create_template":
+{ Args: { "p_name": string }; Returns: string
+                           },
+"launch_run":
 { Args: { "p_assignments"?: Json,"p_case_name": string,"p_template_id": string }; Returns: string
                            },
 "list_assignable_users":
@@ -179,6 +238,12 @@ isOneToOne: false
                            },
 "mark_task_done":
 { Args: { "p_task_id": string }; Returns: undefined
+                           },
+"publish_template":
+{ Args: { "p_template_id": string }; Returns: number
+                           },
+"save_template_draft":
+{ Args: { "p_content": Json,"p_template_id": string }; Returns: undefined
                            }
           }
           Enums: {
