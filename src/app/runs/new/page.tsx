@@ -25,27 +25,35 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   const { template, error } = await searchParams;
   const errorMessage = isLaunchErrorCode(error) ? LAUNCH_ERRORS[error] : undefined;
 
+  // Запуск іде лише зі збереженої версії: шаблон без версії (чернетка) не пропонуємо нікому, навіть адміністратору.
   const { data: templates } = await supabase
     .from("templates")
-    .select("id, name")
+    .select("id, name, current_version")
+    .not("current_version", "is", null)
     .order("name");
   const selected = templates?.find((t) => t.id === template);
 
-  const sections = selected
+  // Секції й задачі — зі знімка ПОТОЧНОЇ версії (а не з робочої копії): менеджер її не бачить, а launch_run копіює знімок.
+  const sections =
+    selected?.current_version != null
+      ? ((
+          await supabase
+            .from("template_version_sections")
+            .select("id, name, position")
+            .eq("template_id", selected.id)
+            .eq("version", selected.current_version)
+            .order("position")
+        ).data ?? [])
+      : [];
+  const tasks = sections.length
     ? ((
         await supabase
-          .from("template_sections")
-          .select("id, name, position")
-          .eq("template_id", selected.id)
-          .order("position")
-      ).data ?? [])
-    : [];
-  const tasks = selected
-    ? ((
-        await supabase
-          .from("template_tasks")
+          .from("template_version_tasks")
           .select("id, name, position, section_id")
-          .eq("template_id", selected.id)
+          .in(
+            "section_id",
+            sections.map((s) => s.id),
+          )
           .order("position")
       ).data ?? [])
     : [];
