@@ -75,6 +75,21 @@ begin
     return v_current;
   end if;
 
+  -- AC-EDITOR-20: секція й задача мають назву (лише пробіли — порожня).
+  if exists (select 1 from public.template_sections as s where s.template_id = p_template_id and btrim(s.name) = '')
+     or exists (select 1 from public.template_tasks as t where t.template_id = p_template_id and btrim(t.name) = '') then
+    raise exception 'Every section and task needs a name' using errcode = '22023';
+  end if;
+
+  -- AC-EDITOR-15: кожна секція має хоча б одну задачу.
+  if exists (
+    select 1 from public.template_sections as s
+    where s.template_id = p_template_id
+      and not exists (select 1 from public.template_tasks as t where t.section_id = s.id)
+  ) then
+    raise exception 'Every section needs at least one task' using errcode = '22023';
+  end if;
+
   -- AC-EDITOR-04: потрібна хоча б одна обов'язкова задача; інакше нічого не змінюємо.
   if not exists (
     select 1 from public.template_tasks as t where t.template_id = p_template_id and t.required
