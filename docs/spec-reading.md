@@ -11,9 +11,9 @@
 Для PM це матеріал нотатки «порівняння реалізацій»: де одні вимоги прочитали по-різному.
 -->
 
-Вимоги: solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-26
+Вимоги: solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-27
 
-<!-- Розділи нижче до «Зріз 2» — зріз 1 (WS6, знімок 2026-10-19). Зріз 2 (WS7, знімок 2026-10-26) — розділ «Зріз 2» унизу. -->
+<!-- Розділи нижче до «Зріз 2» — зріз 1 (WS6, знімок 2026-10-19). Зріз 2 (WS7, знімок 2026-10-27) — розділ «Зріз 2» унизу. -->
 
 ## Зріз 1
 
@@ -69,7 +69,7 @@
 
 ## Зріз 2
 
-Вимоги зрізу 2 (WS7, знімок 2026-10-26): solomchaak/property-workflows-spec#19 (`requirements/19-use-one-design-system.md`, AC-DSYS-01…04), solomchaak/property-workflows-spec#20 (`requirements/20-edit-a-template-with-version-control.md`, AC-EDITOR-01…09); уточнені solomchaak/property-workflows-spec#2 (AC-RUN-10…12), solomchaak/property-workflows-spec#3 (AC-TASK-10…18, зміни AC-TASK-01, 02, 04, 07) і Продукт solomchaak/property-workflows-spec#1. Специфікація: зміна `add-templates-editor` (PR «Специфікація»).
+Вимоги зрізу 2 (WS7, знімок 2026-10-27): solomchaak/property-workflows-spec#19 (`requirements/19-use-one-design-system.md`, AC-DSYS-01…08), solomchaak/property-workflows-spec#20 (`requirements/20-edit-a-template-with-version-control.md`, AC-EDITOR-01…29); уточнені solomchaak/property-workflows-spec#2 (AC-RUN-10…12), solomchaak/property-workflows-spec#3 (AC-TASK-10…18, зміни AC-TASK-01, 02, 04, 07) і Продукт solomchaak/property-workflows-spec#1. Специфікація: зміни `add-templates-editor` і `update-templates-editor` (PR «Специфікація»).
 
 ### Скан за таксономією (зріз 2)
 
@@ -93,27 +93,30 @@
 
 | # | AC / вимога | Питання | Рекомендація | Issue в репо PM | Відповідь PM | Рішення (що зробили) |
 |---|---|---|---|---|---|---|
-| Q5 | AC-DSYS-03, AC-EDITOR-09 | куди потрапляє відвідувач після входу з прямого посилання | A | solomchaak/property-workflows-spec#35 (моє) | очікуємо | робоче припущення: після входу — на сторінку, яку відкривав, якщо роль дозволяє; інакше та сама відмова, що й у користувача з входом. У сценаріях не закріплено. |
-| Q6 | AC-EDITOR-01 | чи можна переносити задачу в іншу секцію | A | solomchaak/property-workflows-spec#36 (моє) | очікуємо | робоче припущення: можна змінювати порядок усередині секції й переносити задачу між секціями. У сценаріях не закріплено. |
-| Q7 | AC-EDITOR-04 | запуск шаблону, що ніколи не зберігали як версію | A (колега) | solomchaak/property-workflows-spec#21 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md` плану реалізації. |
-| Q8 | AC-EDITOR-03 | збереження шаблону без непублікованих змін | A (колега) | solomchaak/property-workflows-spec#22 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q9 | AC-EDITOR-01 | підтвердження перед видаленням секції чи задачі | A (колега) | solomchaak/property-workflows-spec#23 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q10 | AC-EDITOR-04 | секція без задач під час збереження версії | A (колега) | solomchaak/property-workflows-spec#24 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q11 | AC-EDITOR-02 | де менеджер відкриває шаблон і що там показано | A (колега) | solomchaak/property-workflows-spec#25 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q12 | AC-EDITOR-02 | менеджер відкриває за прямим посиланням шаблон без збереженої версії | A (колега) | solomchaak/property-workflows-spec#26 (питання колеги) | очікуємо | робоче припущення: «Template not found» без секцій і задач, як «Run not found». У сценаріях не закріплено. |
-| Q13 | — | порожні списки шаблонів і версій | A (колега) | solomchaak/property-workflows-spec#27 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q14 | AC-EDITOR-04 | порожні назви шаблону, секції чи задачі | A (колега) | solomchaak/property-workflows-spec#28 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q15 | — | перейменування шаблону й назва в запуску | B (колега) | solomchaak/property-workflows-spec#29 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q16 | — | однакові назви шаблонів | A (колега) | solomchaak/property-workflows-spec#30 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q17 | AC-EDITOR-01 | збій автозбереження | A (колега) | solomchaak/property-workflows-spec#31 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q18 | AC-EDITOR-08, AC-EDITOR-09 | гість напряму змінює шаблон | A (колега) | solomchaak/property-workflows-spec#32 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q19 | AC-EDITOR-06 | версія запусків, створених до появи версій | A (колега) | solomchaak/property-workflows-spec#33 (питання колеги) | очікуємо | у сценаріях не закріплено; робоче рішення — у `design.md`. |
-| Q20 | вимога solomchaak/property-workflows-spec#19 | світла чи темна тема за вибором користувача | A (колега) | solomchaak/property-workflows-spec#34 (питання колеги) | очікуємо | темна тема поза межами; не реалізуємо й не тестуємо, поки PM не змінив вимогу. |
+| Q5 | AC-DSYS-03, AC-EDITOR-09 | куди потрапляє відвідувач після входу з прямого посилання | A | solomchaak/property-workflows-spec#35 (моє) | Option A прийнято (2026-10-27) | AC-DSYS-08 додано PM; робоче припущення стало вимогою. |
+| Q6 | AC-EDITOR-01 | чи можна переносити задачу в іншу секцію | A | solomchaak/property-workflows-spec#36 (моє) | Option A прийнято (2026-10-27) | AC-EDITOR-28 додано PM; перенесення задач між секціями — вимога. |
+| Q7 | AC-EDITOR-04 | запуск шаблону, що ніколи не зберігали як версію | A (колега) | solomchaak/property-workflows-spec#21 (питання колеги) | Option B прийнято (2026-10-27) | AC-EDITOR-10 і AC-EDITOR-11: шаблон без версії недоступний у формі запуску й напряму. |
+| Q8 | AC-EDITOR-03 | збереження шаблону без непублікованих змін | A (колега) | solomchaak/property-workflows-spec#22 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-12: збереження без змін не створює версію; в редакторі його не пропонують. |
+| Q9 | AC-EDITOR-01 | підтвердження перед видаленням секції чи задачі | A (колега) | solomchaak/property-workflows-spec#23 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-13 і AC-EDITOR-14: видалення з підтвердженням «This cannot be undone». |
+| Q10 | AC-EDITOR-04 | секція без задач під час збереження версії | A (колега) | solomchaak/property-workflows-spec#24 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-15: «Every section needs at least one task». |
+| Q11 | AC-EDITOR-02 | де менеджер відкриває шаблон і що там показано | A (колега) | solomchaak/property-workflows-spec#25 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-02 переформульовано: сторінка шаблону для менеджера. |
+| Q12 | AC-EDITOR-02 | менеджер відкриває за прямим посиланням шаблон без збереженої версії | A (колега) | solomchaak/property-workflows-spec#26 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-16: «Template not found». |
+| Q13 | — | порожні списки шаблонів і версій | A (колега) | solomchaak/property-workflows-spec#27 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-17 і AC-EDITOR-18: порожні списки шаблонів і версій. |
+| Q14 | AC-EDITOR-04 | порожні назви шаблону, секції чи задачі | A (колега) | solomchaak/property-workflows-spec#28 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-19 і AC-EDITOR-20: назви обов'язкові, пробіли = порожньо. |
+| Q15 | — | перейменування шаблону й назва в запуску | B (колега) | solomchaak/property-workflows-spec#29 (питання колеги) | Option B прийнято (2026-10-27) | AC-EDITOR-21 і AC-EDITOR-22: назва належить версії, запуск показує назву своєї версії. |
+| Q16 | — | однакові назви шаблонів | A (колега) | solomchaak/property-workflows-spec#30 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-23 і AC-EDITOR-24: унікальність без урахування регістру й пробілів. |
+| Q17 | AC-EDITOR-01 | збій автозбереження | A (колега) | solomchaak/property-workflows-spec#31 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-25: «Your last change was not kept. Try again.» |
+| Q18 | AC-EDITOR-08, AC-EDITOR-09 | гість напряму змінює шаблон | A (колега) | solomchaak/property-workflows-spec#32 (питання колеги) | Option B прийнято (2026-10-27) | AC-EDITOR-26: гість напряму — відмова й перенаправлення на вхід. |
+| Q19 | AC-EDITOR-06 | версія запусків, створених до появи версій | A (колега) | solomchaak/property-workflows-spec#33 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-27: запуски до версій показують «Template version 1». |
+| Q20 | вимога solomchaak/property-workflows-spec#19 | світла чи темна тема за вибором користувача | A (колега) | solomchaak/property-workflows-spec#34 (питання колеги) | Option A прийнято (2026-10-27) | AC-DSYS-05, AC-DSYS-06, AC-DSYS-07: вибір теми System / Light / Dark. |
+| Q21 | AC-EDITOR-02, AC-EDITOR-07 | менеджер напряму запитує старі версії чи непубліковані зміни | A (колега) | solomchaak/property-workflows-spec#37 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-29 додано; загальне правило PM: усе, що заборонено ролі, недосяжне й напряму (матриця прав у `requirements/product.md`). |
+| Q22 | AC-EDITOR-03 | що адміністратор бачить одразу після збереження версії | A (колега) | solomchaak/property-workflows-spec#38 (питання колеги) | Option A прийнято (2026-10-27) | AC-EDITOR-03 переформульовано: «Version N saved» на сторінці шаблону. |
+
+Усі питання Q5–Q22 закрито PM 2026-10-27 («Вимоги оновлено (27.10): за вашими питаннями #21–#38»); знімок вимог оновлено командою `/requirements-sync`, переклад — зміна `update-templates-editor`.
 
 ### Власні припущення (зріз 2)
 
-- Після збереження версії показуємо «Version N saved» (приклад тексту успіху з «Вигляд і тон» Продукту); PM у AC цього не вимагає, тому в тестах це не критерій.
-- Робочі припущення до Q5, Q6 і Q12 — у таблиці вище; решта прогалин (Q7–Q11, Q13–Q19) — робочі рішення в `design.md` плану `impl-<зріз>`, із посиланням на питання.
+- Власних припущень понад вимоги PM немає: усі питання Q5–Q22 закрито PM 2026-10-27, їхні відповіді стали AC (AC-EDITOR-10…29, AC-DSYS-05…08) і припущеннями PM у `requirements/`.
 
 ### Що пропустив би без скіла / що скіл знайшов зайве (зріз 2)
 
