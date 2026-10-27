@@ -1,4 +1,5 @@
 import { PageShell } from "@/components/page-shell";
+import { safeNextPath } from "@/lib/auth/safe-next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ const ERRORS: Record<string, string> = {
 };
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
   const message = typeof error === "string" ? ERRORS[error] : undefined;
 
   return (
@@ -24,6 +25,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         ) : null}
+        <input type="hidden" name="next" value={safeNextPath(next)} />
         <div className="flex flex-col gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" autoComplete="email" required />
