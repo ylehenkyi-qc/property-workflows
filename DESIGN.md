@@ -146,7 +146,7 @@
 
 ## 10. Перевірка
 
-- `npm run check:design` — жодного hex, довільного кольору, сирої палітри чи кольору в inline style поза
+- `npm run check:design` — жодного hex, довільного кольору, сирої палітри чи кольору в inline style (крім посилання на токен `var(--токен)`) поза
   `src/components/ui` і `globals.css`. CI: `.github/workflows/architecture.yml`, job «Дизайн-система: лише токени».
 - `npm run lint` — жодного нативного `<select>`, `<option>`, `<datalist>`, нативних полів дати/часу/кольору/діапазону/файлу й `alert`/`confirm`/`prompt` поза `src/components/ui` (розділ 5, «без системних віджетів»).
 - Виняток — коментар `design-ok: <причина>` у тому самому рядку; кожен виняток — з реальною причиною.

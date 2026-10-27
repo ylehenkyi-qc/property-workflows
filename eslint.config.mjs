@@ -34,6 +34,13 @@ const eslintConfig = defineConfig([
             "Нативні поля дати, часу, кольору, діапазону й файлу заборонені: використовуйте компоненти з DESIGN.md, розділ 5 (Calendar + Popover для дат).",
         },
         {
+          // той самий тип, але як вираз: type={"date"} або type={`date`}
+          selector:
+            "JSXOpeningElement[name.name='input'] > JSXAttribute[name.name='type'] > JSXExpressionContainer > :matches(Literal[value=/^(date|datetime-local|time|month|week|color|range|file)$/], TemplateLiteral[quasis.0.value.cooked=/^(date|datetime-local|time|month|week|color|range|file)$/])",
+          message:
+            "Нативні поля дати, часу, кольору, діапазону й файлу заборонені: використовуйте компоненти з DESIGN.md, розділ 5 (Calendar + Popover для дат).",
+        },
+        {
           selector: "CallExpression[callee.name=/^(alert|confirm|prompt)$/], CallExpression[callee.object.name='window'][callee.property.name=/^(alert|confirm|prompt)$/]",
           message: "alert()/confirm()/prompt() заборонені: використовуйте Dialog або Alert (DESIGN.md, розділ 5).",
         },

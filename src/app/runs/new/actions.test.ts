@@ -88,7 +88,7 @@ describe("launchRun", () => {
     );
   });
 
-  it("передає призначення лише для задач, де обрано іншого виконавця", async () => {
+  it("AC-RUN-04: менеджер призначає іншого виконавцем задачі — у launch_run передається лише це призначення, решта лишається запускачу", async () => {
     await submit(
       form({
         case_name: "Apartment 12, move-in",
@@ -104,7 +104,7 @@ describe("launchRun", () => {
     });
   });
 
-  it("значення «me» зі списку виконавців не створює призначення: виконавець — менеджер запуску", async () => {
+  it("AC-RUN-04: значення «me» зі списку виконавців не створює призначення, а обраний інший виконавець зберігається", async () => {
     await submit(
       form({
         case_name: "Apartment 12, move-in",
@@ -117,6 +117,22 @@ describe("launchRun", () => {
       p_template_id: TEMPLATE_ID,
       p_case_name: "Apartment 12, move-in",
       p_assignments: [{ template_task_id: OTHER_TASK_ID, assignee_id: MANAGER_B }],
+    });
+  });
+
+  it("AC-RUN-08: без призначення виконавців (усі «me») у launch_run іде порожній список призначень — виконавець усіх задач менеджер запуску", async () => {
+    await submit(
+      form({
+        case_name: "Apartment 12, move-in",
+        [`assignee_${TASK_ID}`]: ASSIGNEE_ME,
+        [`assignee_${OTHER_TASK_ID}`]: ASSIGNEE_ME,
+      }),
+    );
+
+    expect(mocks.rpc).toHaveBeenCalledWith("launch_run", {
+      p_template_id: TEMPLATE_ID,
+      p_case_name: "Apartment 12, move-in",
+      p_assignments: [],
     });
   });
 

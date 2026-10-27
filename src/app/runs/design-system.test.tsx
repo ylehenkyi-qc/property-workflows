@@ -93,6 +93,26 @@ describe("список запусків і сторінка запуску", () 
       expect(pageBadge.word).toBe(listBadge.word);
       expect(pageBadge.className).toBe(listBadge.className);
     }
+    // статус задачі на сторінці запуску: слово й сірий токен «to do» (DESIGN.md, розділ 2)
+    mocks.client = fakeSupabase({
+      tables: {
+        runs: { data: runs[0] },
+        run_sections: { data: [{ id: "s1", name: "Before move-in", position: 1 }] },
+        run_tasks: {
+          data: [
+            { id: "t1", name: "Task", position: 1, required: true, status: "to_do", assignee_id: "user-1", section_id: "s1" },
+            { id: "t2", name: "Task 2", position: 2, required: false, status: "done", assignee_id: "user-1", section_id: "s1" },
+          ],
+        },
+      },
+      rpc: { list_assignable_users: { data: [{ id: "user-1", email: "manager1@example.test" }] } },
+    });
+    const taskPage = html(await RunPage({ params: Promise.resolve({ id: runs[0].id }), searchParams: Promise.resolve({}) }));
+    expect(badge(taskPage, "to_do").word).toBe("to do");
+    expect(badge(taskPage, "to_do").className).toContain("bg-status-todo");
+    expect(badge(taskPage, "done").word).toBe("done");
+    expect(badge(taskPage, "done").className).toContain("bg-status-done");
+
     expect(listInProgress.word).toBe("in progress");
     expect(listCompleted.word).toBe("completed");
     expect(listInProgress.className).toContain("bg-status-progress");
