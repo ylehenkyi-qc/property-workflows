@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { requireRole } from "@/lib/auth/require-role";
+import { loginPath } from "@/lib/auth/safe-next";
 import { buildDraft } from "@/lib/templates/draft";
 import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
 import { TemplateEditor } from "./template-editor";
@@ -14,13 +15,7 @@ export default async function EditTemplatePage({ params }: PageProps<"/templates
   const { id } = await params;
 
   const auth = await requireRole("admin");
-  if (auth.status === "unauthenticated") {
-    return (
-      <PageShell>
-        <PageMessage title="Not signed in" />
-      </PageShell>
-    );
-  }
+  if (auth.status === "unauthenticated") redirect(loginPath(`/templates/${id}/edit`));
   if (auth.status === "forbidden") {
     return (
       <PageShell>

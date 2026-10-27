@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
-import { createClient } from "@/lib/supabase/server";
 import type { DraftContent } from "@/lib/templates/draft";
 import {
   DRAFT_NOT_SAVED,
@@ -51,9 +50,11 @@ export async function saveTemplateDraft(templateId: string, content: DraftConten
 
 // Збереження версії (AC-EDITOR-03, AC-EDITOR-04): правило «є обов'язкова задача» перевіряє publish_template.
 export async function publishTemplate(templateId: string): Promise<PublishResult> {
-  const supabase = await createClient();
+  const auth = await requireRole("admin");
+  if (auth.status === "unauthenticated") return { ok: false, error: SIGN_IN_TO_CONTINUE };
+  if (auth.status === "forbidden") return { ok: false, error: NOT_ENOUGH_RIGHTS };
 
-  const { data: version, error } = await supabase.rpc("publish_template", { p_template_id: templateId });
+  const { data: version, error } = await auth.supabase.rpc("publish_template", { p_template_id: templateId });
   if (error || version == null) return { ok: false, error: publishErrorMessage(error ?? {}) };
 
   revalidatePath("/templates");
