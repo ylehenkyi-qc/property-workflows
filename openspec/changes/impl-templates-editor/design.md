@@ -101,3 +101,21 @@
 2. Типи БД — із Summary `db-check` (або `npm run db:types`).
 3. Застосування в базу — лише CI `db-deploy` після merge у `main`; ніколи `supabase db push` з ноутбука. Відкат — новою міграцією-виправленням.
 4. Після merge: перевірка прод-сторінок за ролями, `docs/img/ws7-role-<роль>-<сторінка>.png`.
+
+## Доповнення: відповіді PM 2026-10-27 (групи 5–6)
+
+Відповіді PM на питання #21–#38 додали AC-EDITOR-10…29 і AC-DSYS-05…08 (`openspec/specs/`). Рішення за пріоритетом «цінність / вартість»; решта AC лишається «відкладено (причина)» у матриці.
+
+| AC | Рішення |
+|---|---|
+| AC-EDITOR-03 | Після `publishTemplate` редактор веде на `/templates/[id]?saved=N`; сторінка показує «Version N saved» лише коли `N` дорівнює поточній версії (параметр сам нічого не доводить) |
+| AC-EDITOR-10, 11 | `launch_run` уже відхиляє шаблон без версії (`current_version is null`); форма запуску для адміністратора показує такий шаблон недоступним (опція `disabled` + примітка), для менеджера RLS його не віддає |
+| AC-EDITOR-12 | `publish_template` без змін нічого не створює (є); кнопка «Save version» вимкнена, поки `dirty = false` |
+| AC-EDITOR-14 | Видалення працює лише над робочою копією (`save_template_draft`), версії незмінні: окремий тест бази |
+| AC-EDITOR-16, 17, 18 | RLS вже ховає шаблон без версії від менеджера → `notFound()`; порожні стани — `PageMessage` із текстами PM |
+| AC-EDITOR-25 | Єдиний текст «Your last change was not kept. Try again.» у фіксованому місці стану автозбереження; «All changes kept» — стан «збережено» |
+| AC-EDITOR-26 | Server Action без входу робить `redirect(loginPath(…))`; база для `anon` не має `grant` і `execute` (тест) |
+| AC-EDITOR-28 | Перенесення задачі між секціями вже в чистій логіці; тест бази: версія має 3 + 2 |
+| AC-EDITOR-29 | Менеджер не має `select` на `template_versions`, робочу копію й `template_drafts`; знімок читає лише поточної версії (тест бази) |
+| AC-DSYS-08 | `login` веде на `safeNextPath(next)` (є); тест дії |
+| AC-EDITOR-15, 19, 20, 23 | Одна нова міграція: `create or replace` функцій `private.publish_template` і `private.create_template`, унікальний індекс на `lower(btrim(name))` у `templates`; помилки з дослівними текстами PM, кожна нічого не змінює |
