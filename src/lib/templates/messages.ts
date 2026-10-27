@@ -1,9 +1,10 @@
 // Тексти редактора шаблонів. Дослівні з вимог PM: «A template needs at least one required task», «Not enough rights»,
-// «Back to templates», «Unpublished changes». Решта — формулювання розробника (вимогами не задані).
+// «Back to templates», «Unpublished changes», «Your last change was not kept. Try again.» (AC-EDITOR-25), «All changes kept».
+// Решта — формулювання розробника (вимогами не задані).
 export const NEEDS_REQUIRED_TASK = "A template needs at least one required task";
 export const NOT_ENOUGH_RIGHTS = "Not enough rights";
-export const SIGN_IN_TO_CONTINUE = "Sign in to continue";
-export const DRAFT_NOT_SAVED = "Changes could not be saved";
+export const DRAFT_NOT_SAVED = "Your last change was not kept. Try again.";
+export const ALL_CHANGES_KEPT = "All changes kept";
 export const VERSION_NOT_SAVED = "Could not save the version";
 
 // Текст помилки rpc publish_template для користувача: відмова з правила AC-EDITOR-04 — дослівно, відмова за правами —

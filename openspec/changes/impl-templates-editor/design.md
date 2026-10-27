@@ -2,7 +2,7 @@
 
 ## Context
 
-- Специфікація: `openspec/specs/template-editor/`, `design-system/`, дельти `run-launch` і `run-tracking`; вимоги й матриця прав — `requirements/product.md`; ADR зрізу 1 — `docs/decisions/0001-run-model.md`; робочі рішення до відкритих питань solomchaak/property-workflows-spec#21–#36 — `docs/spec-reading.md` («Зріз 2»). PM на ці питання ще не відповів: рішення нижче — робочі припущення розробника, відповідь PM змінює лише їх.
+- Специфікація: `openspec/specs/template-editor/`, `design-system/`, дельти `run-launch` і `run-tracking`; вимоги й матриця прав — `requirements/product.md`; ADR зрізу 1 — `docs/decisions/0001-run-model.md`; робочі рішення до відкритих питань solomchaak/property-workflows-spec#21–#36 — `docs/spec-reading.md` («Зріз 2»). Станом на 2026-10-26 PM на ці питання ще не відповів, тому рішення в цьому розділі — робочі припущення розробника. 2026-10-27 PM відповів на питання #21–#38 і додав AC-EDITOR-10…29 та AC-DSYS-05…08; їх реалізація — у розділі «Доповнення: відповіді PM 2026-10-27» унизу, а де цей розділ суперечить відповіді PM, діє відповідь.
 - Що є зараз (зріз 1): `templates`, `template_sections`, `template_tasks` читають усі authenticated (`using (true)`), запис — лише `service_role`; `launch_run` копіює секції й задачі шаблону в `run_sections`/`run_tasks`; `runs` не знає версії шаблону; сторінки `/runs`, `/runs/new`, `/runs/[id]`; редактора й екрана шаблонів немає. Роль — `profiles.role` (`manager`/`admin`), хелпер `private.current_app_role()`.
 - Тести бази досі пропускались у CI (немає Docker). У цьому зрізі правила в Postgres покриваємо на PGlite (`tests/db/`, без Docker), тож «реалізовано» ставимо й для правил бази.
 - CI: jobs `spec`, `app`, `conformance`, `db-check`, `db-deploy` не змінюємо; нові перевірки — окремим workflow `architecture.yml`. Перед кодом сторінок читаємо гайд у `node_modules/next/dist/docs/` (ця версія Next.js має зміни щодо API).
@@ -14,7 +14,7 @@
 - Кожне рішення прив'язане до AC.
 
 **Non-Goals:**
-- Правила понад вимоги PM: перейменування шаблону, унікальність назв, заборона порожніх назв і секцій без задач, відкидання непублікованих змін, одночасне редагування, перемикач теми (питання solomchaak/property-workflows-spec#24, #28–#30, #34, PM-Q1). Їх не реалізуємо, поки PM не відповів.
+- Правила понад вимоги PM: перейменування шаблону, унікальність назв, заборона порожніх назв і секцій без задач, відкидання непублікованих змін, одночасне редагування, перемикач теми (питання solomchaak/property-workflows-spec#24, #28–#30, #34, PM-Q1). Станом на 2026-10-26 їх не реалізуємо, поки PM не відповів; з відповідями PM 2026-10-27 частину з них закріплено AC (див. розділ «Доповнення» унизу).
 - Видалення шаблону й відкриття старішої версії для читання (поза межами вимог).
 
 ## UI і компоненти
@@ -101,3 +101,21 @@
 2. Типи БД — із Summary `db-check` (або `npm run db:types`).
 3. Застосування в базу — лише CI `db-deploy` після merge у `main`; ніколи `supabase db push` з ноутбука. Відкат — новою міграцією-виправленням.
 4. Після merge: перевірка прод-сторінок за ролями, `docs/img/ws7-role-<роль>-<сторінка>.png`.
+
+## Доповнення: відповіді PM 2026-10-27 (групи 5–6)
+
+Відповіді PM на питання #21–#38 додали AC-EDITOR-10…29 і AC-DSYS-05…08 (`openspec/specs/`). Рішення за пріоритетом «цінність / вартість»; решта AC лишається «відкладено (причина)» у матриці.
+
+| AC | Рішення |
+|---|---|
+| AC-EDITOR-03 | Після `publishTemplate` редактор веде на `/templates/[id]?saved=N`; сторінка показує «Version N saved» лише коли `N` дорівнює поточній версії (параметр сам нічого не доводить) |
+| AC-EDITOR-10, 11 | `launch_run` уже відхиляє шаблон без версії (`current_version is null`); форма запуску для адміністратора показує такий шаблон недоступним (опція `disabled` + примітка), для менеджера RLS його не віддає |
+| AC-EDITOR-12 | `publish_template` без змін нічого не створює (є); кнопка «Save version» вимкнена, поки `dirty = false` |
+| AC-EDITOR-14 | Видалення працює лише над робочою копією (`save_template_draft`), версії незмінні: окремий тест бази |
+| AC-EDITOR-16, 17, 18 | RLS вже ховає шаблон без версії від менеджера → `notFound()`; порожні стани — `PageMessage` із текстами PM |
+| AC-EDITOR-25 | Єдиний текст «Your last change was not kept. Try again.» у фіксованому місці стану автозбереження; «All changes kept» — стан «збережено» |
+| AC-EDITOR-26 | Server Action без входу робить `redirect(loginPath(…))`; база для `anon` не має `grant` і `execute` (тест) |
+| AC-EDITOR-28 | Перенесення задачі між секціями вже в чистій логіці; тест бази: версія має 3 + 2 |
+| AC-EDITOR-29 | Менеджер не має `select` на `template_versions`, на робочу копію й на `template_drafts`; зі знімків він читає лише поточну версію (тест бази) |
+| AC-DSYS-08 | `login` веде на `safeNextPath(next)` (є); тест дії |
+| AC-EDITOR-15, 19, 20, 23 | Одна нова міграція: `create or replace` функцій `private.publish_template` і `private.create_template`, унікальний індекс на `lower(btrim(name))` у `templates`; помилки з дослівними текстами PM, кожна нічого не змінює |

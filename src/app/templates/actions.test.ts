@@ -73,19 +73,32 @@ describe("AC-EDITOR-08: дії шаблонів спершу перевіряю�
     it(`AC-EDITOR-08: ${name} без входу не доходить до rpc`, async () => {
       mocks.requireRole.mockResolvedValue({ status: "unauthenticated" });
 
-      await run();
+      // гість отримує redirect на вхід (виняток), а не результат: ігноруємо його, перевіряємо лише що rpc не було
+      await Promise.resolve()
+        .then(run)
+        .catch(() => undefined);
 
       expect(mocks.rpc).not.toHaveBeenCalled();
     });
   }
 
-  it("AC-EDITOR-08: менеджер отримує «Not enough rights», а гість — «Sign in to continue»", async () => {
+  it("AC-EDITOR-08: менеджер отримує «Not enough rights»", async () => {
     mocks.requireRole.mockResolvedValue({ status: "forbidden", role: "manager" });
     expect(await saveTemplateDraft(TEMPLATE_ID, CONTENT)).toEqual({ ok: false, error: "Not enough rights" });
     expect(await publishTemplate(TEMPLATE_ID)).toEqual({ ok: false, error: "Not enough rights" });
+  });
+});
 
+describe("AC-EDITOR-26: гість напряму змінює шаблон", () => {
+  it("AC-EDITOR-26: збереження й публікація від гостя відхилені перенаправленням на вхід, rpc не викликано", async () => {
     mocks.requireRole.mockResolvedValue({ status: "unauthenticated" });
-    expect(await publishTemplate(TEMPLATE_ID)).toEqual({ ok: false, error: "Sign in to continue" });
+    const login = `/login?next=${encodeURIComponent(`/templates/${TEMPLATE_ID}/edit`)}`;
+
+    expect(await redirectedTo(() => saveTemplateDraft(TEMPLATE_ID, CONTENT))).toBe(login);
+    expect(await redirectedTo(() => publishTemplate(TEMPLATE_ID))).toBe(login);
+
+    expect(mocks.rpc).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });
 
@@ -100,9 +113,12 @@ describe("saveTemplateDraft", () => {
     });
   });
 
-  it("збій бази повертає «Changes could not be saved», відмова за правами (42501) — «Not enough rights»", async () => {
+  it("AC-EDITOR-25: зміну не збережено — «Your last change was not kept. Try again.»; відмова за правами (42501) — «Not enough rights»", async () => {
     mocks.rpc.mockResolvedValue({ data: null, error: { code: "XX000", message: "boom" } });
-    expect(await saveTemplateDraft(TEMPLATE_ID, CONTENT)).toEqual({ ok: false, error: "Changes could not be saved" });
+    expect(await saveTemplateDraft(TEMPLATE_ID, CONTENT)).toEqual({
+      ok: false,
+      error: "Your last change was not kept. Try again.",
+    });
 
     mocks.rpc.mockResolvedValue({ data: null, error: { code: "42501", message: "FORBIDDEN" } });
     expect(await saveTemplateDraft(TEMPLATE_ID, CONTENT)).toEqual({ ok: false, error: "Not enough rights" });

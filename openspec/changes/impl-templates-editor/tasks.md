@@ -43,6 +43,23 @@ Done when: AC-EDITOR-01, AC-EDITOR-05, AC-EDITOR-06, AC-EDITOR-09, AC-DSYS-02, A
 
 Done when: AC-RUN-10, AC-RUN-11, AC-TASK-01, AC-TASK-02, AC-TASK-04, AC-TASK-07, AC-TASK-10, AC-TASK-11, AC-TASK-12, AC-TASK-13, AC-TASK-14, AC-TASK-15, AC-TASK-16, AC-TASK-17, AC-TASK-18
 
+## 5. Нові AC без міграції (відповіді PM 2026-10-27)
+
+- [x] 5.1 Сторінки й тексти: «Version N saved» на сторінці шаблону після збереження (AC-EDITOR-03); позначки «required»/«optional» у тесті сторінки шаблону для менеджера (AC-EDITOR-02); «Template not found» без секцій і задач (AC-EDITOR-16); порожні списки: «No templates yet. An administrator creates them.» (менеджер), «No templates yet. Create a template to start.» + «Create a template» (адміністратор), «No versions yet. Save the template to create version 1.» (AC-EDITOR-17, 18); «Save version» вимкнена, поки немає непублікованих змін (AC-EDITOR-12).
+- [x] 5.2 Форма запуску: шаблон без збереженої версії адміністратор бачить недоступним із приміткою «Save the template to launch it», менеджер не бачить (AC-EDITOR-10); дії й помилки редактора: «Your last change was not kept. Try again.» і «All changes kept» в одному місці (AC-EDITOR-25); гість у Server Action — перенаправлення на вхід (AC-EDITOR-26); після входу — на запитану сторінку (AC-DSYS-08, тест дії входу).
+- [x] 5.3 Тести бази на PGlite (без нової міграції): запуск шаблону без версії відхилено й запуску немає (AC-EDITOR-11); збереження без змін версію не створює (AC-EDITOR-12); підтверджене видалення секції не торкається поточної версії (AC-EDITOR-14); перенесення задачі між секціями зберігається у версії (AC-EDITOR-28); гість напряму (AC-EDITOR-26); менеджер напряму не отримує старих версій, списку версій і змін, шаблон без змін (AC-EDITOR-29); мутаційна перевірка: прибрати вимкнення «Save version» без змін і редірект гостя в Server Action → червоні відповідні тести (≥2 AC, видимий червоний прогін).
+
+Done when: AC-EDITOR-02, AC-EDITOR-03, AC-EDITOR-10, AC-EDITOR-11, AC-EDITOR-12, AC-EDITOR-14, AC-EDITOR-16, AC-EDITOR-17, AC-EDITOR-18, AC-EDITOR-25, AC-EDITOR-26, AC-EDITOR-28, AC-EDITOR-29, AC-DSYS-08
+
+## 6. Нові AC з міграцією
+
+- [ ] 6.1 Нова міграція (`npx supabase migration new template_validation`, `create or replace` для `private.publish_template` і `private.create_template`, унікальний індекс імені): секція без задач — «Every section needs at least one task» (AC-EDITOR-15); порожня назва секції чи задачі — «Every section and task needs a name» (AC-EDITOR-20); шаблон без назви — «Enter a template name» (AC-EDITOR-19); унікальність назви без регістру й пробілів при створенні — «A template with this name already exists» (AC-EDITOR-23). Відмова не змінює версій і робочої копії.
+- [ ] 6.2 Тести PGlite на кожен відмовний AC (відмова **і** «дані не змінились»), тексти помилок у сторінках дій; мутація: прибрати перевірку секцій без задач → червоний `AC-EDITOR-15`, прибрати перевірку назв → червоний `AC-EDITOR-20` (≥2 AC, видимий червоний прогін).
+
+Done when: AC-EDITOR-15, AC-EDITOR-19, AC-EDITOR-20, AC-EDITOR-23
+
+Не плануємо в цьому зрізі (лишаються «відкладено (причина)» у матриці): AC-EDITOR-13 (скасування діалогу видалення — без DOM-тестів кліком не перевірити), AC-EDITOR-21, 22, 24 (назва шаблону належить версії — зміна моделі даних, не вмістили за часом), AC-EDITOR-27 (потрібен тест «до міграції»), AC-DSYS-05, 06, 07 (вибір теми й світла/темна палітра потребує нового CSS і перемикача).
+
 ## Workflow follow-up
 
 - Archive зміни (`npx openspec archive impl-templates-editor -y`) — в останньому PR зрізу.

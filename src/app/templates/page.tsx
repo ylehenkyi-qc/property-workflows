@@ -65,11 +65,16 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/templa
       ) : null}
 
       {(templates ?? []).length === 0 ? (
-        <PageMessage
-          level={2}
-          title="No templates yet."
-          description={isAdmin ? "Create a template to start." : "An administrator has to save a template first."}
-        />
+        // Тексти порожніх списків — з вимог PM (AC-EDITOR-17 для менеджера; припущення PM для адміністратора)
+        isAdmin ? (
+          <PageMessage
+            level={2}
+            title="No templates yet. Create a template to start."
+            link={{ href: "#new-template", label: "Create a template" }}
+          />
+        ) : (
+          <PageMessage level={2} title="No templates yet. An administrator creates them." />
+        )
       ) : (
         <Table>
           <TableHeader>
@@ -115,7 +120,7 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/templa
       )}
 
       {isAdmin ? (
-        <form action={createTemplate} className="flex flex-col gap-3">
+        <form id="new-template" action={createTemplate} className="flex flex-col gap-3">
           <h2 className="text-lg font-semibold">New template</h2>
           <div className="flex flex-col gap-2">
             <Label htmlFor="name">Template name</Label>

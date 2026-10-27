@@ -14,12 +14,16 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NOT_FOUND");
   },
+  // клієнтський редактор після збереження версії веде на сторінку шаблону
+  useRouter: () => ({ push: () => {} }),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 import LoginPage from "@/app/login/page";
+import NewRunPage from "@/app/runs/new/page";
 import RunPage from "@/app/runs/[id]/page";
 import EditTemplatePage from "./[id]/edit/page";
+import TemplateNotFound from "./not-found";
 import TemplatePage from "./[id]/page";
 import TemplateVersionsPage from "./[id]/versions/page";
 import TemplatesPage from "./page";
@@ -27,7 +31,10 @@ import TemplatesPage from "./page";
 const TEMPLATE_ID = "d0000000-0000-4000-8000-000000000001";
 const RUN_ID = "c0000000-0000-4000-8000-000000000001";
 // Next.js 16 типізує PageProps з обома полями: params і searchParams.
-const page = (id = TEMPLATE_ID) => ({ params: Promise.resolve({ id }), searchParams: Promise.resolve({}) });
+const page = (id = TEMPLATE_ID, search: Record<string, string> = {}) => ({
+  params: Promise.resolve({ id }),
+  searchParams: Promise.resolve(search),
+});
 const listPage = (search: Record<string, string> = {}) => ({ params: Promise.resolve({}), searchParams: Promise.resolve(search) });
 
 const html = (element: React.ReactElement) => renderToStaticMarkup(element);
@@ -229,16 +236,47 @@ describe("AC-EDITOR-02: менеджер відкриває шаблон", () =>
 
     expect(markup).toContain("Version 1");
     expect(markup.match(/data-testid="template-task"/g)).toHaveLength(5);
+    // кожна з 5 задач позначена «required» або «optional»
+    expect(markup.match(/>required</g)).toHaveLength(3);
+    expect(markup.match(/>optional</g)).toHaveLength(2);
     expect(markup).not.toContain("Unpublished changes");
     expect(markup).not.toContain("Edit");
     // прапорця чернетки менеджер не читає взагалі
     expect(client.calls.from).not.toContain("template_drafts");
   });
 
-  it("ніколи не збережений шаблон менеджеру — «Template not found» (RLS не віддає рядка)", async () => {
-    mocks.client = fakeSupabase({ tables: { ...asManager, templates: { data: null } } });
+  it("AC-EDITOR-16: ніколи не збережений шаблон менеджеру — «Template not found» без секцій і задач (RLS не віддає рядка)", async () => {
+    const client = fakeSupabase({ tables: { ...asManager, templates: { data: null } } });
+    mocks.client = client;
 
     await expect(TemplatePage(page())).rejects.toThrow("NOT_FOUND");
+
+    // секцій і задач не запитували
+    expect(client.calls.from).not.toContain("template_version_sections");
+    expect(client.calls.from).not.toContain("template_version_tasks");
+    const notFound = html(TemplateNotFound());
+    expect(notFound).toContain("Template not found");
+    expect(notFound).not.toContain("template-task");
+  });
+
+  it("AC-EDITOR-03: після збереження сторінка шаблону показує «Version 2 saved» без «Unpublished changes»", async () => {
+    const v2 = { id: TEMPLATE_ID, name: "Tenant move-in", current_version: 2 };
+    mocks.client = fakeSupabase({
+      tables: {
+        ...asAdmin,
+        templates: { data: v2 },
+        template_version_sections: { data: SECTIONS },
+        template_version_tasks: { data: TASKS_V1 },
+        template_drafts: { data: { has_unpublished_changes: false } },
+      },
+    });
+
+    const markup = html(await TemplatePage(page(TEMPLATE_ID, { saved: "2" })));
+
+    expect(markup).toContain("Version 2 saved");
+    expect(markup).not.toContain("Unpublished changes");
+    // номер, що не збігається з поточною версією, повідомлення не викликає
+    expect(html(await TemplatePage(page(TEMPLATE_ID, { saved: "5" })))).not.toContain("saved");
   });
 
   it("адміністратор бачить «Unpublished changes», «Edit» і «Versions»", async () => {
@@ -312,5 +350,78 @@ describe("AC-EDITOR-06: запуск зберігає версію шаблон�
 
     expect(markup).toContain("Template version 1");
     expect(markup.match(/data-testid="run-task"/g)).toHaveLength(5);
+  });
+});
+
+describe("порожні стани", () => {
+  it("AC-EDITOR-17: менеджер без збережених шаблонів бачить повідомлення без порожньої таблиці", async () => {
+    mocks.client = fakeSupabase({ tables: { ...asManager, templates: { data: [] } } });
+
+    const markup = html(await TemplatesPage(listPage()));
+
+    expect(markup).toContain("No templates yet. An administrator creates them.");
+    expect(markup).not.toContain("<table");
+  });
+
+  it("адміністратор без шаблонів бачить «No templates yet. Create a template to start.» і посилання «Create a template»", async () => {
+    mocks.client = fakeSupabase({ tables: { ...asAdmin, templates: { data: [] } } });
+
+    const markup = html(await TemplatesPage(listPage()));
+
+    expect(markup).toContain("No templates yet. Create a template to start.");
+    expect(markup).toMatch(/<a[^>]*href="#new-template"[^>]*>Create a template<\/a>/);
+    expect(markup).not.toContain("<table");
+  });
+
+  it("AC-EDITOR-18: список версій нового шаблону — «No versions yet. Save the template to create version 1.» без таблиці", async () => {
+    mocks.client = fakeSupabase({
+      tables: { ...asAdmin, templates: { data: { id: TEMPLATE_ID, name: "Repair" } }, template_versions: { data: [] } },
+    });
+
+    const markup = html(await TemplateVersionsPage(page()));
+
+    expect(markup).toContain("No versions yet. Save the template to create version 1.");
+    expect(markup).not.toContain("<table");
+  });
+});
+
+describe("редактор: збереження без змін і форма запуску", () => {
+  const editorTables = (dirty: boolean) => ({
+    ...asAdmin,
+    templates: { data: TEMPLATE },
+    template_sections: { data: SECTIONS },
+    template_tasks: { data: TASKS_V1 },
+    template_drafts: { data: { has_unpublished_changes: dirty } },
+  });
+
+  it("AC-EDITOR-12: без непублікованих змін «Save version» вимкнена, зі змінами — доступна", async () => {
+    mocks.client = fakeSupabase({ tables: editorTables(false) });
+    const clean = html(await EditTemplatePage(page()));
+    mocks.client = fakeSupabase({ tables: editorTables(true) });
+    const dirty = html(await EditTemplatePage(page()));
+
+    // атрибут disabled, а не клас «disabled:…» з Tailwind: перед ним пробіл, після — «=""», пробіл або «>»
+    const disabledSave = /<button[^>]*\sdisabled(?:=""|\s|>)[^>]*>Save version<\/button>/;
+    expect(clean).toMatch(disabledSave);
+    expect(dirty).not.toMatch(disabledSave);
+  });
+
+  it("AC-EDITOR-10: адміністратор бачить новий шаблон «Repair» недоступним із приміткою «Save the template to launch it»", async () => {
+    mocks.client = fakeSupabase({
+      tables: {
+        templates: {
+          data: [
+            TEMPLATE,
+            { id: "d0000000-0000-4000-8000-000000000002", name: "Repair", current_version: null },
+          ],
+        },
+      },
+    });
+
+    const markup = html(await NewRunPage({ params: Promise.resolve({}), searchParams: Promise.resolve({}) }));
+
+    expect(markup).toContain("Repair — Save the template to launch it");
+    // збережений шаблон недоступним не позначено
+    expect(markup).not.toContain("Tenant move-in — Save the template to launch it");
   });
 });
