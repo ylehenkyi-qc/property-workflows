@@ -1,8 +1,7 @@
-
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export type Database = {
-  
+
   "graphql_public": {
           Tables: {
             [_ in never]: never
@@ -35,7 +34,7 @@ export type Database = {
                     "created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"role"?: string
                   }
                   Relationships: [
-                    
+
                   ]
                 },"run_sections": {
                   Row: {
@@ -107,6 +106,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "templates"
       referencedColumns: ["id"]
+    },{
+      foreignKeyName: "runs_template_version_fk"
+      columns: ["template_id","template_version"]
+isOneToOne: false
+      referencedRelation: "template_versions"
+      referencedColumns: ["template_id","version"]
+    }
+                  ]
+                },"template_drafts": {
+                  Row: {
+                    "has_unpublished_changes": boolean,"template_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "has_unpublished_changes"?: boolean,"template_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "has_unpublished_changes"?: boolean,"template_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "template_drafts_template_id_fkey"
+      columns: ["template_id"]
+isOneToOne: true
+      referencedRelation: "templates"
+      referencedColumns: ["id"]
     }
                   ]
                 },"template_sections": {
@@ -149,20 +174,6 @@ isOneToOne: false
       referencedColumns: ["id","template_id"]
     }
                   ]
-                },"template_drafts": {
-                  Row: {
-                    "has_unpublished_changes": boolean,"template_id": string,"updated_at": string
-                  }
-                  ComputedFields: never
-                  Insert: {
-                    "has_unpublished_changes"?: boolean,"template_id": string,"updated_at"?: string
-                  }
-                  Update: {
-                    "has_unpublished_changes"?: boolean,"template_id"?: string,"updated_at"?: string
-                  }
-                  Relationships: [
-                    
-                  ]
                 },"template_version_sections": {
                   Row: {
                     "id": string,"name": string,"position": number,"template_id": string,"version": number,"version_id": string
@@ -175,7 +186,13 @@ isOneToOne: false
                     "id"?: string,"name"?: string,"position"?: number,"template_id"?: string,"version"?: number,"version_id"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "template_version_sections_version_id_template_id_version_fkey"
+      columns: ["version_id","template_id","version"]
+isOneToOne: false
+      referencedRelation: "template_versions"
+      referencedColumns: ["id","template_id","version"]
+    }
                   ]
                 },"template_version_tasks": {
                   Row: {
@@ -189,7 +206,13 @@ isOneToOne: false
                     "id"?: string,"name"?: string,"position"?: number,"required"?: boolean,"section_id"?: string,"version_id"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "template_version_tasks_section_id_version_id_fkey"
+      columns: ["section_id","version_id"]
+isOneToOne: false
+      referencedRelation: "template_version_sections"
+      referencedColumns: ["id","version_id"]
+    }
                   ]
                 },"template_versions": {
                   Row: {
@@ -203,7 +226,19 @@ isOneToOne: false
                     "created_at"?: string,"created_by"?: string | null,"id"?: string,"template_id"?: string,"version"?: number
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "template_versions_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "template_versions_template_id_fkey"
+      columns: ["template_id"]
+isOneToOne: false
+      referencedRelation: "templates"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"templates": {
                   Row: {
@@ -217,7 +252,13 @@ isOneToOne: false
                     "created_at"?: string,"current_version"?: number | null,"id"?: string,"name"?: string
                   }
                   Relationships: [
-                    
+                    {
+      foreignKeyName: "templates_current_version_fk"
+      columns: ["id","current_version"]
+isOneToOne: false
+      referencedRelation: "template_versions"
+      referencedColumns: ["template_id","version"]
+    }
                   ]
                 }
           }
@@ -363,11 +404,11 @@ export type CompositeTypes<
 export const Constants = {
   "graphql_public": {
           Enums: {
-            
+
           }
         },"public": {
           Enums: {
-            
+
           }
         }
 } as const
