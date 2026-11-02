@@ -11,10 +11,12 @@ import { signOut } from "./login/actions";
 export default async function Home() {
   const supabase = await createClient();
 
-  // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (!claims) {
+  // Користувач із поточної сесії.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user;
+  if (!user) {
     redirect("/login");
   }
 
@@ -22,7 +24,7 @@ export default async function Home() {
   const { data: profile } = await supabase
     .from("profiles")
     .select("email, full_name, role")
-    .eq("id", claims.sub)
+    .eq("id", user.id)
     .maybeSingle();
 
   return (
@@ -30,7 +32,7 @@ export default async function Home() {
       <h1 className="text-2xl font-semibold">Property Workflows</h1>
       <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-sm">
         <dt className="text-muted-foreground">Email</dt>
-        <dd data-testid="user-email">{profile?.email ?? claims.email ?? "—"}</dd>
+        <dd data-testid="user-email">{profile?.email ?? user.email ?? "—"}</dd>
         <dt className="text-muted-foreground">Role</dt>
         <dd data-testid="user-role">{profile?.role ?? "profile not found"}</dd>
       </dl>
