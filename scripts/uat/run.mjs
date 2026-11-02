@@ -55,6 +55,8 @@ else delete env.UAT_BASE_URL;
 
 // Журнал прибирання — лише цього прогону: інакше «видалено» у звіті підсумовує адреси з попередніх прогонів.
 rmSync(path.join(ROOT, "test-results", "uat-cleanup.jsonl"), { force: true });
+// Підсумок прибирання теж лише цього прогону: без ключа teardown не реєструється, і report.mjs підхопив би старий файл.
+rmSync(path.join(ROOT, "test-results", "uat-cleanup.json"), { force: true });
 console.log(`UAT: ${url ?? "локальна збірка (npm run build && npm run start)"}${negativeControls ? " — негативні контролі" : ""}`);
 const cli = path.join(ROOT, "node_modules", "@playwright", "test", "cli.js");
 const pw = spawnSync(
@@ -64,7 +66,13 @@ const pw = spawnSync(
 );
 const playwrightMs = Date.now() - Date.parse(startedAt);
 
-const cases = pack();
+// Playwright міг упасти до запису results.json (конфіг, відсутній проєкт): тоді замість стека — зрозуміла відмова нижче.
+let cases = [];
+try {
+  cases = pack();
+} catch (error) {
+  console.error(`Не вдалося зібрати результати Playwright (код виходу ${pw.status}): ${error.message}`);
+}
 mkdirSync(WORK, { recursive: true });
 writeFileSync(
   path.join(WORK, "run.json"),
@@ -90,10 +98,23 @@ if (!cases.length) {
   process.exitCode = 1;
 } else {
   if (!skipReview) await review();
-  const { outDir, rows } = report(combine(), { out: negativeControls ? "test-results/uat-report-nc" : undefined });
+  const { outDir, rows, manifest } = report(combine(), { out: negativeControls ? "test-results/uat-report-nc" : undefined });
   console.log(`\nЗвіт: ${rel(outDir)}/report.md`);
   for (const r of rows) console.log(`  ${r.caseId}: ${r.verdict} — ${r.ruleText}`);
   const real = rows.filter((r) => !r.negativeControl);
   if (real.some((r) => r.verdict === "FAIL")) process.exitCode = 1;
+  // Збій Playwright (наприклад, teardown прибирання) не має лишати код виходу 0 при зелених рядках AC.
+  // Негативні контролі падають навмисно (NC-1), тому для них код Playwright не враховуємо.
+  if (!negativeControls && pw.status !== 0) {
+    console.error(`Playwright завершився з кодом ${pw.status}: перевірте вивід вище, звіт може бути неповним.`);
+    process.exitCode = 1;
+  }
+  const cleanup = manifest.cleanup;
+  if (cleanup && (cleanup.remaining.length || cleanup.leftoverRequests)) {
+    console.error(
+      `Прибирання неповне: лишилось користувачів ${cleanup.remaining.length}, рядків ${cleanup.leftoverRequests}. Видаліть їх вручну.`,
+    );
+    process.exitCode = 1;
+  }
   if (real.some((r) => r.verdict === "NEEDS-HUMAN")) console.log("Є NEEDS-HUMAN: рішення — за PM (див. звіт).");
 }

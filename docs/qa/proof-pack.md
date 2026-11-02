@@ -45,7 +45,7 @@ PR: https://github.com/ylehenkyi-qc/property-workflows/pull/33 (task/test-qualit
 
 | AC | Де живе правило | Рівень | Чому | Тест |
 |---|---|---|---|---|
-| AC-DSYS-02 | `src/lib/auth/require-role.ts` (роль з `profiles.role`) + гілка `forbidden` у `src/app/templates/[id]/edit/page.tsx`; запис додатково закриває база (AC-EDITOR-08) | unit (TS) + сторінка + e2e | відмова за роллю — чистий TS без SQL; сторінка рендериться на підробленому Supabase, дослівний текст і макет доведено UAT (розділ C) | `src/lib/auth/require-role.test.ts` (6 тестів AC-DSYS-02), `src/app/templates/templates-pages.test.tsx:97` |
+| AC-DSYS-02 | `src/lib/auth/require-role.ts` (роль з `profiles.role`) + гілка `forbidden` у `src/app/templates/[id]/edit/page.tsx`; запис додатково закриває база (AC-EDITOR-08) | unit (TS) + сторінка + e2e | відмова за роллю — чистий TS без SQL; дослівний текст доведено UAT (розділ C), а спільний макет (`<main>` з `PageShell` і `page-message`) перевіряє сторінковий тест; агент-рецензент макет на кадрі не оцінював | `src/lib/auth/require-role.test.ts` (6 тестів AC-DSYS-02), `src/app/templates/templates-pages.test.tsx:97` |
 | AC-TASK-10 | політики RLS `runs_select_visible`, `run_sections_select_visible`, `run_tasks_select_visible` і `private.can_see_run()` у `supabase/migrations/20261020091923_run_schema_and_seed.sql` | база (PGlite) + сторінка + e2e | правило живе в SQL; тест сторінки `src/app/runs/run-tracking-pages.test.tsx:88` лише підставляє «RLS нічого не віддав», тож саме правило він не доводить (це імітація результату) | `tests/db/run-tracking.test.ts:130` (сторонній менеджер не читає ні запуску, ні секцій, ні задач) |
 | AC-DSYS-04 | порожній стан у `src/app/runs/page.tsx` (`items.length === 0`) | сторінка (підроблений Supabase) + e2e | рядки сторінки, а не `src/lib`: Stryker їх не мутує, тому ручні мутанти E1–E4; дослівний текст доведено UAT (розділ C) | `src/app/runs/design-system.test.tsx:124` |
 
@@ -56,7 +56,7 @@ PR: https://github.com/ylehenkyi-qc/property-workflows/pull/33 (task/test-qualit
 | Файл за AC | Рядки | Гілки | Чим доведено, якщо мало |
 |---|---|---|---|
 | `src/lib/auth/require-role.ts` | 100 % | 100 % | у `FLOORED`; до цього PR було 100 / 91 %, гілку «без профілю» не виконував жоден тест |
-| `src/app/templates/[id]/edit/page.tsx` | 100 % | 59,09 % | гілки `notFound` та завантаження шаблону не стосуються AC-DSYS-02; відмову доводить `templates-pages.test.tsx:97`; дослівний текст і макет доведено UAT (розділ C) |
+| `src/app/templates/[id]/edit/page.tsx` | 100 % | 59,09 % | гілки `notFound` та завантаження шаблону не стосуються AC-DSYS-02; відмову й макет (`<main>`, `page-message`) доводить `templates-pages.test.tsx:97`; дослівний текст доведено UAT (розділ C) |
 | `src/app/runs/page.tsx` | 77,77 % | 67,85 % | порожній стан AC-DSYS-04 виконується тестом `design-system.test.tsx:124`, мутанти E1–E4 убиті |
 | `src/app/runs/[id]/page.tsx` | 95,83 % | 70,83 % | гілка «Run not found» виконується; правило видимості живе в SQL і доведене SQL-мутантами V1–V6 |
 | політики RLS і `private.can_see_run()` | немає | немає | JS-покриття SQL не бачить: доведено SQL-мутантами |

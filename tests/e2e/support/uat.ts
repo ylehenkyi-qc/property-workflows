@@ -42,8 +42,15 @@ export async function thenStep(page: Page, spec: ThenSpec, assertions: () => Pro
       await assertions();
       passed = true;
     } finally {
-      // try/finally без catch: помилка перевірки летить далі (тест червоний), а докази знято в будь-якому разі.
-      await captureEvidence(page, n, spec, passed);
+      // Помилка перевірки летить далі (тест червоний), а докази знято в будь-якому разі. Якщо перевірка впала, а
+      // кадр теж не вдалося зняти (сторінка закрита), помилка кадру не має затирати справжню причину FAIL.
+      // Локальна правка WS8 за зауваженням CodeRabbit.
+      try {
+        await captureEvidence(page, n, spec, passed);
+      } catch (evidenceError) {
+        // eslint-disable-next-line playwright/no-conditional-in-test -- допоміжна функція, не тест: умова вибирає, яку помилку показати
+        if (passed) throw evidenceError;
+      }
     }
   });
 }
