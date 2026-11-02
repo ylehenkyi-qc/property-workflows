@@ -90,29 +90,31 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 
 ## C. UAT на проді
 
-Прогін: 02.11.2026, 15:55 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `b5b8f91` (збігається з `main`), код тестів `b7ac530`. Playwright 49,5 с. Це другий прогін; перший (15:42, `d2bc783`) дав ті самі вердикти, відео прикладено до другого.
+Прогін: 02.11.2026, 17:41 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `2ad9cf2` (= `main` на той момент), код тестів `0908641`. Playwright 37,6 с.
 
 | AC | Специфікація | Тест (твердження) | Агент | Вердикт | Кадр |
 |---|---|---|---|---|---|
-| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L28) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
-| AC-TASK-10 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L70) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png) |
-| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L108) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
+| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L27) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
+| AC-EDITOR-07 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L69) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-EDITOR-07-then-1.png) |
+| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L102) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
 
-- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/report.md)
-- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR https://github.com/ylehenkyi-qc/property-workflows/pull/34
-- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0055 за цінами API.
-- Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git):
-  - NC-1 (AC-DSYS-04, у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
-  - NC-2 (AC-DSYS-04, у `ac-text` текст «Тоді» «уточнено», тест і застосунок не змінено): твердження зелені, Haiku і Sonnet сказали FAIL, підсумок **NEEDS-HUMAN** (R3: розбіжність іде до людини).
-- Дані: усі три AC мають тег `@writes`: кожен тест створює синтетичних менеджерів `uat-<запуск>-<мітка>@example.test` (AC-TASK-10 ще й один запуск від синтетичного менеджера A). Прибирання зі звіту: видалено 4 користувачі, лишилось 0, рядків `runs` лишилось 0. Для негативних контролів: видалено 2, лишилось 0. Паролі згенеровані випадково на кожен прогін і ніде не записуються.
-- Нестабільність під час налагодження: перші два прогони (до виправлення) дали для AC-DSYS-02 і AC-TASK-10 FAIL через таймаут хука `afterEach`, хоча кадр «Тоді» був правильний; а рецензент не запускався на Windows (`spawn("claude")` не бачить `claude.cmd`). Виправлено двома локальними правками в допоміжному коді (`scripts/uat/review.mjs`: запуск `claude.exe`; `attachRuntimeErrors`: запити в польоті не чекаємо довше 3 с і пишемо в `pending`). Промпт і схему рецензента не змінено. Причину зависання запиту не з'ясовано: у повторному прогоні воно не відтворилося.
+- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/report.md)
+- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR <!-- PR зі звітом: підставити посилання після відкриття -->
+- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0066 за цінами API.
+- Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git; прогін 02.11 для AC-DSYS-04, який не змінювався):
+  - NC-1 (у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
+  - NC-2 (у `ac-text` текст «Тоді» «уточнено», тест і застосунок не змінено): твердження зелені, Haiku і Sonnet сказали FAIL, підсумок **NEEDS-HUMAN** (R3: розбіжність іде до людини).
+- Дані: усі три AC мають тег `@writes`: кожен тест створює синтетичного менеджера `uat-<запуск>-<мітка>@example.test`. Запуски й шаблони тести не створюють і не змінюють. Прибирання зі звіту: видалено 3 користувачі, лишилось 0, рядків `runs` лишилось 0. Паролі випадкові на кожен прогін і ніде не записуються.
+- Попередня умова AC-EDITOR-07 виконана частково: AC каже «версії 1 і 2», а в шаблону «Tenant move-in» на проді збережена лише версія 1 (крок «Дано» у звіті: «1 in the database»). Створювати версії в спільному шаблоні на проді я не став: тест перевіряє, що менеджер за прямим посиланням не бачить жодної наявної версії (рядків і таблиці немає), хоча база їх має.
+- Заміна AC: початково третім AC був AC-TASK-10 («Run not found»), але він належить зрізу 1, а гайд вимагає AC зрізу 2. До відкриття приймання PM його замінено на AC-EDITOR-07 (відмова за роллю, правило в SQL). Що було зроблено для AC-TASK-10 (SQL-мутанти на RLS запусків, UAT 15:42) лишилось в історії PR #33 і #34 і до цих трьох AC не входить.
+- Нестабільність під час налагодження (на початку кроку C): два перші прогони дали FAIL через таймаут хука `afterEach`, хоча кадр «Тоді» був правильний, а рецензент не запускався на Windows (`spawn("claude")` не бачить `claude.cmd`). Виправлено двома локальними правками допоміжного коду (`scripts/uat/review.mjs`: запуск `claude.exe`; `attachRuntimeErrors`: запити в польоті не чекаємо довше 3 с). Промпт і схему рецензента не змінено. Причину зависання запиту не з'ясовано: після виправлення воно не відтворилося.
 
 ### Приймання PM
 
 | AC | Рішення PM | Посилання |
 |---|---|---|
 | AC-DSYS-02 | очікує приймання | <!-- коментар-підпис або issue «Відхилення від вимог» --> |
-| AC-TASK-10 | очікує приймання | <!-- … --> |
+| AC-EDITOR-07 | очікує приймання | <!-- … --> |
 | AC-DSYS-04 | очікує приймання | <!-- … --> |
 
 ## D. Eval рецензента
