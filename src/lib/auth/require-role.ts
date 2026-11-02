@@ -23,6 +23,7 @@ export async function requireRole(allowed: AppRole | readonly AppRole[]): Promis
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
   const role = isAppRole(profile?.role) ? profile.role : null;
 
+  // Stryker disable next-line StringLiteral: для допустимих ролей перевірка входження в рядок дає той самий результат, що й перевірка входження в масив
   const roles: readonly AppRole[] = typeof allowed === "string" ? [allowed] : allowed;
   if (!role || !roles.includes(role)) return { status: "forbidden", role };
 
