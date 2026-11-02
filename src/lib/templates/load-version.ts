@@ -14,9 +14,8 @@ export async function loadVersionContent(
     .from("template_version_sections")
     .select("id, name, position")
     .eq("template_id", templateId)
-    .eq("version", version)
     .order("position");
-  if (sectionsError) throw new Error("Failed to load template sections");
+  if (sectionsError) throw new Error(`Failed to load template sections (version ${version})`);
   if (!sections?.length) return [];
 
   const { data: tasks, error: tasksError } = await supabase
