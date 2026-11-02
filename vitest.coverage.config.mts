@@ -36,6 +36,10 @@ export default mergeConfig(
   base,
   defineConfig({
     test: {
+      // Інструментування v8 сповільнює старт PGlite: чотири файли tests/db паралельно не вкладаються у типові 10 с
+      // хука («Hook timed out in 10000ms») і дають випадково червоний job «Покриття». npm test цього не торкається.
+      hookTimeout: 60_000,
+      testTimeout: 30_000,
       coverage: {
         provider: "v8",
         // Без include звіт показав би лише імпортовані тестами файли — сторінки з 0 % зникли б.
