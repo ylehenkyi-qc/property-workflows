@@ -114,6 +114,14 @@ function runTests(files, label) {
     env: { ...process.env, FORCE_COLOR: "0" },
   });
   const report = readReport(out);
+  // Цикл мутантів синхронний (spawnSync): обробник SIGINT вище не виконується, доки цикл не закінчиться. Ctrl+C
+  // зупиняє лише дочірній Vitest, тож перевіряємо сигнал одразу після нього (WS8: правка за зауваженням CodeRabbit).
+  if (run.signal === "SIGINT" || run.signal === "SIGTERM" || run.status === 130) {
+    restoreAll();
+    rmSync(tmp, { recursive: true, force: true });
+    console.error("\n✗ Перервано користувачем; файли мутантів повернуто.");
+    process.exit(130);
+  }
   if (!report) return { error: `Vitest не дав звіту (код виходу ${run.status ?? run.signal})`, failed: [] };
   const failed = report.testResults.flatMap((f) =>
     f.assertionResults.filter((a) => a.status === "failed").map((a) => a.title),

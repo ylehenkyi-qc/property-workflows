@@ -22,9 +22,9 @@
 
 ## A. Ворота
 
-- PR воріт: <!-- …/pull/N -->  (task/quality-gates)
-- Зелений `quality` на `main`: <!-- …/actions/runs/N -->
-- Обов'язкові перевірки в `solo-main` з <!-- дата -->: <!-- назви jobs -->
+- PR воріт: https://github.com/ylehenkyi-qc/property-workflows/pull/32 (task/quality-gates), злитий
+- Зелений `quality` на `main`: https://github.com/ylehenkyi-qc/property-workflows/actions/runs/41443935336 (коміт 94c0b94)
+- Обов'язкові перевірки в `solo-main`: ще не додано (потрібна дія власника репо в Settings → Rules після зеленого `quality` на `main`); дата й назви jobs «Ворота: fallow audit», «Покриття: доменна підлога» — після додавання
 
 Розбір першого повного прогону `fallow` (той самий — в описі PR воріт):
 
@@ -39,24 +39,24 @@
 
 ## B. Якість тестів
 
-PR: <!-- …/pull/N -->  (task/test-quality). Тести для прогалин написано з тексту AC в тій самій сесії агента, що й код воріт, а не окремою (розробник один; чесне відхилення від поради гайду).
+PR: https://github.com/ylehenkyi-qc/property-workflows/pull/33 (task/test-quality). Тести для прогалин написано з тексту AC в тій самій сесії агента, що й код воріт, а не окремою (розробник один; чесне відхилення від поради гайду).
 
 ### Рівень для кожного AC
 
 | AC | Де живе правило | Рівень | Чому | Тест |
 |---|---|---|---|---|
-| AC-DSYS-02 | `src/lib/auth/require-role.ts` (роль з `profiles.role`) + гілка `forbidden` у `src/app/templates/[id]/edit/page.tsx`; запис додатково закриває база (AC-EDITOR-08) | unit (TS) + сторінка + e2e | відмова за роллю — чистий TS без SQL; сторінка рендериться на підробленому Supabase, дослівний текст і макет доводить UAT | `src/lib/auth/require-role.test.ts` (6 тестів AC-DSYS-02), `src/app/templates/templates-pages.test.tsx:97` |
-| AC-TASK-10 | політики RLS `runs_select_visible`, `run_sections_select_visible`, `run_tasks_select_visible` і `private.can_see_run()` у `supabase/migrations/20261020091923_run_schema_and_seed.sql` | база (PGlite) + сторінка + e2e | правило живе в SQL; тест сторінки `src/app/runs/run-tracking-pages.test.tsx:88` лише підставляє «RLS нічого не віддав», тож саме правило він не доводить (це мок результату) | `tests/db/run-tracking.test.ts:130` (сторонній менеджер не читає ні запуску, ні секцій, ні задач) |
-| AC-DSYS-04 | порожній стан у `src/app/runs/page.tsx` (`items.length === 0`) | сторінка (підроблений Supabase) + e2e | рядки сторінки, а не `src/lib`: Stryker їх не мутує, тому ручні мутанти E1–E4; дослівний текст доводить UAT | `src/app/runs/design-system.test.tsx:124` |
+| AC-DSYS-02 | `src/lib/auth/require-role.ts` (роль з `profiles.role`) + гілка `forbidden` у `src/app/templates/[id]/edit/page.tsx`; запис додатково закриває база (AC-EDITOR-08) | unit (TS) + сторінка + e2e | відмова за роллю — чистий TS без SQL; сторінка рендериться на підробленому Supabase, дослівний текст і макет має довести UAT (крок C, ще не виконаний) | `src/lib/auth/require-role.test.ts` (6 тестів AC-DSYS-02), `src/app/templates/templates-pages.test.tsx:97` |
+| AC-TASK-10 | політики RLS `runs_select_visible`, `run_sections_select_visible`, `run_tasks_select_visible` і `private.can_see_run()` у `supabase/migrations/20261020091923_run_schema_and_seed.sql` | база (PGlite) + сторінка + e2e | правило живе в SQL; тест сторінки `src/app/runs/run-tracking-pages.test.tsx:88` лише підставляє «RLS нічого не віддав», тож саме правило він не доводить (це імітація результату) | `tests/db/run-tracking.test.ts:130` (сторонній менеджер не читає ні запуску, ні секцій, ні задач) |
+| AC-DSYS-04 | порожній стан у `src/app/runs/page.tsx` (`items.length === 0`) | сторінка (підроблений Supabase) + e2e | рядки сторінки, а не `src/lib`: Stryker їх не мутує, тому ручні мутанти E1–E4; дослівний текст має довести UAT (крок C, ще не виконаний) | `src/app/runs/design-system.test.tsx:124` |
 
 ### Покриття
 
-`npm run test:coverage` на гілці PR (229 тестів): разом 72,74 % рядків, 72,54 % гілок. Це не поріг: сторінки й дії доводять тести бази й UAT.
+`npm run test:coverage` на гілці PR (229 тестів): разом 72,74 % рядків, 72,54 % гілок. Це не поріг: сторінки й дії доводять тести бази і UAT (крок C, ще не виконаний).
 
 | Файл за AC | Рядки | Гілки | Чим доведено, якщо мало |
 |---|---|---|---|
 | `src/lib/auth/require-role.ts` | 100 % | 100 % | у `FLOORED`; до цього PR було 100 / 91 %, гілку «без профілю» не виконував жоден тест |
-| `src/app/templates/[id]/edit/page.tsx` | 100 % | 59,09 % | гілки `notFound` і завантаження шаблону не стосуються AC-DSYS-02; відмову доводить `templates-pages.test.tsx:97` і UAT |
+| `src/app/templates/[id]/edit/page.tsx` | 100 % | 59,09 % | гілки `notFound` та завантаження шаблону не стосуються AC-DSYS-02; відмову доводить `templates-pages.test.tsx:97`; дослівний текст і макет має довести UAT (крок C, ще не виконаний) |
 | `src/app/runs/page.tsx` | 77,77 % | 67,85 % | порожній стан AC-DSYS-04 виконується тестом `design-system.test.tsx:124`, мутанти E1–E4 убиті |
 | `src/app/runs/[id]/page.tsx` | 95,83 % | 70,83 % | гілка «Run not found» виконується; правило видимості живе в SQL і доведене SQL-мутантами V1–V6 |
 | політики RLS і `private.can_see_run()` | немає | немає | JS-покриття SQL не бачить: доведено SQL-мутантами |
@@ -71,9 +71,9 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 | `require-role.ts:24` `profile?.role` → `profile.role` | AC-DSYS-02 | вижив | «користувач без рядка профілю … відмова без ролі»: `{ status: "forbidden", role: null }` | убитий |
 | `require-role.ts:23` `.select("role")` → `.select("")` | AC-DSYS-02 | вижив | «менеджер B отримує відмову з роллю manager, роль береться з рядка його профілю»: перевіряє запит `profiles` / `role` / `id` | убитий |
 | `require-role.ts:19` `data?.claims?.sub` → `data?.claims.sub` | AC-EDITOR-09 (гість) | вижив | «відповідь getClaims без claims — це гість, а не збій сторінки» | убитий |
-| `require-role.ts:26` `typeof allowed === "string"` → `false` / `""` | AC-DSYS-02 | вижив | — | еквівалентний (див. нижче) |
+| `require-role.ts:26` `typeof allowed === "string"` → `false` | AC-DSYS-02 | вижив | — | вижив: еквівалентний (див. нижче) |
 
-- Stryker `require-role.ts`: mutation score **88,89 % → 100 %** (до: 28 убито + 4 timeout, 4 вижили; після: 31 убито + 2 timeout, 0 вижили, 1 група — еквівалентні з `Stryker disable` і причиною в коді).
+- Stryker `require-role.ts`: mutation score **88,89 % → 97,14 %** (до: 28 убито + 4 timeout, 4 вижили; після: 27 убито + 7 timeout, 1 вижив — еквівалентний, див. нижче; ще 1 мутант `StringLiteral` на рядку 27 вимкнено `Stryker disable` з причиною в коді).
 - Stryker `runList.ts` (рядки списку запусків під AC-DSYS-04): 89,47 %, 2 вижилі не на рядках цих AC: `templates = []` за замовчуванням (еквівалентний: у масиві-заглушці немає елемента з `id`) і текст запасного «—» для невідомого шаблону (поза трьома AC, вимога AC-TASK-14). Лишено.
 - **Ручні TS-мутанти на порожній стан** (`npm run mutation:manual`, `scripts/mutants.mjs`): E1 `items.length === 0` → `< 0`, E2 посилання `/runs/new` → `/runs`, E3 текст без другого речення, E4 таблиця лишається поруч із повідомленням — **4 з 4 убито** тестом AC-DSYS-04.
 - **SQL-мутації** (`npm run mutation:sql`), політики й `can_see_run` за AC-TASK-10, умову послаблено до `true`:
@@ -88,10 +88,12 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 | V6 | AC-TASK-10 | `run_sections_select_visible` без перевірки видимості | KILLED | AC-TASK-10 |
 
   Усі 6 з 6 убито з першого разу (вижилих не було, тож «до/після» для SQL немає: тест `tests/db/run-tracking.test.ts:130` уже охороняв правило).
-- Еквівалентні мутанти: `require-role.ts:26` (`roles` = рядок замість масиву): `role` тут завжди `"manager"` або `"admin"`, жодна назва не є підрядком іншої, тож `"admin".includes(role)` дає ту саму відповідь, що й `["admin"].includes(role)`. Прийнято з `// Stryker disable` і причиною в коді.
+- Еквівалентні мутанти: `require-role.ts:26` (на `main`; зараз рядок 27) — `roles` = рядок замість масиву, коли умова `typeof allowed === "string"` завжди `false`: `role` тут завжди `"manager"` або `"admin"`, жодна назва не є підрядком іншої, тож `"admin".includes(role)` дає ту саму відповідь, що й `["admin"].includes(role)`. Вижилий мутант `ConditionalExpression → false` лишено видимим у звіті; `// Stryker disable` стоїть лише на `StringLiteral` (`typeof allowed === ""`). Мутант `ConditionalExpression → true` НЕ еквівалентний: його вбиває тест «сторінка для кількох ролей пускає менеджера й адміністратора» (виправлено за зауваженням CodeRabbit до PR #33, раніше директива ховала обидва).
 - Знахідка під час прогону покриття: чотири файли `tests/db` паралельно під інструментуванням v8 не вкладалися в 10 с хука і давали випадково червоний job «Покриття» (`Hook timed out in 10000ms`). Виправлено в `vitest.coverage.config.mts` (`hookTimeout` 60 с, `testTimeout` 30 с); `npm test` не змінено.
 
 ## C. UAT на проді
+
+Статус: **ще не виконано** (крок C домашки WS8 попереду). Таблиця й поля нижче — шаблон, жодних результатів UAT тут поки немає.
 
 | AC | Специфікація | Тест (твердження) | Агент | Вердикт | Кадр |
 |---|---|---|---|---|---|
@@ -110,6 +112,8 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 | AC-…-NN | <!-- ✅ / ❌ / NEEDS-HUMAN → … --> | <!-- коментар-підпис або issue «Відхилення від вимог» --> |
 
 ## D. Eval рецензента
+
+Статус: **ще не виконано** (крок D домашки WS8 попереду). Поля нижче — шаблон.
 
 - PR з вадами (не злитий): <!-- …/pull/N -->
 - Ключ і таблиця: <!-- …/pull/N#issuecomment-M -->
