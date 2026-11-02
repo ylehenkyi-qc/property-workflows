@@ -1,12 +1,27 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+// Мокаємо лише межу з Supabase (клієнт сервера), а не власний requireRole: роль читає справжній код з profiles.role.
 const mocks = vi.hoisted(() => ({
-  requireRole: vi.fn(),
+  session: { sub: null as string | null, role: null as string | null },
   rpc: vi.fn(),
   revalidatePath: vi.fn(),
 }));
 
-vi.mock("@/lib/auth/require-role", () => ({ requireRole: mocks.requireRole }));
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: async () => ({
+    auth: {
+      getClaims: async () => ({ data: mocks.session.sub ? { claims: { sub: mocks.session.sub } } : null }),
+    },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: async () => ({ data: mocks.session.role ? { role: mocks.session.role } : null }),
+        }),
+      }),
+    }),
+    rpc: mocks.rpc,
+  }),
+}));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 
 // Як у Next.js, redirect() перериває дію винятком; у тесті читаємо адресу з нього.
@@ -29,7 +44,14 @@ const CONTENT = [
   },
 ];
 
-const admin = () => ({ status: "ok", supabase: { rpc: mocks.rpc }, userId: "admin-1", role: "admin" });
+const signInAs = (role: "admin" | "manager") => {
+  mocks.session.sub = `${role}-1`;
+  mocks.session.role = role;
+};
+const signedOut = () => {
+  mocks.session.sub = null;
+  mocks.session.role = null;
+};
 
 async function redirectedTo(run: () => Promise<unknown>): Promise<string> {
   try {
@@ -43,15 +65,14 @@ async function redirectedTo(run: () => Promise<unknown>): Promise<string> {
 }
 
 beforeEach(() => {
-  mocks.requireRole.mockReset();
   mocks.rpc.mockReset();
   mocks.revalidatePath.mockReset();
-  mocks.requireRole.mockResolvedValue(admin());
+  signInAs("admin");
   mocks.rpc.mockResolvedValue({ data: null, error: null });
 });
 
 describe("AC-EDITOR-08: дії шаблонів спершу перевіряють роль", () => {
-  // Якщо requireRole відмовив, rpc не викликається: прибрати guard з дії — і ці тести червоніють. Саме правило
+  // Якщо роль не admin, rpc не викликається: прибрати guard з дії — і ці тести червоніють. Саме правило
   // захищає ще й база (функції перевіряють роль першим рядком), але тоді, без цього тесту, цього б ніхто не бачив.
   const attempts: [string, () => Promise<unknown>][] = [
     ["saveTemplateDraft", () => saveTemplateDraft(TEMPLATE_ID, CONTENT)],
@@ -61,17 +82,16 @@ describe("AC-EDITOR-08: дії шаблонів спершу перевіряю�
 
   for (const [name, run] of attempts) {
     it(`AC-EDITOR-08: ${name} від менеджера не доходить до rpc`, async () => {
-      mocks.requireRole.mockResolvedValue({ status: "forbidden", role: "manager" });
+      signInAs("manager");
 
       await run();
 
-      expect(mocks.requireRole).toHaveBeenCalledWith("admin");
       expect(mocks.rpc).not.toHaveBeenCalled();
       expect(mocks.revalidatePath).not.toHaveBeenCalled();
     });
 
     it(`AC-EDITOR-08: ${name} без входу не доходить до rpc`, async () => {
-      mocks.requireRole.mockResolvedValue({ status: "unauthenticated" });
+      signedOut();
 
       // гість отримує redirect на вхід (виняток), а не результат: ігноруємо його, перевіряємо лише що rpc не було
       await Promise.resolve()
@@ -83,7 +103,7 @@ describe("AC-EDITOR-08: дії шаблонів спершу перевіряю�
   }
 
   it("AC-EDITOR-08: менеджер отримує «Not enough rights»", async () => {
-    mocks.requireRole.mockResolvedValue({ status: "forbidden", role: "manager" });
+    signInAs("manager");
     expect(await saveTemplateDraft(TEMPLATE_ID, CONTENT)).toEqual({ ok: false, error: "Not enough rights" });
     expect(await publishTemplate(TEMPLATE_ID)).toEqual({ ok: false, error: "Not enough rights" });
   });
@@ -91,7 +111,7 @@ describe("AC-EDITOR-08: дії шаблонів спершу перевіряю�
 
 describe("AC-EDITOR-26: гість напряму змінює шаблон", () => {
   it("AC-EDITOR-26: збереження й публікація від гостя відхилені перенаправленням на вхід, rpc не викликано", async () => {
-    mocks.requireRole.mockResolvedValue({ status: "unauthenticated" });
+    signedOut();
     const login = `/login?next=${encodeURIComponent(`/templates/${TEMPLATE_ID}/edit`)}`;
 
     expect(await redirectedTo(() => saveTemplateDraft(TEMPLATE_ID, CONTENT))).toBe(login);
@@ -162,10 +182,10 @@ describe("createTemplate", () => {
   });
 
   it("гість іде на вхід, менеджер — назад зі спискових помилок", async () => {
-    mocks.requireRole.mockResolvedValue({ status: "unauthenticated" });
+    signedOut();
     expect(await redirectedTo(() => createTemplate(new FormData()))).toBe("/login?next=%2Ftemplates");
 
-    mocks.requireRole.mockResolvedValue({ status: "forbidden", role: "manager" });
+    signInAs("manager");
     expect(await redirectedTo(() => createTemplate(new FormData()))).toBe("/templates?error=forbidden");
   });
 
