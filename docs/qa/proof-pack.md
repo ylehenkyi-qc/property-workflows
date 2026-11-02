@@ -10,7 +10,7 @@
 
 - Прод-URL: https://pmwp-ylehenkyi.vercel.app
 - Вимоги: https://github.com/solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-27
-- `/api/health` на момент UAT: <!-- sha і db, напр. «sha 1a2b3c4, db ok, 01.11.2026» -->
+- `/api/health` на момент UAT: sha 2ad9cf2 (= main), db ok, 02.11.2026 (прогін UAT 17:41)
 
 ## 3 AC
 
