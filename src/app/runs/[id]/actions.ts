@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { currentUserId } from "@/lib/auth/user-id";
 import { createClient } from "@/lib/supabase/server";
 import { markTaskErrorCode } from "@/lib/runs/markTaskErrors";
 
@@ -12,9 +13,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function markTaskDone(taskId: string, runId: string) {
   const supabase = await createClient();
 
-  // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) {
+  if (!(await currentUserId(supabase))) {
     redirect("/login");
   }
 
