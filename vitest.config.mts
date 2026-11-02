@@ -9,6 +9,10 @@ export default defineConfig({
     // Рахуються лише expect(…); assert із vitest чи node:assert — ні (такий тест теж падає).
     expect: { requireAssertions: true },
     // Лише *.test.ts(x): ac:coverage рахує тести з цих файлів і з tests/e2e/**/*.spec.ts (їх запускає Playwright, job e2e).
+    // Холодний старт PGlite (WASM) у файлах tests/db під навантаженням не вкладається в типові 10 с хука: перший тест
+    // файлу падає з «Hook timed out in 10000ms», а повторний прогін зелений. Піднімаємо межу, а не повторюємо тести.
+    hookTimeout: 60_000,
+    testTimeout: 30_000,
     include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],
     // tests/fixtures — дані для тестів скриптів; файли *.test.ts там НЕ запускаються.
     // tests/e2e — територія Playwright: випадковий tests/e2e/*.test.ts упав би тут на імпортах @playwright/test.
