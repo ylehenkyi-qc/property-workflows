@@ -1,14 +1,13 @@
 // UAT для трьох AC зрізу 2 на проді (домашка WS8). Дослівні AC — у requirements/ (AC-DSYS-02, AC-DSYS-04 —
-// 19-use-one-design-system.md; AC-TASK-10 — 3-complete-tasks-and-track-run-progress.md).
+// 19-use-one-design-system.md; AC-EDITOR-07 — 20-edit-a-template-with-version-control.md).
 // Користувачі синтетичні: uat-<запуск>-<мітка>@example.test, їх створює й видаляє ця специфікація (@writes).
 // Прод — спільна база з PM: сторінки лише читаються, пишуться лише синтетичні користувач і запуск, і вони прибираються.
 import { expect, test } from "@playwright/test";
 import { deleteUatUsers } from "./support/admin";
 import {
   createUatManager,
-  launchRunAs,
-  runTaskNames,
   templateState,
+  templateVersionCount,
   tenantMoveInTemplate,
   type UatUser,
 } from "./support/data";
@@ -68,38 +67,33 @@ test(
 );
 
 test(
-  "AC-TASK-10: manager C opens the page of a run that is not theirs by a direct link and sees «Run not found» and none of the tasks",
-  { tag: ["@uat", "@writes"], annotation: { type: "ac", description: "AC-TASK-10" } },
+  "AC-EDITOR-07: manager B opens the list of versions of the template by a direct link and sees «Not enough rights» and no versions",
+  { tag: ["@uat", "@writes"], annotation: { type: "ac", description: "AC-EDITOR-07" } },
   async ({ page }) => {
     const template = await tenantMoveInTemplate();
-    let runId!: string;
-    let taskNames: string[] = [];
-    let managerC!: UatUser;
+    const versions = await templateVersionCount(template.id);
+    expect(versions, "у шаблону має бути збережена версія, яку менеджер не повинен побачити").toBeGreaterThan(0);
 
-    await given("a run of manager A, and manager C, who is neither its run manager nor an assignee in it", async () => {
-      const managerA = await createUatManager("a");
-      runId = await launchRunAs(managerA, template.id, "UAT Apartment 12");
-      taskNames = await runTaskNames(runId);
-      expect(taskNames.length).toBeGreaterThan(0);
-      managerC = await createUatManager("c");
-      await signedInAs(page, managerC);
+    await given(`manager B signed in and the template «Tenant move-in» with saved versions (${versions} in the database)`, async () => {
+      await signedInAs(page, await createUatManager("v"));
     });
-    await when("manager C opens the page of this run by a direct link", async () => {
-      await page.goto(`/runs/${runId}`);
+    await when("B opens the list of versions of this template by a direct link", async () => {
+      await page.goto(`/templates/${template.id}/versions`);
     });
 
     await thenStep(
       page,
       {
-        clause: 'manager C sees the message "Run not found" and none of the tasks of the run.',
-        visible: ['the message "Run not found"'],
-        hidden: ["none of the tasks of the run is on the page (checked by the task names read from the database)"],
+        clause: 'B sees the message "Not enough rights" and no versions.',
+        visible: ['the message "Not enough rights"', "no list of versions: no table and no rows «Version N»"],
+        hidden: ["the page has no version rows or table, although the template has saved versions in the database"],
       },
       async () => {
         const main = page.getByRole("main");
-        await expect(main.getByRole("heading", { level: 1, name: "Run not found" })).toBeVisible();
-        for (const name of taskNames) await expect(main.getByText(name, { exact: true })).toHaveCount(0);
-        await expect(main.getByText("UAT Apartment 12")).toHaveCount(0);
+        await expect(main.getByRole("heading", { level: 1, name: "Not enough rights" })).toBeVisible();
+        await expect(main.getByTestId("version-row")).toHaveCount(0);
+        await expect(main.getByRole("table")).toHaveCount(0);
+        await expect(main.getByText(/^Version \d+$/)).toHaveCount(0);
       },
     );
   },

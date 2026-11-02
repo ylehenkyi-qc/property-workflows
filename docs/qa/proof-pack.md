@@ -17,7 +17,7 @@
 | AC | Вид | «Тоді» (дослівно з вимоги PM) |
 |---|---|---|
 | AC-DSYS-02 | відмова в браузері (заборонена роль) | B sees the message "Not enough rights" and the link "Back to templates" in the same page layout as the other pages, no content of the editor, and the template stays at version 1 with no unpublished changes. |
-| AC-TASK-10 | відмова в браузері (чужі дані за прямим посиланням) | manager C sees the message "Run not found" and none of the tasks of the run. |
+| AC-EDITOR-07 | відмова в браузері (заборонена роль, прямий запит) | B sees the message "Not enough rights" and no versions. |
 | AC-DSYS-04 | стан інтерфейсу (порожній стан) | B sees the message "No runs yet. Launch a template to start one." and the link "Launch a template", and no empty table. |
 
 ## A. Ворота
@@ -46,7 +46,7 @@ PR: https://github.com/ylehenkyi-qc/property-workflows/pull/33 (task/test-qualit
 | AC | Де живе правило | Рівень | Чому | Тест |
 |---|---|---|---|---|
 | AC-DSYS-02 | `src/lib/auth/require-role.ts` (роль з `profiles.role`) + гілка `forbidden` у `src/app/templates/[id]/edit/page.tsx`; запис додатково закриває база (AC-EDITOR-08) | unit (TS) + сторінка + e2e | відмова за роллю — чистий TS без SQL; дослівний текст доведено UAT (розділ C), а спільний макет (`<main>` з `PageShell` і `page-message`) перевіряє сторінковий тест; агент-рецензент макет на кадрі не оцінював | `src/lib/auth/require-role.test.ts` (6 тестів AC-DSYS-02), `src/app/templates/templates-pages.test.tsx:97` |
-| AC-TASK-10 | політики RLS `runs_select_visible`, `run_sections_select_visible`, `run_tasks_select_visible` і `private.can_see_run()` у `supabase/migrations/20261020091923_run_schema_and_seed.sql` | база (PGlite) + сторінка + e2e | правило живе в SQL; тест сторінки `src/app/runs/run-tracking-pages.test.tsx:88` лише підставляє «RLS нічого не віддав», тож саме правило він не доводить (це імітація результату) | `tests/db/run-tracking.test.ts:130` (сторонній менеджер не читає ні запуску, ні секцій, ні задач) |
+| AC-EDITOR-07 | політика RLS `template_versions_select_admin` і `grant select` на `template_versions` у `supabase/migrations/20261027130053_template_versions.sql`; гілка `forbidden` у `src/app/templates/[id]/versions/page.tsx` | база (PGlite) + сторінка + e2e | правило живе в SQL (менеджер не читає версій, гість не читає нічого), а сторінка лише віддає відмову; тест сторінки на підробленому Supabase доводить текст і те, що версії не запитуються, але саме правило в базі доводить тест бази; дослівний текст має довести UAT (розділ C) | `tests/db/template-versions.test.ts:200`, `src/app/templates/templates-pages.test.tsx:146` |
 | AC-DSYS-04 | порожній стан у `src/app/runs/page.tsx` (`items.length === 0`) | сторінка (підроблений Supabase) + e2e | рядки сторінки, а не `src/lib`: Stryker їх не мутує, тому ручні мутанти E1–E4; дослівний текст доведено UAT (розділ C) | `src/app/runs/design-system.test.tsx:124` |
 
 ### Покриття
@@ -58,8 +58,8 @@ PR: https://github.com/ylehenkyi-qc/property-workflows/pull/33 (task/test-qualit
 | `src/lib/auth/require-role.ts` | 100 % | 100 % | у `FLOORED`; до цього PR було 100 / 91 %, гілку «без профілю» не виконував жоден тест |
 | `src/app/templates/[id]/edit/page.tsx` | 100 % | 59,09 % | гілки `notFound` та завантаження шаблону не стосуються AC-DSYS-02; відмову й макет (`<main>`, `page-message`) доводить `templates-pages.test.tsx:97`; дослівний текст доведено UAT (розділ C) |
 | `src/app/runs/page.tsx` | 77,77 % | 67,85 % | порожній стан AC-DSYS-04 виконується тестом `design-system.test.tsx:124`, мутанти E1–E4 убиті |
-| `src/app/runs/[id]/page.tsx` | 95,83 % | 70,83 % | гілка «Run not found» виконується; правило видимості живе в SQL і доведене SQL-мутантами V1–V6 |
-| політики RLS і `private.can_see_run()` | немає | немає | JS-покриття SQL не бачить: доведено SQL-мутантами |
+| `src/app/templates/[id]/versions/page.tsx` | 100 % | 65,38 % | гілка `forbidden` (AC-EDITOR-07) виконується тестом `templates-pages.test.tsx:146`; решта гілок (шаблон не знайдено, помилки читання) не стосується AC |
+| політика `template_versions_select_admin` і grant на `template_versions` | немає | немає | JS-покриття SQL не бачить: доведено SQL-мутантами W1–W3 |
 
 ### Доказ мутацією
 
@@ -75,47 +75,46 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 
 - Stryker `require-role.ts`: mutation score **88,89 % → 97,14 %** (до: 28 убито + 4 timeout, 4 вижили; після: 27 убито + 7 timeout, 1 вижив — еквівалентний, див. нижче; ще 1 мутант `StringLiteral` на рядку 27 вимкнено `Stryker disable` з причиною в коді).
 - Stryker `runList.ts` (рядки списку запусків під AC-DSYS-04): 89,47 %, 2 вижилі не на рядках цих AC: `templates = []` за замовчуванням (еквівалентний: у масиві-заглушці немає елемента з `id`) і текст запасного «—» для невідомого шаблону (поза трьома AC, вимога AC-TASK-14). Лишено.
-- **Ручні TS-мутанти на порожній стан** (`npm run mutation:manual`, `scripts/mutants.mjs`): E1 `items.length === 0` → `< 0`, E2 посилання `/runs/new` → `/runs`, E3 текст без другого речення, E4 таблиця лишається поруч із повідомленням — **4 з 4 убито** тестом AC-DSYS-04.
-- **SQL-мутації** (`npm run mutation:sql`), політики й `can_see_run` за AC-TASK-10, умову послаблено до `true`:
+- **Ручні TS-мутанти** (`npm run mutation:manual`, `scripts/mutants.mjs`): на порожній стан AC-DSYS-04 (рядки в `src/app/runs/page.tsx`: Stryker мутує лише `src/lib`) — E1 `items.length === 0` → `< 0`, E2 посилання `/runs/new` → `/runs`, E3 текст без другого речення, E4 таблиця лишається поруч із повідомленням; на сторінку версій AC-EDITOR-07 — W4 `requireRole("admin")` → `requireRole(["manager", "admin"])`. **5 з 5 убито** тестами AC-DSYS-04 і AC-EDITOR-07.
+- **SQL-мутації** (`npm run mutation:sql`), політика й grant `template_versions` за AC-EDITOR-07; умову послаблено, а не видалено політику (без політики RLS забороняє все, і тест відмови лишився б зеленим з неправильної причини):
 
 | Мутант | AC | Що зламано | Вердикт | Який тест упав |
 |---|---|---|---|---|
-| V1 | AC-TASK-10 | `can_see_run`: гілка адміністратора завжди `true` | KILLED | AC-TASK-10, AC-TASK-06, AC-TASK-17 |
-| V2 | AC-TASK-10 | `can_see_run`: «менеджер запуску» — будь-який запуск з `manager_id` | KILLED | AC-TASK-10, AC-TASK-06, AC-TASK-17 |
-| V3 | AC-TASK-10 | `can_see_run`: «виконавець» — будь-хто, якщо є призначена задача | KILLED | AC-TASK-10, AC-TASK-06, AC-TASK-17 |
-| V4 | AC-TASK-10 | `runs_select_visible` без перевірки видимості | KILLED | AC-TASK-10, AC-TASK-06, AC-TASK-17 |
-| V5 | AC-TASK-10 | `run_tasks_select_visible` без перевірки видимості | KILLED | AC-TASK-10 |
-| V6 | AC-TASK-10 | `run_sections_select_visible` без перевірки видимості | KILLED | AC-TASK-10 |
+| W1 | AC-EDITOR-07 | `template_versions_select_admin`: умову ролі прибрано, версії читає будь-хто з входом | KILLED | AC-EDITOR-02, AC-EDITOR-07 |
+| W2 | AC-EDITOR-07 | `template_versions_select_admin`: замість admin дозволено менеджера | KILLED | AC-EDITOR-02, AC-EDITOR-05, AC-EDITOR-07 |
+| W3 | AC-EDITOR-07 | `grant select` на `template_versions` видано й гостю (`anon`) | KILLED | AC-EDITOR-07 |
 
-  Усі 6 з 6 убито з першого разу (вижилих не було, тож «до/після» для SQL немає: тест `tests/db/run-tracking.test.ts:130` уже охороняв правило).
+  Усі 3 з 3 убито з першого разу (вижилих не було, тож «до/після» для SQL немає: тест `tests/db/template-versions.test.ts:200` уже охороняв правило).
 - Еквівалентні мутанти: `require-role.ts:26` (на `main`; зараз рядок 27) — `roles` = рядок замість масиву, коли умова `typeof allowed === "string"` завжди `false`: `role` тут завжди `"manager"` або `"admin"`, жодна назва не є підрядком іншої, тож `"admin".includes(role)` дає ту саму відповідь, що й `["admin"].includes(role)`. Вижилий мутант `ConditionalExpression → false` лишено видимим у звіті; `// Stryker disable` стоїть лише на `StringLiteral` (`typeof allowed === ""`). Мутант `ConditionalExpression → true` НЕ еквівалентний: його вбиває тест «сторінка для кількох ролей пускає менеджера й адміністратора» (виправлено за зауваженням CodeRabbit до PR #33, раніше директива ховала обидва).
 - Знахідка під час прогону покриття: чотири файли `tests/db` паралельно під інструментуванням v8 не вкладалися в 10 с хука і давали випадково червоний job «Покриття» (`Hook timed out in 10000ms`). Виправлено в `vitest.coverage.config.mts` (`hookTimeout` 60 с, `testTimeout` 30 с); `npm test` не змінено.
 
 ## C. UAT на проді
 
-Прогін: 02.11.2026, 15:55 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `b5b8f91` (збігається з `main`), код тестів `b7ac530`. Playwright 49,5 с. Це другий прогін; перший (15:42, `d2bc783`) дав ті самі вердикти, відео прикладено до другого.
+Прогін: 02.11.2026, 17:41 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `2ad9cf2` (= `main` на той момент), код тестів `0908641`. Playwright 37,6 с.
 
 | AC | Специфікація | Тест (твердження) | Агент | Вердикт | Кадр |
 |---|---|---|---|---|---|
-| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L28) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
-| AC-TASK-10 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L70) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png) |
-| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L108) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
+| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L27) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
+| AC-EDITOR-07 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L69) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-EDITOR-07-then-1.png) |
+| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L102) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
 
-- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/report.md)
-- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR https://github.com/ylehenkyi-qc/property-workflows/pull/34
-- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0055 за цінами API.
-- Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git):
-  - NC-1 (AC-DSYS-04, у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
-  - NC-2 (AC-DSYS-04, у `ac-text` текст «Тоді» «уточнено», тест і застосунок не змінено): твердження зелені, Haiku і Sonnet сказали FAIL, підсумок **NEEDS-HUMAN** (R3: розбіжність іде до людини).
-- Дані: усі три AC мають тег `@writes`: кожен тест створює синтетичних менеджерів `uat-<запуск>-<мітка>@example.test` (AC-TASK-10 ще й один запуск від синтетичного менеджера A). Прибирання зі звіту: видалено 4 користувачі, лишилось 0, рядків `runs` лишилось 0. Для негативних контролів: видалено 2, лишилось 0. Паролі згенеровані випадково на кожен прогін і ніде не записуються.
-- Нестабільність під час налагодження: перші два прогони (до виправлення) дали для AC-DSYS-02 і AC-TASK-10 FAIL через таймаут хука `afterEach`, хоча кадр «Тоді» був правильний; а рецензент не запускався на Windows (`spawn("claude")` не бачить `claude.cmd`). Виправлено двома локальними правками в допоміжному коді (`scripts/uat/review.mjs`: запуск `claude.exe`; `attachRuntimeErrors`: запити в польоті не чекаємо довше 3 с і пишемо в `pending`). Промпт і схему рецензента не змінено. Причину зависання запиту не з'ясовано: у повторному прогоні воно не відтворилося.
+- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/report.md)
+- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR (PR https://github.com/ylehenkyi-qc/property-workflows/pull/41)
+- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0066 за цінами API.
+- Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git; прогін 02.11 для AC-DSYS-04, який не змінювався):
+  - NC-1 (у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
+  - NC-2 (у `ac-text` текст «Тоді» «уточнено», тест і застосунок не змінено): твердження зелені, Haiku і Sonnet сказали FAIL, підсумок **NEEDS-HUMAN** (R3: розбіжність іде до людини).
+- Дані: усі три AC мають тег `@writes`: кожен тест створює синтетичного менеджера `uat-<запуск>-<мітка>@example.test`. Запуски й шаблони тести не створюють і не змінюють. Прибирання зі звіту: видалено 3 користувачі, лишилось 0, рядків `runs` лишилось 0. Паролі випадкові на кожен прогін і ніде не записуються.
+- Попередня умова AC-EDITOR-07 виконана частково: AC каже «версії 1 і 2», а в шаблону «Tenant move-in» на проді збережена лише версія 1 (крок «Дано» у звіті: «1 in the database»). Створювати версії в спільному шаблоні на проді я не став: тест перевіряє, що менеджер за прямим посиланням не бачить жодної наявної версії (рядків і таблиці немає), хоча база їх має.
+- Заміна AC: початково третім AC був AC-TASK-10 («Run not found»), але він належить зрізу 1, а гайд вимагає AC зрізу 2. До відкриття приймання PM його замінено на AC-EDITOR-07 (відмова за роллю, правило в SQL). Що було зроблено для AC-TASK-10 (SQL-мутанти на RLS запусків, UAT 15:42) лишилось в історії PR #33 і #34 і до цих трьох AC не входить.
+- Нестабільність під час налагодження (на початку кроку C): два перші прогони дали FAIL через таймаут хука `afterEach`, хоча кадр «Тоді» був правильний, а рецензент не запускався на Windows (`spawn("claude")` не бачить `claude.cmd`). Виправлено двома локальними правками допоміжного коду (`scripts/uat/review.mjs`: запуск `claude.exe`; `attachRuntimeErrors`: запити в польоті не чекаємо довше 3 с). Промпт і схему рецензента не змінено. Причину зависання запиту не з'ясовано: після виправлення воно не відтворилося.
 
 ### Приймання PM
 
 | AC | Рішення PM | Посилання |
 |---|---|---|
 | AC-DSYS-02 | очікує приймання | <!-- коментар-підпис або issue «Відхилення від вимог» --> |
-| AC-TASK-10 | очікує приймання | <!-- … --> |
+| AC-EDITOR-07 | очікує приймання | <!-- … --> |
 | AC-DSYS-04 | очікує приймання | <!-- … --> |
 
 ## D. Eval рецензента

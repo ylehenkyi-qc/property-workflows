@@ -1,9 +1,9 @@
 {
   "kind": "uat",
-  "generatedAt": "2026-11-02T13:56:29.590Z",
+  "generatedAt": "2026-11-02T15:42:38.549Z",
   "baseURL": "https://pmwp-ylehenkyi.vercel.app",
-  "deployedSha": "b5b8f91c47939f888e33c0a7a4852e913b4b9da8",
-  "testsCommit": "b7ac53052d494183c139e5625d4e7c57c4365c55",
+  "deployedSha": "2ad9cf2e97c628614f6a69810edbd681be41ff9c",
+  "testsCommit": "0908641babf7f9ebf0a0f97aacaa2699389267b4",
   "reviewer": {
     "model": "claude-haiku-5-5",
     "disputes": "claude-sonnet-5-5"
@@ -21,7 +21,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно лише два написи: заголовок \"Not enough rights\" і посилання \"Back to templates\" на порожньому світлому фоні; кнопки «Save version» і полів редактора немає. Частина критерію «in the same page layout as the other pages» на одному кадрі не перевіряється, бо порівняти з іншими сторінками немає з чим, і в переліку видимих частин цього немає. Версія шаблону та прапорець несохранених змін перевіряються в базі, тому я їх не оцінював."
+        "notes": "На кадрі видно лише заголовок «Not enough rights» і посилання «Back to templates» на порожньому сірому фоні; кнопки «Save version» і полів редактора немає, тож текст сторінки складається тільки з цих двох написів. Частину «в тому самому макеті, що й інші сторінки» з одного кадру не перевірити, а в списку видимих частин її немає, тому вона не оцінювалася."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -50,9 +50,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 20069,
-      "reviewCostUsd": 0.00222,
-      "reviewWallMs": 13285
+      "playwrightMs": 18905,
+      "reviewCostUsd": 0.00233,
+      "reviewWallMs": 10009
     },
     {
       "id": "AC-DSYS-04",
@@ -65,7 +65,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі сторінки /runs видно повідомлення «No runs yet. Launch a template to start one.» і текст «Launch a template» зеленим кольором, схожим на посилання. Таблиці на кадрі не видно, але перевірка її відсутності — не з кадрів, тому її не оцінюю."
+        "notes": "На кадрі сторінки /runs з заголовком «Runs» видно точний текст «No runs yet. Launch a template to start one.» і посилання «Launch a template» кольором посилання. Таблиці на кадрі немає, але це частина «Не з кадрів», тому не оцінюю її."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -86,22 +86,22 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 7746,
-      "reviewCostUsd": 0.00169,
-      "reviewWallMs": 8638
+      "playwrightMs": 6241,
+      "reviewCostUsd": 0.0021,
+      "reviewWallMs": 7887
     },
     {
-      "id": "AC-TASK-10",
-      "proof": "AC-TASK-10",
-      "title": "AC-TASK-10: manager C opens the page of a run that is not theirs by a direct link and sees «Run not found» and none of the tasks",
-      "screenshot": "docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png",
-      "video": "test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/video.webm",
-      "trace": "test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/trace.zip",
+      "id": "AC-EDITOR-07",
+      "proof": "AC-EDITOR-07",
+      "title": "AC-EDITOR-07: manager B opens the list of versions of the template by a direct link and sees «Not enough rights» and no versions",
+      "screenshot": "docs/qa/uat/2026-11-02/frames/AC-EDITOR-07-then-1.png",
+      "video": "test-results/artifacts/access-and-states-AC-EDITO-92a17-ugh-rights»-and-no-versions-chromium/video.webm",
+      "trace": "test-results/artifacts/access-and-states-AC-EDITO-92a17-ugh-rights»-and-no-versions-chromium/trace.zip",
       "asserted": true,
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі frame-then-1.png великим заголовком написано «Run not found», нижче посилання «Back to runs». Завдань на сторінці не видно. Перевірка відсутності завдань у базі належить автоматичним тестам, тому тут не оцінюється."
+        "notes": "На кадрі видно заголовок «Not enough rights» (великими й малими літерами збігається з критерієм) і посилання «Back to templates». Таблиці, рядків «Version N» або будь-якого списку версій немає, фон порожній. Частина про дані з бази не з кадрів, тому не оцінювалась."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -111,26 +111,33 @@
       "escalated": false,
       "quotesVerified": [
         {
-          "quote": "Run not found",
+          "quote": "Not enough rights",
+          "onPage": true
+        },
+        {
+          "quote": "Not enough rights",
+          "onPage": true
+        },
+        {
+          "quote": "Back to templates",
           "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 11047,
-      "reviewCostUsd": 0.00162,
-      "reviewWallMs": 7578
+      "playwrightMs": 6433,
+      "reviewCostUsd": 0.00213,
+      "reviewWallMs": 8241
     }
   ],
   "negativeControls": [],
   "cleanup": {
-    "at": "2026-11-02T13:56:13.774Z",
+    "at": "2026-11-02T15:42:26.738Z",
     "deleted": [
-      "uat-261102135526-empty@example.test",
-      "uat-261102135526-c@example.test",
-      "uat-261102135526-a@example.test",
-      "uat-261102135526-b@example.test"
+      "uat-261102154149-empty@example.test",
+      "uat-261102154149-v@example.test",
+      "uat-261102154149-b@example.test"
     ],
     "remaining": [],
     "leftoverRequests": 0

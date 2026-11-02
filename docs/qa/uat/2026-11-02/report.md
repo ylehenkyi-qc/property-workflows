@@ -1,17 +1,17 @@
 # Звіт UAT — 02.11.2026
 
-- **Застосунок:** https://pmwp-ylehenkyi.vercel.app (/api/health: коміт `b5b8f91`)
-- **Код тестів:** `task/uat` @ `b7ac530`
-- **Прогін:** 02.11.2026, 15:55 (Київ), Playwright 49.5 с; AC: 3 — PASS 3, FAIL 0, NEEDS-HUMAN 0
-- **Рецензент:** `claude-haiku-5-5`; суперечки → `claude-sonnet-5-5`. Разом за розбір: $0.0055 (ціни API; за підпискою — у межах ліміту плану)
-- **Прибирання:** синтетичних uat-*@example.test видалено 4, лишилось 0, їхніх рядків, що лишились: 0
+- **Застосунок:** https://pmwp-ylehenkyi.vercel.app (/api/health: коміт `2ad9cf2`)
+- **Код тестів:** `task/swap-ac-editor-07` @ `0908641`
+- **Прогін:** 02.11.2026, 17:41 (Київ), Playwright 37.6 с; AC: 3 — PASS 3, FAIL 0, NEEDS-HUMAN 0
+- **Рецензент:** `claude-haiku-5-5`; суперечки → `claude-sonnet-5-5`. Разом за розбір: $0.0066 (ціни API; за підпискою — у межах ліміту плану)
+- **Прибирання:** синтетичних uat-*@example.test видалено 3, лишилось 0, їхніх рядків, що лишились: 0
 - **Відео й траси:** не в git — `test-results/` локально або артефакт CI; трасу відкриває `npx playwright show-trace <trace.zip>`
 
 | AC | Перевірки | Агент | Підсумок | Чому | Playwright | Розбір |
 |---|---|---|---|---|---|---|
-| AC-DSYS-02 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 20.1 с | $0.0022, 13.3 с |
-| AC-DSYS-04 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 7.7 с | $0.0017, 8.6 с |
-| AC-TASK-10 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 11.0 с | $0.0016, 7.6 с |
+| AC-DSYS-02 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 18.9 с | $0.0023, 10.0 с |
+| AC-DSYS-04 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 6.2 с | $0.0021, 7.9 с |
+| AC-EDITOR-07 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 6.4 с | $0.0021, 8.2 с |
 
 ## AC-DSYS-02 — PASS
 
@@ -25,7 +25,7 @@
 
 **Кроки:** ✔ Дано: manager B is signed in and the template «Tenant move-in» has a saved version → ✔ Коли: B opens the editor of this template by a direct link → ✔ Тоді: B sees the message "Not enough rights" and the link "Back to templates" in the same page layout as the other pages, no content of the editor, and the template stays at version 1 with no unpublished changes.
 
-**Агент (claude-haiku-5-5, PASS):** На кадрі видно лише два написи: заголовок "Not enough rights" і посилання "Back to templates" на порожньому світлому фоні; кнопки «Save version» і полів редактора немає. Частина критерію «in the same page layout as the other pages» на одному кадрі не перевіряється, бо порівняти з іншими сторінками немає з чим, і в переліку видимих частин цього немає. Версія шаблону та прапорець несохранених змін перевіряються в базі, тому я їх не оцінював.
+**Агент (claude-haiku-5-5, PASS):** На кадрі видно лише заголовок «Not enough rights» і посилання «Back to templates» на порожньому сірому фоні; кнопки «Save version» і полів редактора немає, тож текст сторінки складається тільки з цих двох написів. Частину «в тому самому макеті, що й інші сторінки» з одного кадру не перевірити, а в списку видимих частин її немає, тому вона не оцінювалася.
 
 **Цитати агента, звірені зі сторінкою (aria):**
 - «Not enough rights» — є на сторінці
@@ -51,7 +51,7 @@
 
 **Кроки:** ✔ Дано: manager B who has no runs → ✔ Коли: B opens the list of runs → ✔ Тоді: B sees the message "No runs yet. Launch a template to start one." and the link "Launch a template", and no empty table.
 
-**Агент (claude-haiku-5-5, PASS):** На кадрі сторінки /runs видно повідомлення «No runs yet. Launch a template to start one.» і текст «Launch a template» зеленим кольором, схожим на посилання. Таблиці на кадрі не видно, але перевірка її відсутності — не з кадрів, тому її не оцінюю.
+**Агент (claude-haiku-5-5, PASS):** На кадрі сторінки /runs з заголовком «Runs» видно точний текст «No runs yet. Launch a template to start one.» і посилання «Launch a template» кольором посилання. Таблиці на кадрі немає, але це частина «Не з кадрів», тому не оцінюю її.
 
 **Цитати агента, звірені зі сторінкою (aria):**
 - «No runs yet. Launch a template to start one.» — є на сторінці
@@ -63,28 +63,30 @@
 
 **Рішення PM:** ☐ приймаю · ☐ відхилення від вимог (issue «Відхилення від вимог: AC-DSYS-04 — …») · @login: ____
 
-## AC-TASK-10 — PASS
+## AC-EDITOR-07 — PASS
 
-**Тест:** AC-TASK-10: manager C opens the page of a run that is not theirs by a direct link and sees «Run not found» and none of the tasks
+**Тест:** AC-EDITOR-07: manager B opens the list of versions of the template by a direct link and sees «Not enough rights» and no versions
 
-**Критерій** (requirements/3-complete-tasks-and-track-run-progress.md):
+**Критерій** (requirements/20-edit-a-template-with-version-control.md):
 
-> AC-TASK-10: Given a run of manager A and manager C, who is neither the run manager of this run nor an assignee in it. When manager C opens the page of this run by a direct link. Then manager C sees the message "Run not found" and none of the tasks of the run.
+> AC-EDITOR-07: Given manager B signed in and the template "Tenant move-in" with versions 1 and 2. When B opens the list of versions of this template by a direct link. Then B sees the message "Not enough rights" and no versions.
 
-![Кадр «Тоді» 1](frames/AC-TASK-10-then-1.png)
+![Кадр «Тоді» 1](frames/AC-EDITOR-07-then-1.png)
 
-**Кроки:** ✔ Дано: a run of manager A, and manager C, who is neither its run manager nor an assignee in it → ✔ Коли: manager C opens the page of this run by a direct link → ✔ Тоді: manager C sees the message "Run not found" and none of the tasks of the run.
+**Кроки:** ✔ Дано: manager B signed in and the template «Tenant move-in» with saved versions (1 in the database) → ✔ Коли: B opens the list of versions of this template by a direct link → ✔ Тоді: B sees the message "Not enough rights" and no versions.
 
-**Агент (claude-haiku-5-5, PASS):** На кадрі frame-then-1.png великим заголовком написано «Run not found», нижче посилання «Back to runs». Завдань на сторінці не видно. Перевірка відсутності завдань у базі належить автоматичним тестам, тому тут не оцінюється.
+**Агент (claude-haiku-5-5, PASS):** На кадрі видно заголовок «Not enough rights» (великими й малими літерами збігається з критерієм) і посилання «Back to templates». Таблиці, рядків «Version N» або будь-якого списку версій немає, фон порожній. Частина про дані з бази не з кадрів, тому не оцінювалась.
 
 **Цитати агента, звірені зі сторінкою (aria):**
-- «Run not found» — є на сторінці
+- «Not enough rights» — є на сторінці
+- «Not enough rights» — є на сторінці
+- «Back to templates» — є на сторінці
 
 **Правило:** R6: перевірки, агент і цитати збігаються
 
-**Відео:** `test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/video.webm` · **траса:** `test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/trace.zip` (не в git)
+**Відео:** `test-results/artifacts/access-and-states-AC-EDITO-92a17-ugh-rights»-and-no-versions-chromium/video.webm` · **траса:** `test-results/artifacts/access-and-states-AC-EDITO-92a17-ugh-rights»-and-no-versions-chromium/trace.zip` (не в git)
 
-**Рішення PM:** ☐ приймаю · ☐ відхилення від вимог (issue «Відхилення від вимог: AC-TASK-10 — …») · @login: ____
+**Рішення PM:** ☐ приймаю · ☐ відхилення від вимог (issue «Відхилення від вимог: AC-EDITOR-07 — …») · @login: ____
 
 ## Як читати підсумок
 

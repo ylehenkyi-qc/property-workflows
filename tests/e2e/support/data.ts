@@ -1,8 +1,6 @@
-// Синтетичні дані для UAT наших AC (AC-DSYS-02, AC-TASK-10, AC-DSYS-04): менеджери uat-<запуск>-<мітка>@example.test,
-// запуск, створений синтетичним менеджером, і читання стану шаблону. Усе, що створює цей файл, прибирає
-// deleteUatUsers() з ./admin (runs за manager_id, потім користувача; run_sections і run_tasks йдуть каскадом).
-// Секретний ключ і паролі не друкуємо: лише адреси синтетичних користувачів.
-import { createClient } from "@supabase/supabase-js";
+// Синтетичні дані для UAT наших AC (AC-DSYS-02, AC-EDITOR-07, AC-DSYS-04): менеджери uat-<запуск>-<мітка>@example.test
+// і читання стану шаблону. Усе, що створює цей файл, прибирає deleteUatUsers() з ./admin (користувача, а за потреби
+// його рядки в OWNED_ROWS). Секретний ключ і паролі не друкуємо: лише адреси синтетичних користувачів.
 import { adminClient, randomPassword, uatEmail } from "./admin";
 
 export type UatUser = { id: string; email: string; password: string };
@@ -56,26 +54,12 @@ export async function templateState(templateId: string): Promise<{ currentVersio
   return { currentVersion: template?.current_version ?? null, unpublished: draft?.has_unpublished_changes ?? false };
 }
 
-/** Менеджер запускає шаблон від свого імені (RPC launch_run, як форма «New run»): запуск належить йому. */
-export async function launchRunAs(user: UatUser, templateId: string, caseName: string): Promise<string> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !key) throw new Error("Потрібні NEXT_PUBLIC_SUPABASE_URL і NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (.env.local)");
-  const client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const signedIn = await client.auth.signInWithPassword({ email: user.email, password: user.password });
-  if (signedIn.error) throw new Error(`Вхід ${user.email}: ${signedIn.error.message}`);
-  const { data, error } = await client.rpc("launch_run", {
-    p_template_id: templateId,
-    p_case_name: caseName,
-    p_assignments: [],
-  });
-  if (error || !data) throw new Error(`launch_run: ${error?.message ?? "порожня відповідь"}`);
-  return data as string;
-}
-
-/** Назви задач запуску (читає секретний ключ, обходить RLS): щоб перевірити, що чужий їх не бачить. */
-export async function runTaskNames(runId: string): Promise<string[]> {
-  const { data, error } = await adminClient().from("run_tasks").select("name").eq("run_id", runId);
+/** Скільки збережених версій має шаблон у базі (читає секретний ключ, обходить RLS): щоб було що не показувати менеджеру. */
+export async function templateVersionCount(templateId: string): Promise<number> {
+  const { count, error } = await adminClient()
+    .from("template_versions")
+    .select("*", { count: "exact", head: true })
+    .eq("template_id", templateId);
   if (error) throw error;
-  return (data ?? []).map((t) => t.name as string);
+  return count ?? 0;
 }
