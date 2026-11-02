@@ -99,7 +99,7 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 | AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/tests/e2e/access-and-states.spec.ts#L102) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
 
 - Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/a4d0783/docs/qa/uat/2026-11-02/report.md)
-- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR <!-- PR зі звітом: підставити посилання після відкриття -->
+- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR (PR https://github.com/ylehenkyi-qc/property-workflows/pull/41)
 - Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0066 за цінами API.
 - Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git; прогін 02.11 для AC-DSYS-04, який не змінювався):
   - NC-1 (у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
