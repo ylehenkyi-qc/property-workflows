@@ -121,6 +121,12 @@ OpenSpec 1.14.1 (devDependency + глобальний CLI тієї ж версі
 - Кожна таблиця в `public`: `enable row level security`; `revoke all … from anon, authenticated`;
   явні `grant` (автогрантів немає); політика на кожну операцію з `to authenticated` і `(select auth.uid())`;
   колонкові `grant update (…)`, щоб користувач не змінив собі `role`/`status`.
+- Умова політики `select`/`update`/`delete` таблиці з рядками користувачів чи запусків (нотатки, виконавці, задачі)
+  мусить обмежувати рядки: власником (`author_id = (select auth.uid())`) або видимістю батьківського об'єкта
+  (`private.can_see_run(run_id)`). Умова лише `(select auth.uid()) is not null` чи `true` дозволяє кожному, хто
+  увійшов, читати й міняти чужі рядки: це помилка рівня «must fix», навіть коли політика на кожну операцію є й
+  `to authenticated` стоїть. Виняток — довідникові таблиці без чужих даних (напр. шаблони), його пояснюють у
+  коментарі міграції.
 - Хелпери ролей — у схемі `private`, `security definer`, `set search_path = ''`; роль — з `profiles.role`,
   ніколи з `user_metadata`. Набір ролей змінюй новою міграцією в такому порядку: зняти старий
   `profiles_role_check` → оновити наявні дані (`update … set role`) → новий `default` колонки `role` →
