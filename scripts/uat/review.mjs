@@ -17,6 +17,20 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const prompt = readFileSync(path.join(here, "review-prompt.uk.md"), "utf8");
 const schema = JSON.stringify(readJson(path.join(here, "verdict.schema.json")));
 
+// Windows: spawn("claude") без оболонки не запускає claude.cmd (ENOENT), а shell: true ламає лапки в JSON-схемі.
+// Тому беремо справжній claude.exe з пакета в PATH (npm i -g @anthropic-ai/claude-code) або з CLAUDE_BIN.
+// Локальна правка WS8 (інакше на Windows усі вердикти «БЕЗ ВЕРДИКТУ»); промпт і схему рецензента не змінено.
+function claudeBin() {
+  if (process.env.CLAUDE_BIN) return process.env.CLAUDE_BIN;
+  if (process.platform === "win32") {
+    for (const dir of (process.env.PATH ?? "").split(path.delimiter)) {
+      const exe = path.join(dir, "node_modules", "@anthropic-ai", "claude-code", "bin", "claude.exe");
+      if (existsSync(exe)) return exe;
+    }
+  }
+  return "claude";
+}
+
 function runClaude(caseDir, model) {
   const args = [
     "-p",
@@ -36,7 +50,7 @@ function runClaude(caseDir, model) {
   cpSync(path.join(caseDir, "agent"), blindDir, { recursive: true });
   const started = Date.now();
   return new Promise((resolve) => {
-    const child = spawn("claude", args, { cwd: blindDir, stdio: ["pipe", "pipe", "pipe"] });
+    const child = spawn(claudeBin(), args, { cwd: blindDir, stdio: ["pipe", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
     child.stdout.on("data", (d) => (stdout += d));

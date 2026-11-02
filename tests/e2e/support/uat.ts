@@ -73,14 +73,23 @@ export async function attachRuntimeErrors(page: Page) {
     .filter((m) => m.type() === "error")
     .map((m) => m.text());
   const pageErrors = (await page.pageErrors({ filter: "all" })).map((e) => String(e));
+  // r.response() чекає відповіді без кінця, якщо запит ще в польоті (наприклад, префетч посилання): afterEach тоді
+  // висить до таймауту тесту. Чекаємо відповідь 3 с; хто не встиг — у списку pending (це не помилка сама по собі).
+  // Локальна правка WS8 (прогін на проді: AC-DSYS-02 і AC-TASK-10 упали саме в цьому хуку).
   const responses = await Promise.all(
-    (await page.requests()).map(async (r) => ({ r, status: (await r.response())?.status() ?? 0 })),
+    (await page.requests()).map(async (r) => {
+      const response = await Promise.race([r.response(), new Promise<null>((resolve) => setTimeout(resolve, 3_000, null))]);
+      return { r, status: response?.status() ?? 0, pending: response === null && r.failure() === null };
+    }),
   );
   const failed = responses
     .filter(({ r, status }) => r.failure() !== null || status >= 500)
     .map(({ r, status }) => `${r.method()} ${new URL(r.url()).pathname} → ${r.failure()?.errorText ?? status}`);
+  const pending = responses
+    .filter(({ pending: notAnswered }) => notAnswered)
+    .map(({ r }) => `${r.method()} ${new URL(r.url()).pathname}${new URL(r.url()).search}`);
   await test.info().attach("runtime-errors.json", {
-    body: JSON.stringify({ console: consoleErrors, pageErrors, failed }, null, 2),
+    body: JSON.stringify({ console: consoleErrors, pageErrors, failed, pending }, null, 2),
     contentType: "application/json",
   });
 }
