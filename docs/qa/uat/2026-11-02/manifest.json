@@ -1,0 +1,138 @@
+{
+  "kind": "uat",
+  "generatedAt": "2026-11-02T13:43:33.376Z",
+  "baseURL": "https://pmwp-ylehenkyi.vercel.app",
+  "deployedSha": "b5b8f91c47939f888e33c0a7a4852e913b4b9da8",
+  "testsCommit": "d2bc7831abf421e64266cba6b7fc47b2acd9f132",
+  "reviewer": {
+    "model": "claude-haiku-5-5",
+    "disputes": "claude-sonnet-5-5"
+  },
+  "note": "Відео й траси не в git (test-results/ локально, артефакт CI). check-recordings конвеєра WS9 вимагає відео на диску — для нього цей manifest треба доповнити.",
+  "results": [
+    {
+      "id": "AC-DSYS-02",
+      "proof": "AC-DSYS-02",
+      "title": "AC-DSYS-02: manager B opens the editor of the template by a direct link and sees «Not enough rights» and «Back to templates»",
+      "screenshot": "docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png",
+      "video": "test-results/artifacts/access-and-states-AC-DSYS--7b70a-ts»-and-«Back-to-templates»-chromium/video.webm",
+      "trace": "test-results/artifacts/access-and-states-AC-DSYS--7b70a-ts»-and-«Back-to-templates»-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі видно лише заголовок «Not enough rights» і посилання «Back to templates» на порожньому фоні; кнопки «Save version» і полів назв секцій чи завдань немає. Частина «no editor» перевірена відсутністю елементів, тому в quoted_text наведено весь текст, що є на кадрі. Твердження про «ту саму розмітку, що й інші сторінки» і про версію шаблону з кадру не видно, тож я їх не оцінював."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Not enough rights",
+          "onPage": true
+        },
+        {
+          "quote": "Back to templates",
+          "onPage": true
+        },
+        {
+          "quote": "Not enough rights",
+          "onPage": true
+        },
+        {
+          "quote": "Back to templates",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 20604,
+      "reviewCostUsd": 0.00197,
+      "reviewWallMs": 13490
+    },
+    {
+      "id": "AC-DSYS-04",
+      "proof": "AC-DSYS-04",
+      "title": "AC-DSYS-04: manager B who has no runs opens the list of runs and sees «No runs yet. Launch a template to start one.» and «Launch a template»",
+      "screenshot": "docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png",
+      "video": "test-results/artifacts/access-and-states-AC-DSYS--206ce-e-»-and-«Launch-a-template»-chromium/video.webm",
+      "trace": "test-results/artifacts/access-and-states-AC-DSYS--206ce-e-»-and-«Launch-a-template»-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі /runs видно заголовок «Runs», під ним повідомлення «No runs yet. Launch a template to start one.» і текстове посилання «Launch a template» у зеленувато-синьому кольорі. Текст збігається з критерієм посимвольно, таблиці на сторінці немає (це не оцінювалось за правилами)."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "No runs yet. Launch a template to start one.",
+          "onPage": true
+        },
+        {
+          "quote": "Launch a template",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 8847,
+      "reviewCostUsd": 0.00168,
+      "reviewWallMs": 9719
+    },
+    {
+      "id": "AC-TASK-10",
+      "proof": "AC-TASK-10",
+      "title": "AC-TASK-10: manager C opens the page of a run that is not theirs by a direct link and sees «Run not found» and none of the tasks",
+      "screenshot": "docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png",
+      "video": "test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/video.webm",
+      "trace": "test-results/artifacts/access-and-states-AC-TASK--395ce-ound»-and-none-of-the-tasks-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі frame-then-1.png видно великий заголовок «Run not found» і посилання «Back to runs», жодних задач на сторінці немає. Текст читається чітко і збігається з критерієм посимвольно. Частину про відсутність задач перевіряють автоматичні перевірки, тому я її не оцінював."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Run not found",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 12196,
+      "reviewCostUsd": 0.00176,
+      "reviewWallMs": 10376
+    }
+  ],
+  "negativeControls": [],
+  "cleanup": {
+    "at": "2026-11-02T13:43:16.575Z",
+    "deleted": [
+      "uat-261102134224-empty@example.test",
+      "uat-261102134224-c@example.test",
+      "uat-261102134224-a@example.test",
+      "uat-261102134224-b@example.test"
+    ],
+    "remaining": [],
+    "leftoverRequests": 0
+  }
+}
