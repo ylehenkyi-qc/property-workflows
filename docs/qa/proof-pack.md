@@ -24,7 +24,7 @@
 
 - PR воріт: https://github.com/ylehenkyi-qc/property-workflows/pull/32 (task/quality-gates), злитий
 - Зелений `quality` на `main`: https://github.com/ylehenkyi-qc/property-workflows/actions/runs/41443935336 (коміт 94c0b94)
-- Обов'язкові перевірки в `solo-main`: ще не додано (потрібна дія власника репо в Settings → Rules після зеленого `quality` на `main`); дата й назви jobs «Ворота: fallow audit», «Покриття: доменна підлога» — після додавання
+- Обов'язкові перевірки в `solo-main` з 02.11.2026: `spec`, `app`, `conformance`, `db-check`, «Ворота: fallow audit», «Покриття: доменна підлога» (додано після зеленого `quality` на `main`; «Порада: вразливі залежності» дорадча й не додана)
 
 Розбір першого повного прогону `fallow` (той самий — в описі PR воріт):
 
