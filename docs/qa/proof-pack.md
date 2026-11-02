@@ -10,7 +10,7 @@
 
 - Прод-URL: https://pmwp-ylehenkyi.vercel.app
 - Вимоги: https://github.com/solomchaak/property-workflows-spec · джерело: issues · знімок 2026-10-27
-- `/api/health` на момент UAT: <!-- sha і db, напр. «sha 1a2b3c4, db ok, 01.11.2026» -->
+- `/api/health` на момент UAT: sha 2ad9cf2 (= main), db ok, 02.11.2026 (прогін UAT 17:41)
 
 ## 3 AC
 
@@ -119,18 +119,23 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 
 ## D. Eval рецензента
 
-Статус: **ще не виконано** (крок D домашки WS8 попереду). Поля нижче — шаблон.
+- PR з вадами (не злиті, закриті): [#38](https://github.com/ylehenkyi-qc/property-workflows/pull/38) (перший прогін) і [#40](https://github.com/ylehenkyi-qc/property-workflows/pull/40) (чиста копія для повторного прогону, без коментаря з ключем). Гілки `task/refactor-session-helpers` і `task/refactor-session-helpers-2`, код однаковий; нейтральні назви й опис; усі обов'язкові перевірки CI на них зелені.
+- Ключ і таблиця першого прогону: https://github.com/ylehenkyi-qc/property-workflows/pull/38#issuecomment-6580600689
+- Правило, що закриває пропуск: [`2ad9cf2`](https://github.com/ylehenkyi-qc/property-workflows/commit/2ad9cf2e97c628614f6a69810edbd681be41ff9c) (PR [#39](https://github.com/ylehenkyi-qc/property-workflows/pull/39)): у `AGENTS.md`, розділ «База даних (Supabase)», умова політики `select`/`update`/`delete` таблиці з рядками користувачів чи запусків мусить обмежувати рядки власником (`author_id = (select auth.uid())`) або видимістю батьківського об'єкта (`private.can_see_run(run_id)`); умова лише `(select auth.uid()) is not null` чи `true` — «must fix» (виняток: довідникові таблиці).
+- Повторний прогін: https://github.com/ylehenkyi-qc/property-workflows/pull/40#issuecomment-6581854483
 
-- PR з вадами (не злитий): <!-- …/pull/N -->
-- Ключ і таблиця: <!-- …/pull/N#issuecomment-M -->
+Ключ (3 вади + приманка): вада 1 — `src/lib/templates/load-version.ts:14-17` (логіка, прибрано `.eq("version", version)`); вада 2 — `src/app/page.tsx:15-23` (авторизація, `getSession()` замість `getClaims()`); вада 3 — `supabase/migrations/20261102144729_run_notes.sql:20-22` (права в даних, політика `select` без умови власника чи видимості запуску); приманка — `src/lib/auth/user-id.ts` + `src/app/runs/[id]/actions.ts` (чисте винесення `getClaims()` в `currentUserId`, поведінка та сама).
 
-| # | Вада (ключ) | CodeRabbit | `/code-review high` |
+Рецензенти: CodeRabbit (команда `review` окремим коментарем; модель в інтерфейсі не названа) і `/code-review high` у Claude Code (`claude -p`, `--setting-sources project`; модель з JSON `claude-haiku-4-5-20251001`).
+
+| # | Вада (ключ) | CodeRabbit: прогін 1 → прогін 2 | `/code-review high`: прогін 1 → прогін 3 |
 |---|---|---|---|
-| 1 | <!-- категорія і файл:рядок --> | <!-- знайшов / пропустив + цитата --> | <!-- знайшов / пропустив + цитата --> |
-| 2 | … | … | … |
-| 3 | … | … | … |
-| П | приманка: <!-- що --> | <!-- хибна тривога? цитата --> | <!-- хибна тривога? цитата --> |
+| 1 | логіка: прибрано фільтр `version` | знайшов → знайшов (Major): «Поверніть фільтр за `version` у `loadVersionContent`. Запит фільтрує секції лише за `template_id`.» → «Поверніть фільтр за `version` у запиті секцій…» | знайшов → знайшов: «Removed version filter breaks template version isolation; returns sections from all versions instead of requested version» → «Version filter removed from query; function returns sections from all versions instead of requested version» |
+| 2 | авторизація: `getSession()` | знайшов → знайшов (Major, Security): «`getSession()` читає дані з cookie без перевірки автентичності об’єкта користувача.» → «Замініть перевірку сесії на `getClaims()`…» | знайшов → знайшов: «Uses getSession() instead of getClaims() for server-side authorization, violating AGENTS.md rule» → «Authorization uses getSession() instead of getClaims(), violating AGENTS.md rule» |
+| 3 | права: політика `select` без умови власника | **пропустив → знайшов** (Major, Security): прогін 1 описав політику нейтрально («RLS дозволяє читання автентифікованим користувачам…»), перевірка «міграції: RLS, GRANT і політики» — Passed; прогін 2: «Обмежте читання нотаток видимістю запуску. Якщо користувач автентифікований, ця політика дозволяє йому прочитати нотатки *всіх* запусків.» | знайшов → знайшов: «SELECT RLS policy on run_notes allows any authenticated user to read all notes regardless of run access; should check can_see_run()» → «SELECT RLS policy allows any authenticated user to read all notes, violating new AGENTS.md rule» |
+| П | приманка: `currentUserId` | без хибної тривоги в обох прогонах (прогін 1 описав її як «повертає `sub` із claims або `null`») | без хибної тривоги в обох (у розборі: «`currentUserId()` helper correctly wraps `getClaims()` internally (OK)») |
 
-- Інші знахідки: <!-- слушна / шум, по рядку на кожну -->
-- Правило, що закриває пропуск: <!-- рядок в AGENTS.md чи path instruction, …/commit/<sha> -->
-- Повторний прогін: <!-- хто, результат, цитата, …/pull/N#issuecomment-M -->
+- Інші знахідки: CodeRabbit, прогін 1, `run_notes.sql:7` (Minor): «Додайте явну дію для видалення автора нотатки» (`author_id` без `ON DELETE`) — слушна, дрібна, поза ключем; у прогоні 2 її немає. `/code-review`: інших знахідок немає в жодному прогоні. Скарги CodeRabbit «Description check» на нейтральний опис PR — шум для цього eval.
+- Вартість і час `/code-review high`: прогін 1 — 112 с, $0,197; прогін 2 (на закритому #38, після коментаря з ключем) — 116 с, $0,175, теж 3 з 3, у таблиці не враховано через можливий вплив ключа; прогін 3 (на чистому #40) — 73 с, $0,120.
+- Висновок: `/code-review` знайшов 3 з 3 в усіх прогонах (до правила теж), без хибних тривог; CodeRabbit пропустив ваду 3 у прогоні 1 і знайшов усе в прогоні 2. Стверджувати, що саме правило закрило пропуск, не можна: пояснення вади 3 у прогоні 2 не цитує `AGENTS.md`, а спирається на порівняння з політикою читання `runs`; це один прогін кожного рецензента.
+- Побічна знахідка (цінніша, ніж таблиця): CodeRabbit автоматично зберігає як постійний «Learning» для репо те, що прочитав у коментарях PR, і відповідає в чаті навіть на згадку команди запуску рев'ю всередині тексту. Через це коментар із ключем у #38 зіпсував повторний прогін там: «Learning» про `run_notes` довелося видалити вручну в app.coderabbit.ai/learnings, а повторний прогін робити на чистому #40. Ключ і таблицю варто публікувати лише після всіх прогонів або без згадок команд рецензента.
