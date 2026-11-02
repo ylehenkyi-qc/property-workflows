@@ -7,7 +7,7 @@ import {
 } from "./markTaskErrors";
 
 describe("markTaskErrors", () => {
-  it("відмова за правами 42501 з текстом AC-TASK-03 → код forbidden з дослівним повідомленням", () => {
+  it("AC-TASK-03: відмова за правами 42501 → код forbidden з дослівним повідомленням", () => {
     const code = markTaskErrorCode({ code: "42501", message: MARK_TASK_FORBIDDEN_MESSAGE });
 
     expect(code).toBe("forbidden");

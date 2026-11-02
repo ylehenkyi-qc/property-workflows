@@ -49,3 +49,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# якість (WS8): звіти й тимчасові копії інструментів
+/coverage
+/reports
+/.stryker-tmp
+/.fallow
+/fallow-baseline.txt
+/test-results
+/playwright-report
+/blob-report
+/playwright/.auth
