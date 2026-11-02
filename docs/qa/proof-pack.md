@@ -93,17 +93,17 @@ Stryker `10.1.1`, `npm run mutation:ts -- --mutate src/lib/auth/require-role.ts`
 
 ## C. UAT на проді
 
-Прогін: 02.11.2026, 15:42 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `b5b8f91` (збігається з `main`), код тестів `d2bc783`. Playwright 54,1 с.
+Прогін: 02.11.2026, 15:55 (Київ), проти https://pmwp-ylehenkyi.vercel.app, коміт проду `b5b8f91` (збігається з `main`), код тестів `b7ac530`. Playwright 49,5 с. Це другий прогін; перший (15:42, `d2bc783`) дав ті самі вердикти, відео прикладено до другого.
 
 | AC | Специфікація | Тест (твердження) | Агент | Вердикт | Кадр |
 |---|---|---|---|---|---|
-| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/tests/e2e/access-and-states.spec.ts#L28) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
-| AC-TASK-10 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/tests/e2e/access-and-states.spec.ts#L70) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png) |
-| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/tests/e2e/access-and-states.spec.ts#L108) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
+| AC-DSYS-02 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L28) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-02-then-1.png) |
+| AC-TASK-10 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L70) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-TASK-10-then-1.png) |
+| AC-DSYS-04 | [`tests/e2e/access-and-states.spec.ts`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/tests/e2e/access-and-states.spec.ts#L108) | passed | Haiku: PASS | PASS (R6) | [кадр](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/frames/AC-DSYS-04-then-1.png) |
 
-- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/e8fa7d5/docs/qa/uat/2026-11-02/report.md)
-- Відео: вкладення в описі PR <!-- …/pull/N: додається вручну після відкриття PR -->
-- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0054 за цінами API.
+- Звіт: [`docs/qa/uat/2026-11-02/report.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/0c19b4a/docs/qa/uat/2026-11-02/report.md)
+- Відео: три `.webm` (по одному на AC) у вкладеннях опису PR https://github.com/ylehenkyi-qc/property-workflows/pull/34
+- Рецензент: `claude-haiku-5-5` на всі 3 AC (суперечок немає, Sonnet не викликався), вартість розбору $0,0055 за цінами API.
 - Негативний контроль (`npm run uat:nc`, `tests/e2e/negative-controls.spec.ts`; звіт у `test-results/uat-report-nc/`, не в git):
   - NC-1 (AC-DSYS-04, у тесті навмисно інший очікуваний текст): твердження впало, Haiku сказав PASS, підсумок **FAIL** (R1: агент не перекриває впале твердження).
   - NC-2 (AC-DSYS-04, у `ac-text` текст «Тоді» «уточнено», тест і застосунок не змінено): твердження зелені, Haiku і Sonnet сказали FAIL, підсумок **NEEDS-HUMAN** (R3: розбіжність іде до людини).
