@@ -146,7 +146,7 @@
 
 ### Питання до PM (зріз 3)
 
-Перед питаннями переглянуто відкриті issues з міткою `question` у репо PM: колеги вже спитали шість питань про зріз 3 (solomchaak/property-workflows-spec#41–#46), дублів не створюю. Після скану з'явилось ще й solomchaak/property-workflows-spec#47 (форма запуску для вендора, AC-VENDOR-09): воно частково збігається з моїм Q24 (solomchaak/property-workflows-spec#49), тому PM варто відповісти на них разом.
+Перед питаннями переглянуто відкриті issues з міткою `question` у репо PM: колеги вже спитали шість питань про зріз 3 (solomchaak/property-workflows-spec#41–#46), дублів не створюю. Після скану з'явилось ще й solomchaak/property-workflows-spec#47 (форма запуску для вендора, AC-VENDOR-09): воно частково збігається з моїм Q24 (solomchaak/property-workflows-spec#49), тому PM варто відповісти на них разом; зв'язок позначено моїм коментарем: https://github.com/solomchaak/property-workflows-spec/issues/49#issuecomment-6579835167.
 
 | # | AC / вимога | Питання | Рекомендація | Issue в репо PM | Відповідь PM | Рішення (що зробили) |
 |---|---|---|---|---|---|---|
