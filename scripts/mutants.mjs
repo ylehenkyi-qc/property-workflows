@@ -73,6 +73,38 @@ export const mutants = [
   },
 ];
 
+// Мутанти групи 1 зрізу 3 (impl-vendor-access): роль vendor і призначення вендора під час запуску. Правила живуть у
+// міграції vendor_role: launch_run (хто запускає, кого можна призначити) і list_assignable_users (хто що бачить).
+const VENDOR_ROLE_SQL = "supabase/migrations/20261104140910_vendor_role.sql";
+const VENDOR_ACCESS_DB = "tests/db/vendor-access.test.ts";
+
+mutants.push(
+  {
+    id: "V1", kind: "sql", ac: "AC-VENDOR-09", file: VENDOR_ROLE_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "launch_run: перевірку ролі послаблено до «роль не порожня», вендор запускає шаблон",
+    find: "if v_uid is null or coalesce(private.current_app_role(), '') not in ('manager', 'admin') then",
+    replace: "if v_uid is null or private.current_app_role() is null then",
+  },
+  {
+    id: "V2", kind: "sql", ac: "AC-VENDOR-01", file: VENDOR_ROLE_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "launch_run: вендора прибрано з дозволених виконавців",
+    find: "where p.id = v_assignee and p.role in ('manager', 'admin', 'vendor')",
+    replace: "where p.id = v_assignee and p.role in ('manager', 'admin')",
+  },
+  {
+    id: "V3", kind: "sql", ac: "AC-VENDOR-02", file: VENDOR_ROLE_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "list_assignable_users: вендора прибрано зі списку виконавців (менеджер не бачить email вендора)",
+    find: "where p.role in ('manager', 'admin', 'vendor')\n    and coalesce(",
+    replace: "where p.role in ('manager', 'admin')\n    and coalesce(",
+  },
+  {
+    id: "V4", kind: "sql", ac: "матриця прав: вендор не бачить email інших (поруч з AC-VENDOR-02)", file: VENDOR_ROLE_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "list_assignable_users: обмеження викликача manager/admin прибрано, вендор отримує email усіх",
+    find: "\n    and coalesce(private.current_app_role(), '') in ('manager', 'admin')",
+    replace: "",
+  },
+);
+
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):
 //
 // SQL, межа з AC — діапазон напіввідкритий, останній день заявки не рахується:
