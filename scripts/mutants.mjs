@@ -105,6 +105,85 @@ mutants.push(
   },
 );
 
+// Мутанти групи 2 зрізу 3: читання вендором (міграція vendor_reads). Умови послаблено, а не видалено політику: без політики
+// RLS забороняє все, і тест відмови лишився б зеленим з неправильної причини.
+const VENDOR_READS_SQL = "supabase/migrations/20261104142000_vendor_reads.sql";
+
+mutants.push(
+  {
+    id: "V5", kind: "sql", ac: "AC-VENDOR-04", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "can_see_run: вендор проходить як менеджер (бачить усі задачі запуску й рядок runs)",
+    find: "coalesce(private.current_app_role(), '') = 'manager'\n      and (",
+    replace: "coalesce(private.current_app_role(), '') in ('manager', 'vendor')\n      and (",
+  },
+  {
+    id: "V6", kind: "sql", ac: "AC-VENDOR-04", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "run_tasks: умову assignee_id прибрано, вендор читає задачі всіх запусків",
+    find: "or (assignee_id = (select auth.uid()) and (select private.current_app_role()) = 'vendor')",
+    replace: "or ((select private.current_app_role()) = 'vendor')",
+  },
+  {
+    id: "V7", kind: "sql", ac: "AC-VENDOR-04", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "run_sections: вендор бачить усі секції, а не лише ті, де є його задача",
+    find: "or private.vendor_has_task_in_section(id)",
+    replace: "or (select private.current_app_role()) = 'vendor'",
+  },
+  {
+    id: "V8", kind: "sql", ac: "AC-VENDOR-03", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "list_vendor_runs: фільтр за виконавцем прибрано, вендор бачить усі запуски",
+    find: "join public.run_tasks as t on t.run_id = r.id and t.assignee_id = (select auth.uid())",
+    replace: "join public.run_tasks as t on t.run_id = r.id",
+  },
+  {
+    id: "V9", kind: "sql", ac: "AC-VENDOR-10", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "list_vendor_runs: join замінено на left join, вендор без задач бачить усі запуски з нульовими лічильниками",
+    find: "join public.run_tasks as t on t.run_id = r.id and t.assignee_id = (select auth.uid())",
+    replace: "left join public.run_tasks as t on t.run_id = r.id and t.assignee_id = (select auth.uid())",
+  },
+  {
+    id: "V10", kind: "sql", ac: "AC-VENDOR-08", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "templates: перевірку ролі послаблено до «роль не порожня», вендор читає шаблони",
+    find: "and (select private.current_app_role()) in ('manager', 'admin')\n    and ((select",
+    replace: "and (select private.current_app_role()) is not null\n    and ((select",
+  },
+  {
+    id: "V11", kind: "sql", ac: "AC-VENDOR-08", file: VENDOR_READS_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "can_read_template_version: вендор читає знімок поточної версії",
+    find: "coalesce(private.current_app_role(), '') in ('manager', 'admin')\n    and (",
+    replace: "private.current_app_role() is not null\n    and (",
+  },
+);
+
+// TS-мутанти сторінок вендора (група 2): що показує сторінка з даних, які віддала база.
+const VENDOR_PAGES_TEST = "src/app/runs/vendor-pages.test.tsx";
+
+mutants.push(
+  {
+    id: "V12", kind: "ts", ac: "AC-VENDOR-10", file: "src/app/runs/vendor-runs.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "порожній список вендора показує порожню таблицю замість повідомлення",
+    find: "{runs.length === 0 ? (",
+    replace: "{runs.length < 0 ? (",
+  },
+  {
+    id: "V13", kind: "ts", ac: "AC-VENDOR-06", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "запуск без задач вендора не дає «Run not found»: перевірку наявності запуску прибрано",
+    find: "if (!run) notFound();",
+    replace: "",
+  },
+  {
+    id: "V14", kind: "ts", ac: "AC-VENDOR-03", file: "src/app/runs/vendor-runs.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "«Your tasks: N of K done» показує K замість N (виконані рахуються як усі)",
+    find: "formatVendorProgress(run.tasks_done, run.tasks_total)",
+    replace: "formatVendorProgress(run.tasks_total, run.tasks_total)",
+  },
+  {
+    id: "V15", kind: "ts", ac: "AC-VENDOR-04", file: "src/app/runs/[id]/task-sections.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "позначка «required»/«optional» завжди «required»",
+    find: '{task.required ? "required" : "optional"}',
+    replace: '{"required"}',
+  },
+);
+
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):
 //
 // SQL, межа з AC — діапазон напіввідкритий, останній день заявки не рахується:

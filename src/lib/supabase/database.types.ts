@@ -277,6 +277,11 @@ isOneToOne: false
               "email": string,"id": string
             }[]
                            },
+"list_vendor_runs":
+{ Args: { "p_run_id"?: string }; Returns: {
+              "case_name": string,"id": string,"status": string,"tasks_done": number,"tasks_total": number
+            }[]
+                           },
 "mark_task_done":
 { Args: { "p_task_id": string }; Returns: undefined
                            },

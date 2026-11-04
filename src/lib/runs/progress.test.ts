@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countDone, formatProgress, formatRunProgress } from "./progress";
+import { countDone, formatProgress, formatRunProgress, formatVendorProgress } from "./progress";
 
 const tasks = (statuses: string[]) => statuses.map((status) => ({ status }));
 
@@ -21,5 +21,15 @@ describe("progress", () => {
 
   it("до done не рахує задачі «to do»", () => {
     expect(countDone(tasks(["to_do", "to_do"]))).toBe(0);
+  });
+});
+
+describe("formatVendorProgress", () => {
+  it("AC-VENDOR-03: вендор із двома задачами, жодна не «done», бачить «Your tasks: 0 of 2 done»", () => {
+    expect(formatVendorProgress(0, 2)).toBe("Your tasks: 0 of 2 done");
+  });
+
+  it("AC-VENDOR-05: після позначки однієї з двох задач запис — «Your tasks: 1 of 2 done»", () => {
+    expect(formatVendorProgress(1, 2)).toBe("Your tasks: 1 of 2 done");
   });
 });
