@@ -226,6 +226,36 @@ mutants.push(
   },
 );
 
+// Мутанти групи 4 зрізу 3: відмова вендору на закритих сторінках і вхід.
+const VENDOR_REFUSALS_TEST = "src/app/vendor-refusals.test.tsx";
+
+mutants.push(
+  {
+    id: "V22", kind: "ts", ac: "AC-VENDOR-08", file: "src/app/templates/page.tsx", tests: [VENDOR_REFUSALS_TEST],
+    what: "список шаблонів: відмову не показано, вендор потрапляє до списку шаблонів",
+    find: 'if (auth.status === "forbidden") {',
+    replace: "if (false) {",
+  },
+  {
+    id: "V23", kind: "ts", ac: "AC-VENDOR-08", file: "src/app/templates/page.tsx", tests: [VENDOR_REFUSALS_TEST],
+    what: "відмова вендору веде на «Back to home» замість «Back to runs»",
+    find: "link={refusalLink(auth.role)} />",
+    replace: 'link={{ href: "/", label: "Back to home" }} />',
+  },
+  {
+    id: "V24", kind: "ts", ac: "AC-VENDOR-08", file: "src/lib/auth/refusal-link.ts", tests: ["src/lib/auth/refusal-link.test.ts", VENDOR_REFUSALS_TEST],
+    what: "refusalLink: вендора не розпізнає, посилання лишається як у менеджера",
+    find: 'role === "vendor" ?',
+    replace: 'role === "none" ?',
+  },
+  {
+    id: "V25", kind: "ts", ac: "рішення до solomchaak/property-workflows-spec#44", file: "src/app/login/actions.ts", tests: ["src/app/login/actions.test.ts"],
+    what: "після входу вендор без явного next потрапляє на головну, а не на свої запуски",
+    find: 'if (profile?.role === "vendor") {',
+    replace: "if (false) {",
+  },
+);
+
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):
 //
 // SQL, межа з AC — діапазон напіввідкритий, останній день заявки не рахується:
