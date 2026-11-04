@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { refusalLink } from "@/lib/auth/refusal-link";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { ENTER_TEMPLATE_NAME, NOT_ENOUGH_RIGHTS, TEMPLATE_NAME_TAKEN } from "@/lib/templates/messages";
@@ -31,7 +32,7 @@ export default async function TemplatesPage({ searchParams }: PageProps<"/templa
   if (auth.status === "forbidden") {
     return (
       <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={{ href: "/", label: "Back to home" }} />
+        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
       </PageShell>
     );
   }

@@ -35,15 +35,20 @@ export default async function Home() {
         <dd data-testid="user-role">{profile?.role ?? "profile not found"}</dd>
       </dl>
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/runs/new" className={linkButtonClass()}>
-          New run
-        </Link>
-        <Link href="/runs" className={linkButtonClass({ variant: "outline" })}>
+        {/* Вендор не запускає шаблони й не відкриває їх: йому лишається лише «Runs» (рішення до solomchaak/property-workflows-spec#44) */}
+        {profile?.role === "vendor" ? null : (
+          <Link href="/runs/new" className={linkButtonClass()}>
+            New run
+          </Link>
+        )}
+        <Link href="/runs" className={linkButtonClass({ variant: profile?.role === "vendor" ? "default" : "outline" })}>
           Runs
         </Link>
-        <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
-          Templates
-        </Link>
+        {profile?.role === "vendor" ? null : (
+          <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
+            Templates
+          </Link>
+        )}
       </div>
       <form action={signOut}>
         <Button type="submit" variant="ghost">

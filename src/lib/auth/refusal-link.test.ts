@@ -13,3 +13,12 @@ describe("refusalLink", () => {
     }
   });
 });
+
+describe("refusalLink: посилання сторінки для не-вендора", () => {
+  it("AC-DSYS-02: менеджер на сторінці редактора й версій лишається з «Back to templates», а вендор іде на «Back to runs»", () => {
+    const toTemplates = { href: "/templates", label: "Back to templates" };
+
+    expect(refusalLink("manager", toTemplates)).toEqual(toTemplates);
+    expect(refusalLink("vendor", toTemplates)).toEqual({ href: "/runs", label: "Back to runs" });
+  });
+});

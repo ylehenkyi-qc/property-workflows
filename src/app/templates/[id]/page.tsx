@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { refusalLink } from "@/lib/auth/refusal-link";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { loadVersionContent } from "@/lib/templates/load-version";
@@ -26,7 +27,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
   if (auth.status === "forbidden") {
     return (
       <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={{ href: "/", label: "Back to home" }} />
+        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
       </PageShell>
     );
   }
