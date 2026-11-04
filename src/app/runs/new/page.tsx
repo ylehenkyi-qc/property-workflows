@@ -1,13 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSelect } from "@/components/app-select";
+import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { refusalLink } from "@/lib/auth/refusal-link";
+import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
-import { createClient } from "@/lib/supabase/server";
+import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
 import { ASSIGNEE_ME } from "@/lib/runs/assignees";
 import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
 import { loadVersionContent } from "@/lib/templates/load-version";
@@ -16,14 +19,20 @@ import { launchRun } from "./actions";
 // Запуск шаблону: крок 1 — вибір шаблону (GET), крок 2 — назва випадку й виконавці задач (AC-RUN-01…09); шаблон без
 // збереженої версії адміністратор бачить недоступним (AC-EDITOR-10).
 export default async function NewRunPage({ searchParams }: PageProps<"/runs/new">) {
-  const supabase = await createClient();
-
-  // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  const claims = data?.claims;
-  if (!claims) {
+  // requireRole: getClaims() перевіряє JWT (getSession() не використовуємо), роль — з profiles.role. Запускають лише
+  // manager і admin (AC-VENDOR-09): іншій ролі — відмова в загальному макеті, без форми й даних.
+  const auth = await requireRole(["manager", "admin"]);
+  if (auth.status === "unauthenticated") {
     redirect(loginPath("/runs/new"));
   }
+  if (auth.status === "forbidden") {
+    return (
+      <PageShell>
+        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
+      </PageShell>
+    );
+  }
+  const { supabase, userId } = auth;
 
   const { template, error } = await searchParams;
   const errorMessage = isLaunchErrorCode(error) ? LAUNCH_ERRORS[error] : undefined;
@@ -39,11 +48,11 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   const sections =
     selected?.current_version != null ? await loadVersionContent(supabase, selected.id, selected.current_version) : [];
 
-  // Виконавця можна обрати з manager/admin: лише id і email (без ролі й іншого профілю).
+  // Виконавця можна обрати серед manager/admin/vendor (AC-VENDOR-01, 02): лише id і email (без ролі й іншого профілю).
   const { data: users } = selected
     ? await supabase.rpc("list_assignable_users")
     : { data: null };
-  const otherUsers = (users ?? []).filter((u) => u.id !== claims.sub);
+  const otherUsers = (users ?? []).filter((u) => u.id !== userId);
 
   return (
     <PageShell>

@@ -1,6 +1,8 @@
 // Хто може позначити задачу виконаною й коли потрібне підтвердження (AC-TASK-18, AC-TASK-04, AC-TASK-16).
 // Це лише підказка інтерфейсу (які кнопки показати): право гарантує mark_task_done у базі.
-export type Viewer = { userId: string; role: "manager" | "admin" };
+import type { AppRole } from "@/lib/auth/require-role";
+
+export type Viewer = { userId: string; role: AppRole };
 
 // Кнопка «Mark as done» — лише на задачі «to do» і лише виконавцю цієї задачі, менеджеру запуску й адміністратору.
 export function canMarkDone(

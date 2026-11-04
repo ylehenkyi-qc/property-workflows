@@ -3,10 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   rpc: vi.fn(),
   getClaims: vi.fn(),
+  role: "manager" as string | null,
 }));
 
+// requireRole читає роль з profiles.role: мок віддає її з mocks.role.
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => ({ auth: { getClaims: mocks.getClaims }, rpc: mocks.rpc }),
+  createClient: async () => ({
+    auth: { getClaims: mocks.getClaims },
+    rpc: mocks.rpc,
+    from: () => ({
+      select: () => ({
+        eq: () => ({ maybeSingle: async () => ({ data: mocks.role ? { role: mocks.role } : null }) }),
+      }),
+    }),
+  }),
 }));
 
 // Як у Next.js, redirect() перериває дію винятком; у тесті читаємо адресу з нього.
@@ -47,11 +57,19 @@ async function submit(data: FormData): Promise<string> {
 beforeEach(() => {
   mocks.rpc.mockReset();
   mocks.getClaims.mockReset();
+  mocks.role = "manager";
   mocks.getClaims.mockResolvedValue({ data: { claims: { sub: "manager-a" } } });
   mocks.rpc.mockResolvedValue({ data: RUN_ID, error: null });
 });
 
 describe("launchRun", () => {
+  it("вендор не запускає шаблон: дія повертає на форму з відмовою й не викликає launch_run", async () => {
+    mocks.role = "vendor";
+
+    expect(await submit(form({ case_name: "Apartment 12, move-in" }))).toBe("/runs/new");
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
   it("AC-RUN-03: порожня назва або лише пробіли — запуск не створюється, форма показує «Enter a case name»", async () => {
     const expected = `/runs/new?template=${TEMPLATE_ID}&error=name_empty`;
 

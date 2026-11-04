@@ -100,13 +100,13 @@
 | AC-EDITOR-27 | запуски до появи версій показують «Template version 1» | `supabase/migrations/20261027130053_template_versions.sql` (бекфіл: версія 1 для наявних шаблонів і запусків) | — | відкладено (поведінку забезпечує бекфіл міграції, але тест «запуск до міграції» неможливий: тестова база застосовує всі міграції разом; рішення PM solomchaak/property-workflows-spec#33) |
 | AC-EDITOR-28 | задача, перенесена в іншу секцію, зберігається в новій версії в новій секції | `src/lib/templates/draft.ts` (moveTaskToSection), `src/app/templates/[id]/edit/template-editor.tsx`, `supabase/migrations/20261027130053_template_versions.sql` (publish_template) | `tests/db/template-editor-rules.test.ts`, `src/lib/templates/templates.test.ts` | реалізовано |
 | AC-EDITOR-29 | менеджер напряму не отримує старих версій, списку версій і непублікованих змін | `supabase/migrations/20261027130053_template_versions.sql` (RLS, grants, функції з перевіркою ролі admin) | `tests/db/template-editor-rules.test.ts`, `tests/db/template-versions.test.ts` | реалізовано |
-| AC-VENDOR-01 | менеджер призначає вендора виконавцем задач 3 і 4 під час запуску, решта задач — менеджер | — | — | відкладено (чекає реалізації) |
-| AC-VENDOR-02 | вибір виконавця показує email менеджера, адміністратора й вендора, без імен, ролей і профілю | — | — | відкладено (чекає реалізації) |
+| AC-VENDOR-01 | менеджер призначає вендора виконавцем задач 3 і 4 під час запуску, решта задач — менеджер | `supabase/migrations/20261104140910_vendor_role.sql` (launch_run), `src/app/runs/new/page.tsx` (вибір виконавця) | `tests/db/vendor-access.test.ts` | реалізовано |
+| AC-VENDOR-02 | вибір виконавця показує email менеджера, адміністратора й вендора, без імен, ролей і профілю | `supabase/migrations/20261104140910_vendor_role.sql` (list_assignable_users), `src/app/runs/new/page.tsx` | `tests/db/vendor-access.test.ts` | реалізовано |
 | AC-VENDOR-03 | список запусків вендора: лише запуски з його задачами, зі статусом запуску й «Your tasks: 0 of 2 done» | — | — | відкладено (чекає реалізації) |
 | AC-VENDOR-04 | у запуску вендор бачить лише свої задачі (назва, секція, required/optional, статус), без чужих задач, email і прогресу запуску | — | — | відкладено (чекає реалізації) |
 | AC-VENDOR-05 | вендор позначає свою задачу виконаною і бачить «Your tasks: 1 of 2 done» | — | — | відкладено (чекає реалізації) |
 | AC-VENDOR-06 | запуск без задач вендора за прямим посиланням: «Run not found» і жодної задачі | — | — | відкладено (чекає реалізації) |
 | AC-VENDOR-07 | вендор напряму не може позначити чужу задачу: вона лишається «to do» | — | — | відкладено (чекає реалізації) |
 | AC-VENDOR-08 | список шаблонів для вендора за прямим посиланням: «Not enough rights» і жодного шаблону | — | — | відкладено (чекає реалізації) |
-| AC-VENDOR-09 | вендор напряму не може запустити шаблон: запуск не створено, список запусків не змінився | — | — | відкладено (чекає реалізації) |
+| AC-VENDOR-09 | вендор напряму не може запустити шаблон: запуск не створено, список запусків не змінився | `supabase/migrations/20261104140910_vendor_role.sql` (launch_run), `src/app/runs/new/actions.ts` (launchRun) | `tests/db/vendor-access.test.ts` | реалізовано |
 | AC-VENDOR-10 | порожній список запусків вендора: «No tasks assigned to you yet.» без порожньої таблиці | — | — | відкладено (чекає реалізації) |

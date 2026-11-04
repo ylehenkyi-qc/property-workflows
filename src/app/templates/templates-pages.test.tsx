@@ -427,6 +427,7 @@ describe("редактор: збереження без змін і форма �
   it("AC-EDITOR-10: адміністратор бачить новий шаблон «Repair» недоступним із приміткою «Save the template to launch it»", async () => {
     mocks.client = fakeSupabase({
       tables: {
+        ...asAdmin,
         templates: {
           data: [
             TEMPLATE,
