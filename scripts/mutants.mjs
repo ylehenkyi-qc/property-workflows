@@ -154,6 +154,36 @@ mutants.push(
   },
 );
 
+// TS-мутанти сторінок вендора (група 2): що показує сторінка з даних, які віддала база.
+const VENDOR_PAGES_TEST = "src/app/runs/vendor-pages.test.tsx";
+
+mutants.push(
+  {
+    id: "V12", kind: "ts", ac: "AC-VENDOR-10", file: "src/app/runs/vendor-runs.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "порожній список вендора показує порожню таблицю замість повідомлення",
+    find: "{runs.length === 0 ? (",
+    replace: "{runs.length < 0 ? (",
+  },
+  {
+    id: "V13", kind: "ts", ac: "AC-VENDOR-06", file: "src/app/runs/[id]/page.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "запуск без задач вендора не дає «Run not found»: перевірку наявності запуску прибрано",
+    find: "if (!vendorRun) notFound();",
+    replace: "",
+  },
+  {
+    id: "V14", kind: "ts", ac: "AC-VENDOR-03", file: "src/app/runs/vendor-runs.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "«Your tasks: N of K done» показує K замість N (виконані рахуються як усі)",
+    find: "formatVendorProgress(run.tasks_done, run.tasks_total)",
+    replace: "formatVendorProgress(run.tasks_total, run.tasks_total)",
+  },
+  {
+    id: "V15", kind: "ts", ac: "AC-VENDOR-04", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "позначка «required»/«optional» завжди «required»",
+    find: '{task.required ? "required" : "optional"}',
+    replace: '{"required"}',
+  },
+);
+
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):
 //
 // SQL, межа з AC — діапазон напіввідкритий, останній день заявки не рахується:
