@@ -3,7 +3,10 @@ import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import type { createClient } from "@/lib/supabase/server";
 import { formatVendorProgress } from "@/lib/runs/progress";
+
+type Supabase = Awaited<ReturnType<typeof createClient>>;
 
 export type VendorRun = {
   id: string;
@@ -12,6 +15,16 @@ export type VendorRun = {
   tasks_total: number;
   tasks_done: number;
 };
+
+// Дані списку вендора: його запуски, статус і «Your tasks: N of K done» віддає list_vendor_runs (рядків runs вендор не читає).
+// Помилку не маскуємо порожнім списком: error.tsx покаже «Something went wrong».
+export async function renderVendorRuns(supabase: Supabase) {
+  const { data: runs, error } = await supabase.rpc("list_vendor_runs");
+  if (error) {
+    throw new Error("Failed to load runs");
+  }
+  return <VendorRuns runs={runs ?? []} />;
+}
 
 // Список запусків вендора (AC-VENDOR-03, AC-VENDOR-10): лише запуски з його задачами, кожен — назва випадку, статус
 // запуску й «Your tasks: N of K done»; без назви шаблону й прогресу всього запуску (робоче рішення до

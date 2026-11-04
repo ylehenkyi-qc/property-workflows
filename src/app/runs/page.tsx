@@ -15,8 +15,8 @@ import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { linkButtonClass } from "@/lib/ui/link-button";
-import { buildRunList } from "@/lib/runs/runList";
-import { VendorRuns } from "./vendor-runs";
+import { loadRunList } from "./load-runs";
+import { renderVendorRuns } from "./vendor-runs";
 
 // Список запусків (AC-TASK-06, 09, 13, 14, 17, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
 // admin — усі, manager — де він менеджер запуску або виконавець хоча б однієї задачі. Вендор (AC-VENDOR-03, AC-VENDOR-10)
@@ -27,13 +27,7 @@ export default async function RunsPage() {
   if (vendor.status === "unauthenticated") {
     redirect(loginPath("/runs"));
   }
-  if (vendor.status === "ok") {
-    const { data: vendorRuns, error: vendorError } = await vendor.supabase.rpc("list_vendor_runs");
-    if (vendorError) {
-      throw new Error("Failed to load runs");
-    }
-    return <VendorRuns runs={vendorRuns ?? []} />;
-  }
+  if (vendor.status === "ok") return renderVendorRuns(vendor.supabase);
 
   const supabase = await createClient();
 
@@ -43,34 +37,7 @@ export default async function RunsPage() {
     redirect(loginPath("/runs"));
   }
 
-  const { data: runs, error: runsError } = await supabase
-    .from("runs")
-    .select("id, case_name, status, created_at, template_id")
-    .order("created_at", { ascending: false });
-  // Помилку не маскуємо порожнім списком: error.tsx покаже «Something went wrong».
-  if (runsError) {
-    throw new Error("Failed to load runs");
-  }
-
-  // Задачі беремо окремим запитом: run_tasks пов'язана з run_sections, а не напряму з runs.
-  const runIds = (runs ?? []).map((run) => run.id);
-  const { data: tasks, error: tasksError } = runIds.length
-    ? await supabase.from("run_tasks").select("run_id, status").in("run_id", runIds)
-    : { data: [], error: null };
-  if (tasksError) {
-    throw new Error("Failed to load run tasks");
-  }
-
-  // Назви шаблонів — окремим запитом (як задачі): менеджер читає шаблони зі збереженою версією, а запуск іде лише з такого.
-  const templateIds = [...new Set((runs ?? []).flatMap((run) => (run.template_id ? [run.template_id] : [])))];
-  const { data: templates, error: templatesError } = templateIds.length
-    ? await supabase.from("templates").select("id, name").in("id", templateIds)
-    : { data: [], error: null };
-  if (templatesError) {
-    throw new Error("Failed to load templates");
-  }
-
-  const items = buildRunList(runs ?? [], tasks ?? [], templates ?? []);
+  const items = await loadRunList(supabase);
 
   return (
     <PageShell>

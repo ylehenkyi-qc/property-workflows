@@ -165,9 +165,9 @@ mutants.push(
     replace: "{runs.length < 0 ? (",
   },
   {
-    id: "V13", kind: "ts", ac: "AC-VENDOR-06", file: "src/app/runs/[id]/page.tsx", tests: [VENDOR_PAGES_TEST],
+    id: "V13", kind: "ts", ac: "AC-VENDOR-06", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
     what: "запуск без задач вендора не дає «Run not found»: перевірку наявності запуску прибрано",
-    find: "if (!vendorRun) notFound();",
+    find: "if (!run) notFound();",
     replace: "",
   },
   {
@@ -177,7 +177,7 @@ mutants.push(
     replace: "formatVendorProgress(run.tasks_total, run.tasks_total)",
   },
   {
-    id: "V15", kind: "ts", ac: "AC-VENDOR-04", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
+    id: "V15", kind: "ts", ac: "AC-VENDOR-04", file: "src/app/runs/[id]/task-sections.tsx", tests: [VENDOR_PAGES_TEST],
     what: "позначка «required»/«optional» завжди «required»",
     find: '{task.required ? "required" : "optional"}',
     replace: '{"required"}',
