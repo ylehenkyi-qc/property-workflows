@@ -1,16 +1,14 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppSelect } from "@/components/app-select";
-import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { refusalLink } from "@/lib/auth/refusal-link";
+import { NotEnoughRights } from "@/components/not-enough-rights";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
-import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
 import { ASSIGNEE_ME } from "@/lib/runs/assignees";
 import { isLaunchErrorCode, LAUNCH_ERRORS } from "@/lib/runs/launchErrors";
 import { loadVersionContent } from "@/lib/templates/load-version";
@@ -25,13 +23,7 @@ export default async function NewRunPage({ searchParams }: PageProps<"/runs/new"
   if (auth.status === "unauthenticated") {
     redirect(loginPath("/runs/new"));
   }
-  if (auth.status === "forbidden") {
-    return (
-      <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
-      </PageShell>
-    );
-  }
+  if (auth.status === "forbidden") return <NotEnoughRights role={auth.role} />;
   const { supabase, userId } = auth;
 
   const { template, error } = await searchParams;

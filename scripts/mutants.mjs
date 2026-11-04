@@ -233,14 +233,14 @@ mutants.push(
   {
     id: "V22", kind: "ts", ac: "AC-VENDOR-08", file: "src/app/templates/page.tsx", tests: [VENDOR_REFUSALS_TEST],
     what: "список шаблонів: відмову не показано, вендор потрапляє до списку шаблонів",
-    find: 'if (auth.status === "forbidden") {',
-    replace: "if (false) {",
+    find: 'if (auth.status === "forbidden") return <NotEnoughRights role={auth.role} />;',
+    replace: 'if (false) return <NotEnoughRights role={auth.role} />;',
   },
   {
-    id: "V23", kind: "ts", ac: "AC-VENDOR-08", file: "src/app/templates/page.tsx", tests: [VENDOR_REFUSALS_TEST],
+    id: "V23", kind: "ts", ac: "AC-VENDOR-08", file: "src/components/not-enough-rights.tsx", tests: [VENDOR_REFUSALS_TEST],
     what: "відмова вендору веде на «Back to home» замість «Back to runs»",
-    find: "link={refusalLink(auth.role)} />",
-    replace: 'link={{ href: "/", label: "Back to home" }} />',
+    find: "link={refusalLink(role, fallback)} />",
+    replace: 'link={fallback ?? { href: "/", label: "Back to home" }} />',
   },
   {
     id: "V24", kind: "ts", ac: "AC-VENDOR-08", file: "src/lib/auth/refusal-link.ts", tests: ["src/lib/auth/refusal-link.test.ts", VENDOR_REFUSALS_TEST],

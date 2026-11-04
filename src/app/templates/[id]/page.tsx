@@ -1,16 +1,14 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { refusalLink } from "@/lib/auth/refusal-link";
+import { NotEnoughRights } from "@/components/not-enough-rights";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { loadVersionContent } from "@/lib/templates/load-version";
-import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
 import { linkButtonClass } from "@/lib/ui/link-button";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,13 +22,7 @@ export default async function TemplatePage({ params, searchParams }: PageProps<"
 
   const auth = await requireRole(["manager", "admin"]);
   if (auth.status === "unauthenticated") redirect(loginPath(`/templates/${id}`));
-  if (auth.status === "forbidden") {
-    return (
-      <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
-      </PageShell>
-    );
-  }
+  if (auth.status === "forbidden") return <NotEnoughRights role={auth.role} />;
   const { supabase, role } = auth;
   const isAdmin = role === "admin";
 

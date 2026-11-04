@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { refusalLink } from "@/lib/auth/refusal-link";
+import { NotEnoughRights } from "@/components/not-enough-rights";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { ENTER_TEMPLATE_NAME, NOT_ENOUGH_RIGHTS, TEMPLATE_NAME_TAKEN } from "@/lib/templates/messages";
@@ -29,13 +29,7 @@ const ERRORS: Record<string, string> = {
 export default async function TemplatesPage({ searchParams }: PageProps<"/templates">) {
   const auth = await requireRole(["manager", "admin"]);
   if (auth.status === "unauthenticated") redirect(loginPath("/templates"));
-  if (auth.status === "forbidden") {
-    return (
-      <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role)} />
-      </PageShell>
-    );
-  }
+  if (auth.status === "forbidden") return <NotEnoughRights role={auth.role} />;
   const { supabase, role } = auth;
   const isAdmin = role === "admin";
 

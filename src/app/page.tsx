@@ -25,6 +25,8 @@ export default async function Home() {
     .eq("id", claims.sub)
     .maybeSingle();
 
+  const isVendor = profile?.role === "vendor";
+
   return (
     <PageShell>
       <h1 className="text-2xl font-semibold">Property Workflows</h1>
@@ -36,15 +38,15 @@ export default async function Home() {
       </dl>
       <div className="flex flex-wrap items-center gap-3">
         {/* Вендор не запускає шаблони й не відкриває їх: йому лишається лише «Runs» (рішення до solomchaak/property-workflows-spec#44) */}
-        {profile?.role === "vendor" ? null : (
+        {isVendor ? null : (
           <Link href="/runs/new" className={linkButtonClass()}>
             New run
           </Link>
         )}
-        <Link href="/runs" className={linkButtonClass({ variant: profile?.role === "vendor" ? "default" : "outline" })}>
+        <Link href="/runs" className={linkButtonClass({ variant: isVendor ? "default" : "outline" })}>
           Runs
         </Link>
-        {profile?.role === "vendor" ? null : (
+        {isVendor ? null : (
           <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
             Templates
           </Link>
