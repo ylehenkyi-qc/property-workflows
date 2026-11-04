@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { requireRole } from "@/lib/auth/require-role";
 import { isSelfAssignee } from "@/lib/runs/assignees";
 import { launchErrorCode, type LaunchErrorCode } from "@/lib/runs/launchErrors";
 import { validateCaseName } from "@/lib/runs/validateCaseName";
@@ -13,16 +13,19 @@ function backToForm(templateId: string, error: LaunchErrorCode): never {
   redirect(`/runs/new?${query.toString()}`);
 }
 
-// Запуск шаблону для випадку (AC-RUN-01…09). Правила гарантує launch_run у базі; тут — авторизація,
+// Запуск шаблону для випадку (AC-RUN-01…09, AC-VENDOR-01, 09). Правила гарантує launch_run у базі; тут — авторизація,
 // перевірка назви для зручності форми й збирання призначень (виконавець за замовчуванням — «me», тобто без запису).
+// Запускають лише manager і admin: вендор до виклику rpc потрапляє на сторінку відмови (її саму тримає база, AC-VENDOR-09).
 export async function launchRun(formData: FormData) {
-  const supabase = await createClient();
-
-  // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.
-  const { data } = await supabase.auth.getClaims();
-  if (!data?.claims) {
+  // requireRole: getClaims() перевіряє JWT (getSession() не використовуємо), роль — з profiles.role.
+  const auth = await requireRole(["manager", "admin"]);
+  if (auth.status === "unauthenticated") {
     redirect("/login");
   }
+  if (auth.status === "forbidden") {
+    redirect("/runs/new");
+  }
+  const { supabase } = auth;
 
   const templateId = String(formData.get("template_id") ?? "");
   const checked = validateCaseName(String(formData.get("case_name") ?? ""));

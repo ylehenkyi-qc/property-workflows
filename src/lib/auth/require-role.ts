@@ -1,13 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type AppRole = "manager" | "admin";
+export type AppRole = "manager" | "admin" | "vendor";
 
 export type RoleCheck =
   | { status: "ok"; supabase: Awaited<ReturnType<typeof createClient>>; userId: string; role: AppRole }
   | { status: "unauthenticated" }
   | { status: "forbidden"; role: AppRole | null };
 
-const isAppRole = (value: unknown): value is AppRole => value === "manager" || value === "admin";
+const isAppRole = (value: unknown): value is AppRole =>
+  value === "manager" || value === "admin" || value === "vendor";
 
 // Перший рядок кожної сторінки й Server Action: хто користувач і чи має він потрібну роль. Сесію перевіряє getClaims()
 // (JWT), getSession() для авторизації на сервері не використовуємо; роль — з profiles.role, ніколи з user_metadata.
