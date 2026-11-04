@@ -11,3 +11,9 @@ export function countDone(tasks: readonly { status: string }[]): number {
 export function formatRunProgress(tasks: readonly { status: string }[]): string {
   return formatProgress(countDone(tasks), tasks.length);
 }
+
+// Прогрес вендора «Your tasks: N of K done»: K — задачі цього вендора в запуску, N — ті з них, що «done»
+// (AC-VENDOR-03, AC-VENDOR-05); не плутати з прогресом усього запуску, якого вендор не бачить.
+export function formatVendorProgress(done: number, total: number): string {
+  return `Your tasks: ${done} of ${total} done`;
+}

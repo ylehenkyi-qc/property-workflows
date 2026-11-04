@@ -11,14 +11,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { createClient } from "@/lib/supabase/server";
 import { linkButtonClass } from "@/lib/ui/link-button";
 import { buildRunList } from "@/lib/runs/runList";
+import { VendorRuns } from "./vendor-runs";
 
 // Список запусків (AC-TASK-06, 09, 13, 14, 17, AC-DSYS-01, AC-DSYS-04). Які запуски бачить користувач, вирішує RLS:
-// admin — усі, manager — де він менеджер запуску або виконавець хоча б однієї задачі.
+// admin — усі, manager — де він менеджер запуску або виконавець хоча б однієї задачі. Вендор (AC-VENDOR-03, AC-VENDOR-10)
+// рядків runs не читає: його запуски, статус і «Your tasks: N of K done» віддає функція list_vendor_runs.
 export default async function RunsPage() {
+  // requireRole: getClaims() перевіряє JWT, роль — з profiles.role. Не вендор (forbidden) іде звичайним шляхом нижче.
+  const vendor = await requireRole("vendor");
+  if (vendor.status === "unauthenticated") {
+    redirect(loginPath("/runs"));
+  }
+  if (vendor.status === "ok") {
+    const { data: vendorRuns, error: vendorError } = await vendor.supabase.rpc("list_vendor_runs");
+    if (vendorError) {
+      throw new Error("Failed to load runs");
+    }
+    return <VendorRuns runs={vendorRuns ?? []} />;
+  }
+
   const supabase = await createClient();
 
   // getClaims() перевіряє JWT. getSession() для авторизації на сервері не використовуємо.

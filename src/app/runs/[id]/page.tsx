@@ -13,6 +13,7 @@ import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors
 import { canMarkDone, isLastRequiredTask } from "@/lib/runs/permissions";
 import { formatRunProgress } from "@/lib/runs/progress";
 import { MarkDoneButton } from "./mark-done-button";
+import { VendorRunView } from "./vendor-run";
 
 // Сторінка запуску (AC-TASK-05, AC-TASK-08, AC-DSYS-01, AC-EDITOR-06): прогрес, статус, версія шаблону, задачі за секціями
 // зі статусом, обов'язковістю й виконавцем. Чужий запуск RLS не повертає — сторінка «Run not found» (AC-TASK-10).
@@ -22,11 +23,30 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
   const { id } = await params;
 
   // requireRole: getClaims() перевіряє JWT (getSession() не використовуємо), роль — з profiles.role.
-  const auth = await requireRole(["manager", "admin"]);
+  const auth = await requireRole(["manager", "admin", "vendor"]);
   if (auth.status === "unauthenticated") redirect(loginPath(`/runs/${id}`));
   // Користувач без ролі нічого не бачить: те саме «Run not found», що й для чужого запуску.
   if (auth.status === "forbidden") notFound();
   const { supabase, userId, role } = auth;
+
+  // Вендор (AC-VENDOR-04, 06): заголовок запуску віддає list_vendor_runs, рядки задач і секцій — RLS (лише його задачі).
+  // Запуск без його задач і неіснуючий id — однаково «Run not found», жодна задача не читається.
+  if (role === "vendor") {
+    const { data: vendorRuns, error: vendorError } = await supabase.rpc("list_vendor_runs", { p_run_id: id });
+    if (vendorError) throw new Error("Failed to load the run");
+    const vendorRun = vendorRuns?.[0];
+    if (!vendorRun) notFound();
+    const [vendorSections, vendorTasks] = await Promise.all([
+      supabase.from("run_sections").select("id, name, position").eq("run_id", vendorRun.id),
+      supabase
+        .from("run_tasks")
+        .select("id, name, position, required, status, assignee_id, section_id")
+        .eq("run_id", vendorRun.id),
+    ]);
+    if (vendorSections.error) throw new Error("Failed to load run sections");
+    if (vendorTasks.error) throw new Error("Failed to load run tasks");
+    return <VendorRunView run={vendorRun} sections={vendorSections.data} tasks={vendorTasks.data} />;
+  }
 
   const { error } = await searchParams;
   const errorMessage = isMarkTaskErrorCode(error) ? MARK_TASK_ERRORS[error] : undefined;
