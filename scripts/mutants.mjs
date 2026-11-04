@@ -184,6 +184,48 @@ mutants.push(
   },
 );
 
+// Мутанти групи 3 зрізу 3: позначення задачі вендором (міграція vendor_mark_done і сторінка вендора).
+const VENDOR_MARK_SQL = "supabase/migrations/20261104142808_vendor_mark_done.sql";
+
+mutants.push(
+  {
+    id: "V16", kind: "sql", ac: "AC-VENDOR-07", file: VENDOR_MARK_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "mark_task_done: перевірку виконавця вимкнено, вендор позначає чужу задачу",
+    find: "if v_uid is distinct from v_assignee\n     and v_uid is distinct from v_manager",
+    replace: "if false\n     and v_uid is distinct from v_manager",
+  },
+  {
+    id: "V17", kind: "sql", ac: "AC-VENDOR-07", file: VENDOR_MARK_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "mark_task_done: запуск без задач вендора розкривається повідомленням про права замість «Run not found»",
+    find: "if v_role = 'vendor' and not exists (",
+    replace: "if false and not exists (",
+  },
+  {
+    id: "V18", kind: "sql", ac: "AC-VENDOR-07", file: VENDOR_MARK_SQL, tests: [VENDOR_ACCESS_DB],
+    what: "mark_task_done: для неіснуючої задачі вендор бачить «Task not found», тобто відрізняє її від чужого запуску",
+    find: "if v_role = 'vendor' then",
+    replace: "if false then",
+  },
+  {
+    id: "V19", kind: "ts", ac: "AC-VENDOR-05", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "«Mark as done» показано на кожній задачі вендора, а не лише на власній «to do»",
+    find: "{canVendorMarkDone(task, userId) ? (",
+    replace: "{true ? (",
+  },
+  {
+    id: "V20", kind: "ts", ac: "AC-VENDOR-05", file: "src/app/runs/[id]/vendor-run.tsx", tests: [VENDOR_PAGES_TEST],
+    what: "вендор позначає задачу без діалогу підтвердження",
+    find: "taskName={task.name} needsConfirmation />",
+    replace: "taskName={task.name} needsConfirmation={false} />",
+  },
+  {
+    id: "V21", kind: "ts", ac: "AC-VENDOR-07", file: "src/lib/runs/markTaskErrors.ts", tests: ["src/lib/runs/markTaskErrors.test.ts", "src/app/runs/[id]/actions.test.ts"],
+    what: "відмова «Run not found» не розпізнається і виглядає як загальна помилка",
+    find: 'if (error.code === "P0002" && error.message === MARK_TASK_RUN_NOT_FOUND_MESSAGE) {',
+    replace: "if (false) {",
+  },
+);
+
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):
 //
 // SQL, межа з AC — діапазон напіввідкритий, останній день заявки не рахується:
