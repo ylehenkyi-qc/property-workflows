@@ -254,6 +254,12 @@ mutants.push(
     find: 'if (profile?.role === "vendor") {',
     replace: "if (false) {",
   },
+  {
+    id: "V26", kind: "ts", ac: "рішення до solomchaak/property-workflows-spec#44", file: "src/app/login/actions.ts", tests: ["src/app/login/actions.test.ts"],
+    what: "явний next=\"/\" не відрізняється від відсутнього: вендор з явним «/» потрапляє на /runs",
+    find: 'if (!formData.has("next") && data?.user) {',
+    replace: "if (data?.user) {",
+  },
 );
 
 // Приклади з демо (інша схема — у вашому репо цих файлів немає, тож не розкоментовуйте як є):

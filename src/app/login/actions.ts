@@ -27,8 +27,8 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
-  // Вендор без явного next потрапляє одразу на свої запуски, решта — на головну (рішення до solomchaak/property-workflows-spec#44).
-  if (next === "/" && data?.user) {
+  // Вендор без явного next (поля next у формі немає) потрапляє одразу на свої запуски, решта — на головну (рішення до solomchaak/property-workflows-spec#44).
+  if (!formData.has("next") && data?.user) {
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
     if (profile?.role === "vendor") {
       redirect("/runs");

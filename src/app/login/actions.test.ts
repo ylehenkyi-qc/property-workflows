@@ -69,6 +69,8 @@ describe("login: куди веде вхід", () => {
 
     expect(await submit({ email: "vendor1@example.test", password: "x" })).toBe("/runs");
     expect(await submit({ email: "vendor1@example.test", password: "x", next: RUN_URL })).toBe(RUN_URL);
+    // явний next="/" — це запитана сторінка, а не відсутній параметр
+    expect(await submit({ email: "vendor1@example.test", password: "x", next: "/" })).toBe("/");
   });
 
   it("помилка входу лишає на сторінці входу й зберігає next", async () => {

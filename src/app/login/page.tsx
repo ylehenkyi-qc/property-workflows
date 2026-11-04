@@ -25,7 +25,8 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
             <AlertDescription>{message}</AlertDescription>
           </Alert>
         ) : null}
-        <input type="hidden" name="next" value={safeNextPath(next)} />
+        {/* Поле лише коли next задано в адресі: дія відрізняє «немає next» від явного «/» (вендору без next — на /runs) */}
+        {typeof next === "string" ? <input type="hidden" name="next" value={safeNextPath(next)} /> : null}
         <div className="flex flex-col gap-2">
           <Label htmlFor="email">Email</Label>
           <Input id="email" name="email" type="email" autoComplete="email" required />
