@@ -28,7 +28,7 @@ type VendorTask = {
 // RLS (лише його задачі й секції з ними). Запуск без його задач і неіснуючий id — однаково «Run not found», і жодна задача
 // не читається. Помилку бази не маскуємо: error.tsx покаже «Something went wrong». error — код відмови останньої дії
 // «Mark as done» з адреси сторінки.
-export async function renderVendorRun(supabase: Supabase, id: string, userId: string, error: string | undefined) {
+export async function renderVendorRun(supabase: Supabase, id: string, userId: string, error: unknown) {
   const { data: runs, error: runError } = await supabase.rpc("list_vendor_runs", { p_run_id: id });
   if (runError) throw new Error("Failed to load the run");
   const run = runs?.[0];
