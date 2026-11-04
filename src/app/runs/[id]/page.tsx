@@ -45,7 +45,16 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
     ]);
     if (vendorSections.error) throw new Error("Failed to load run sections");
     if (vendorTasks.error) throw new Error("Failed to load run tasks");
-    return <VendorRunView run={vendorRun} sections={vendorSections.data} tasks={vendorTasks.data} />;
+    const { error: vendorErrorCode } = await searchParams;
+    return (
+      <VendorRunView
+        run={vendorRun}
+        sections={vendorSections.data}
+        tasks={vendorTasks.data}
+        userId={userId}
+        errorMessage={isMarkTaskErrorCode(vendorErrorCode) ? MARK_TASK_ERRORS[vendorErrorCode] : undefined}
+      />
+    );
   }
 
   const { error } = await searchParams;

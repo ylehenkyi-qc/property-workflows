@@ -245,3 +245,99 @@ describe("читання вендора", () => {
     }
   });
 });
+
+// Група 3: вендор позначає виконаною свою задачу (mark_task_done), чужу — не може.
+const FOREIGN_TASK_DENIED = "Only the task's assignee, the run manager, or an administrator can mark a task as done";
+
+async function runSnapshot(runId: string) {
+  const rows = await t.asService<{ id: string; name: string; status: string }>(
+    "select id, name, status from public.run_tasks where run_id = $1 order by name",
+    [runId],
+  );
+  const [run] = await t.asService<{ status: string }>("select status from public.runs where id = $1", [runId]);
+  return { tasks: rows, runStatus: run.status };
+}
+const markDoneAs = (email: string, taskId: string) =>
+  t.asUser(u[email], "select public.mark_task_done($1::uuid)", [taskId]);
+
+describe("вендор позначає задачу виконаною", () => {
+  it("AC-VENDOR-05: вендор позначає свою задачу 3, не останню обов'язкову, — вона «done», V бачить 1 з 2, запуск лишається «in progress»", async () => {
+    const { tasks, run12 } = await setupVendorRuns();
+    const before = await runSnapshot(run12);
+    const task3 = before.tasks.find((r) => r.name === tasks[2].name)!;
+
+    await markDoneAs(V1, task3.id);
+
+    const after = await runSnapshot(run12);
+    for (const row of after.tasks) {
+      expect(row.status, row.name).toBe(row.name === tasks[2].name ? "done" : "to_do");
+    }
+    expect(after.runStatus).toBe("in_progress");
+    const runs = await t.asUser<Record<string, unknown>>(u[V1], "select * from public.list_vendor_runs()");
+    expect(runs).toHaveLength(1);
+    expect(runs[0].id).toBe(run12);
+    expect(Number(runs[0].tasks_total)).toBe(2);
+    expect(Number(runs[0].tasks_done)).toBe(1);
+    expect(runs[0].status).toBe("in_progress");
+  });
+
+  it("AC-VENDOR-07: вендор напряму позначає чужу задачу 1 — дослівна відмова, задача лишається «to do», решта без змін", async () => {
+    const { tasks, run12 } = await setupVendorRuns();
+    const before = await runSnapshot(run12);
+    const task1 = before.tasks.find((r) => r.name === tasks[0].name)!;
+    expect(task1.status).toBe("to_do");
+
+    await expect(markDoneAs(V1, task1.id)).rejects.toThrow(FOREIGN_TASK_DENIED);
+
+    expect(await runSnapshot(run12)).toEqual(before);
+  });
+
+  it("AC-VENDOR-07: задача запуску, де в вендора немає задач, — «Run not found», задача лишається «to do»", async () => {
+    const { run12, run14 } = await setupVendorRuns();
+    const beforeOther = await runSnapshot(run14);
+    const beforeOwn = await runSnapshot(run12);
+
+    await expect(markDoneAs(V1, beforeOther.tasks[0].id)).rejects.toThrow("Run not found");
+
+    expect(beforeOther.tasks[0].status).toBe("to_do");
+    expect(await runSnapshot(run14)).toEqual(beforeOther);
+    expect(await runSnapshot(run12)).toEqual(beforeOwn);
+  });
+
+  it("AC-VENDOR-07: неіснуючий id задачі дає те саме «Run not found», дані не змінились", async () => {
+    const { run12, run14 } = await setupVendorRuns();
+    const before12 = await runSnapshot(run12);
+    const before14 = await runSnapshot(run14);
+
+    await expect(markDoneAs(V1, "11111111-2222-4333-8444-555555555555")).rejects.toThrow("Run not found");
+
+    expect(await runSnapshot(run12)).toEqual(before12);
+    expect(await runSnapshot(run14)).toEqual(before14);
+  });
+
+  it("AC-VENDOR-07: уже виконана чужа задача 1 — відмова, вона лишається «done», стан не змінився", async () => {
+    const { tasks, run12 } = await setupVendorRuns();
+    const task1 = (await runSnapshot(run12)).tasks.find((r) => r.name === tasks[0].name)!;
+    await markDoneAs(A, task1.id);
+    const before = await runSnapshot(run12);
+    expect(before.tasks.find((r) => r.id === task1.id)!.status).toBe("done");
+
+    await expect(markDoneAs(V1, task1.id)).rejects.toThrow(FOREIGN_TASK_DENIED);
+
+    expect(await runSnapshot(run12)).toEqual(before);
+  });
+
+  it("вендор позначає власну необов'язкову задачу в уже завершеному запуску — вона «done», запуск лишається «completed»", async () => {
+    const { tasks, run12 } = await setupVendorRuns();
+    const byName = Object.fromEntries((await runSnapshot(run12)).tasks.map((r) => [r.name, r.id]));
+    // У знімку версії 1 обов'язкові — задачі 1, 2 і 3; задача 4 вендора необов'язкова.
+    for (const i of [0, 1, 2]) await markDoneAs(ADMIN, byName[tasks[i].name]);
+    expect((await runSnapshot(run12)).runStatus).toBe("completed");
+
+    await markDoneAs(V1, byName[tasks[3].name]);
+
+    const after = await runSnapshot(run12);
+    expect(after.tasks.find((r) => r.name === tasks[3].name)!.status).toBe("done");
+    expect(after.runStatus).toBe("completed");
+  });
+});

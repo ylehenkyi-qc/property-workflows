@@ -2,10 +2,13 @@ import Link from "next/link";
 import { PageShell } from "@/components/page-shell";
 import { StatusBadge } from "@/components/status-badge";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { groupTasksBySection } from "@/lib/runs/groupTasksBySection";
+import { canVendorMarkDone } from "@/lib/runs/permissions";
 import { formatVendorProgress } from "@/lib/runs/progress";
 import type { VendorRun } from "../vendor-runs";
+import { MarkDoneButton } from "./mark-done-button";
 
 type VendorTask = {
   id: string;
@@ -25,10 +28,14 @@ export function VendorRunView({
   run,
   sections,
   tasks,
+  userId,
+  errorMessage,
 }: {
   run: VendorRun;
   sections: readonly { id: string; name: string; position: number }[];
   tasks: readonly VendorTask[];
+  userId: string;
+  errorMessage?: string;
 }) {
   const groups = groupTasksBySection(sections, tasks);
 
@@ -46,6 +53,12 @@ export function VendorRunView({
         </p>
       </div>
 
+      {errorMessage ? (
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
+      ) : null}
+
       {groups.map(({ section, tasks: sectionTasks }) => (
         <section key={section.id} className="flex flex-col gap-2">
           <h2 className="text-lg font-semibold">{section.name}</h2>
@@ -59,6 +72,11 @@ export function VendorRunView({
                   </span>
                   <span className="flex flex-wrap items-center gap-3 text-muted-foreground">
                     <StatusBadge status={task.status} />
+                    {canVendorMarkDone(task, userId) ? (
+                      // Підтвердження «This cannot be undone» на кожній задачі вендора, а не лише на останній обов'язковій:
+                      // так діалог не розкриває стану чужих задач (робоче рішення до solomchaak/property-workflows-spec#43, варіант B).
+                      <MarkDoneButton taskId={task.id} runId={run.id} taskName={task.name} needsConfirmation />
+                    ) : null}
                   </span>
                 </Card>
               </li>
