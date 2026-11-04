@@ -132,3 +132,21 @@ describe("сторінка запуску вендора", () => {
     expect(client.calls.from).not.toContain("run_sections");
   });
 });
+
+describe("вендор позначає свою задачу", () => {
+  it("AC-VENDOR-05: «Mark as done» лише на власній задачі «to do», з підтвердженням на кожній, а після позначки — «Your tasks: 1 of 2 done»", async () => {
+    // Задача 3 уже «done» (після позначки), задача 4 ще «to do», обов'язкова, але не остання обов'язкова задача запуску.
+    asVendor(
+      { list_vendor_runs: { data: [vendorRun({ tasks_done: 1 })] } },
+      { run_sections: { data: SECTIONS }, run_tasks: { data: [{ ...TASK_3, status: "done" }, TASK_4] } },
+    );
+
+    const markup = html(await RunPage({ params: Promise.resolve({ id: RUN_12 }), searchParams: Promise.resolve({}) }));
+
+    expect(markup).toContain("Your tasks: 1 of 2 done");
+    expect(markup).toContain("done");
+    // кнопка лише на задачі «to do», і для вендора підтвердження на кожній задачі (рішення до solomchaak/property-workflows-spec#43)
+    expect((markup.match(/Mark as done/g) ?? []).length).toBe(1);
+    expect(markup).toContain('data-confirm="true"');
+  });
+});

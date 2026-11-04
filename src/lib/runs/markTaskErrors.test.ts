@@ -20,6 +20,13 @@ describe("markTaskErrors", () => {
     expect(markTaskErrorCode({ code: "42501", message: "Not authorized" })).toBe("failed");
   });
 
+  it("AC-VENDOR-07: «Run not found» (P0002) для вендора — окремий код із дослівним текстом, а не загальна відмова", () => {
+    const code = markTaskErrorCode({ code: "P0002", message: "Run not found" });
+
+    expect(code).toBe("run_not_found");
+    expect(MARK_TASK_ERRORS[code]).toBe("Run not found");
+  });
+
   it("невідома помилка — загальний текст", () => {
     const code = markTaskErrorCode({ code: "P0002", message: "Task not found" });
 

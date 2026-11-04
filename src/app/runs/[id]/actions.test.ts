@@ -46,6 +46,15 @@ beforeEach(() => {
 });
 
 describe("markTaskDone", () => {
+  it("AC-VENDOR-07: коли база відповіла «Run not found», дія повертає на сторінку з кодом run_not_found, а не з загальною помилкою", async () => {
+    mocks.rpc.mockResolvedValue({ data: null, error: { code: "P0002", message: "Run not found" } });
+
+    const url = await submit();
+
+    expect(url).toBe(`/runs/${RUN_ID}?error=run_not_found`);
+    expect(MARK_TASK_ERRORS.run_not_found).toBe("Run not found");
+  });
+
   it("AC-TASK-03: при відмові за правами (42501) сторінка показує дослівне повідомлення з відмовою", async () => {
     mocks.rpc.mockResolvedValue({
       data: null,
