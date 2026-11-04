@@ -24,3 +24,9 @@ export function isLastRequiredTask(
   if (!task || !task.required || task.status === "done") return false;
   return tasks.every((item) => item.id === taskId || !item.required || item.status === "done");
 }
+
+// Кнопка «Mark as done» для вендора (AC-VENDOR-05): лише на його власній задачі «to do». Це підказка інтерфейсу: право
+// гарантує mark_task_done у базі (AC-VENDOR-07), а вендор бачить лише свої задачі й так.
+export function canVendorMarkDone(task: { assignee_id: string; status: string }, userId: string): boolean {
+  return task.status === "to_do" && task.assignee_id === userId;
+}

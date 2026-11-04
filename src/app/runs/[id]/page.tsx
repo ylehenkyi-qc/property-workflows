@@ -28,9 +28,9 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
   // Користувач без ролі нічого не бачить: те саме «Run not found», що й для чужого запуску.
   if (auth.status === "forbidden") notFound();
   const { supabase, userId, role } = auth;
-  if (role === "vendor") return renderVendorRun(supabase, id);
-
   const { error } = await searchParams;
+  if (role === "vendor") return renderVendorRun(supabase, id, userId, error);
+
   const errorMessage = isMarkTaskErrorCode(error) ? MARK_TASK_ERRORS[error] : undefined;
   const { run, sections, tasks, users } = await loadRunDetails(supabase, id);
 

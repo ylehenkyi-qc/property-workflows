@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canMarkDone, isLastRequiredTask } from "./permissions";
+import { canMarkDone, canVendorMarkDone, isLastRequiredTask } from "./permissions";
 
 const RUN = { manager_id: "a" };
 const todo = { assignee_id: "b", status: "to_do" };
@@ -39,5 +39,13 @@ describe("isLastRequiredTask", () => {
     expect(isLastRequiredTask(tasks, "4")).toBe(false);
     expect(isLastRequiredTask(tasks, "1")).toBe(false);
     expect(isLastRequiredTask(tasks, "nope")).toBe(false);
+  });
+});
+
+describe("canVendorMarkDone", () => {
+  it("AC-VENDOR-05: вендору кнопка лише на власній задачі «to do»", () => {
+    expect(canVendorMarkDone({ assignee_id: "v", status: "to_do" }, "v")).toBe(true);
+    expect(canVendorMarkDone({ assignee_id: "a", status: "to_do" }, "v")).toBe(false);
+    expect(canVendorMarkDone({ assignee_id: "v", status: "done" }, "v")).toBe(false);
   });
 });
