@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
+import { refusalLink } from "@/lib/auth/refusal-link";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { buildDraft } from "@/lib/templates/draft";
@@ -19,7 +20,7 @@ export default async function EditTemplatePage({ params }: PageProps<"/templates
   if (auth.status === "forbidden") {
     return (
       <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={{ href: "/templates", label: "Back to templates" }} />
+        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role, { href: "/templates", label: "Back to templates" })} />
       </PageShell>
     );
   }

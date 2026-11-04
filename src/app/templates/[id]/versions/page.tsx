@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { refusalLink } from "@/lib/auth/refusal-link";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
@@ -20,7 +21,7 @@ export default async function TemplateVersionsPage({ params }: PageProps<"/templ
   if (auth.status === "forbidden") {
     return (
       <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={{ href: "/templates", label: "Back to templates" }} />
+        <PageMessage title={NOT_ENOUGH_RIGHTS} link={refusalLink(auth.role, { href: "/templates", label: "Back to templates" })} />
       </PageShell>
     );
   }

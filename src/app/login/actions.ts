@@ -19,7 +19,7 @@ export async function login(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     // Не показуємо текст помилки Auth: він може підказати, чи існує email.
@@ -27,6 +27,13 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath("/", "layout");
+  // Вендор без явного next потрапляє одразу на свої запуски, решта — на головну (рішення до solomchaak/property-workflows-spec#44).
+  if (next === "/" && data?.user) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+    if (profile?.role === "vendor") {
+      redirect("/runs");
+    }
+  }
   redirect(next);
 }
 
