@@ -23,5 +23,15 @@
     "email": "pm-manager@example.test",
     "full_name": "PM Приймання Менеджер",
     "role": "manager"
+  },
+  {
+    "email": "vendor1@example.test",
+    "full_name": "Вендор Демо-Перший",
+    "role": "vendor"
+  },
+  {
+    "email": "vendor2@example.test",
+    "full_name": "Вендор Демо-Другий",
+    "role": "vendor"
   }
 ]
