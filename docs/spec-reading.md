@@ -124,7 +124,7 @@
 
 ## Зріз 3
 
-Вимоги зрізу 3 (WS8, знімок 2026-11-02): solomchaak/property-workflows-spec#39 (`requirements/39-assign-a-vendor-own-tasks.md`, AC-VENDOR-01…10) і зміни в solomchaak/property-workflows-spec#1, solomchaak/property-workflows-spec#2, solomchaak/property-workflows-spec#3 (роль `vendor`). Зріз реалізує конвеєр у WS9; цей розділ — вхід для нього (крок 6 домашки WS8, не оцінюється).
+Вимоги зрізу 3 (WS8, знімок 2026-11-02): solomchaak/property-workflows-spec#39 (`requirements/39-assign-a-vendor-own-tasks.md`, AC-VENDOR-01…10) і зміни в solomchaak/property-workflows-spec#1, solomchaak/property-workflows-spec#2, solomchaak/property-workflows-spec#3 (роль `vendor`). Питання Q23–Q25 поставлено в WS8 (крок 6); у WS9 зріз реалізуємо звичайним способом, специфікація — зміна `add-vendor-access` (PM досі не відповів на #41–#50, нових питань скан не дав).
 
 Вимоги: solomchaak/property-workflows-spec · джерело: issues · знімок 2026-11-02
 
