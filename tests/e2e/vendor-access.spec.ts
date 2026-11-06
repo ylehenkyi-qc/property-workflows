@@ -259,7 +259,11 @@ test(
       page,
       {
         clause: 'Task 3 has status "done", and V sees "Your tasks: 1 of 2 done".',
-        visible: ['task 3 shows the status "done"', 'the text "Your tasks: 1 of 2 done"'],
+        // Задачі в застосунку без номерів: task 3 — «${task3.name}» за знімком шаблону (його тримає база, не сторінка).
+        visible: [
+          `task 3 of the template, «${task3.name}», shows the status "done"`,
+          'the text "Your tasks: 1 of 2 done"',
+        ],
         hidden: ['the status of task 3 in the database is "done"'],
       },
       async () => {
@@ -401,7 +405,11 @@ test(
       page,
       {
         clause: "No run is created, and the list of runs does not change.",
-        visible: ["the list of runs of V, opened again, has the same rows as before the attempt"],
+        // «До» — з умови Дано: у V рівно один запуск. Кадр «після» має показувати саме його і нічого більше.
+        visible: [
+          'the list of runs of V, opened again, has exactly one row: the run "Apartment 12, move-in" with "Your tasks: 0 of 2 done" (the only run V had before the attempt)',
+          'no run "Direct launch by vendor" and no other new row in the list',
+        ],
         hidden: [
           "the direct request of V was rejected (an error came back)",
           "V is the manager of no run in the database and no run «Direct launch by vendor» exists",
