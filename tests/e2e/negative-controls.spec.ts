@@ -10,6 +10,7 @@
 import { expect, test } from "@playwright/test";
 import { deleteUatUsers } from "./support/admin";
 import { createUatManager } from "./support/data";
+import { createUatUser } from "./support/vendor-data";
 import { attachRuntimeErrors, given, signIn, thenStep, when } from "./support/uat";
 
 const CLAUSE =
@@ -80,6 +81,41 @@ test(
           page.getByRole("main").getByText("No runs yet. Launch a template to start one.", { exact: true }),
         ).toBeVisible();
         await expect(page.getByRole("main").getByRole("table")).toHaveCount(0);
+      },
+    );
+  },
+);
+
+// NC-3 — той самий контроль NC-1 для вендорського AC зрізу 3 (AC-VENDOR-10): у твердженні навмисно інший текст
+// повідомлення, ніж в AC PM. Очікуваний вердикт — FAIL (R1), а не PASS: UAT зрізу 3 уміє падати.
+test(
+  "NC-3 (AC-VENDOR-10, навмисно хибне очікування в тесті: інший текст повідомлення вендора)",
+  {
+    tag: ["@negative-control", "@writes"],
+    annotation: [
+      { type: "ac", description: "AC-VENDOR-10" },
+      { type: "case", description: "NC-3" },
+    ],
+  },
+  async ({ page }) => {
+    await given("vendor V to whom no task is assigned", async () => {
+      const vendor = await createUatUser("nc3-v", "vendor");
+      await signIn(page, vendor.email, vendor.password);
+    });
+    await when("V opens the list of runs", async () => {
+      await page.goto("/runs");
+    });
+    await thenStep(
+      page,
+      {
+        clause: 'V sees the message "No tasks assigned to you yet." and no empty table.',
+        visible: ['the message "No tasks assigned to you yet."'],
+      },
+      async () => {
+        await expect(page.getByRole("main").getByRole("heading", { level: 2 })).toHaveText(
+          "You have no tasks. Ask your manager.",
+          { timeout: 5_000 },
+        );
       },
     );
   },
