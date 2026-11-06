@@ -1,10 +1,9 @@
 import { notFound, redirect } from "next/navigation";
-import { PageMessage } from "@/components/page-message";
 import { PageShell } from "@/components/page-shell";
+import { NotEnoughRights } from "@/components/not-enough-rights";
 import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { buildDraft } from "@/lib/templates/draft";
-import { NOT_ENOUGH_RIGHTS } from "@/lib/templates/messages";
 import { TemplateEditor } from "./template-editor";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -16,13 +15,7 @@ export default async function EditTemplatePage({ params }: PageProps<"/templates
 
   const auth = await requireRole("admin");
   if (auth.status === "unauthenticated") redirect(loginPath(`/templates/${id}/edit`));
-  if (auth.status === "forbidden") {
-    return (
-      <PageShell>
-        <PageMessage title={NOT_ENOUGH_RIGHTS} link={{ href: "/templates", label: "Back to templates" }} />
-      </PageShell>
-    );
-  }
+  if (auth.status === "forbidden") return <NotEnoughRights role={auth.role} fallback={{ href: "/templates", label: "Back to templates" }} />;
   const { supabase } = auth;
 
   if (!UUID.test(id)) notFound();

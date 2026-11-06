@@ -3,10 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   signInWithPassword: vi.fn(),
   revalidatePath: vi.fn(),
+  role: "manager" as string | null,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
-  createClient: async () => ({ auth: { signInWithPassword: mocks.signInWithPassword } }),
+  createClient: async () => ({
+    auth: { signInWithPassword: mocks.signInWithPassword },
+    // роль користувача після входу читається з profiles.role
+    from: () => ({
+      select: () => ({
+        eq: () => ({ maybeSingle: async () => ({ data: mocks.role ? { role: mocks.role } : null }) }),
+      }),
+    }),
+  }),
 }));
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 
@@ -37,7 +46,8 @@ async function submit(fields: Record<string, string>): Promise<string> {
 beforeEach(() => {
   mocks.signInWithPassword.mockReset();
   mocks.revalidatePath.mockReset();
-  mocks.signInWithPassword.mockResolvedValue({ error: null });
+  mocks.role = "manager";
+  mocks.signInWithPassword.mockResolvedValue({ data: { user: { id: "user-1" } }, error: null });
 });
 
 describe("login: куди веде вхід", () => {
@@ -52,6 +62,15 @@ describe("login: куди веде вхід", () => {
     expect(await submit({ email: "a@example.test", password: "x" })).toBe("/");
     expect(await submit({ email: "a@example.test", password: "x", next: "https://evil.example" })).toBe("/");
     expect(await submit({ email: "a@example.test", password: "x", next: "//evil.example" })).toBe("/");
+  });
+
+  it("вендор без явного next після входу потрапляє на список запусків, а з явним next — на нього (рішення до solomchaak/property-workflows-spec#44)", async () => {
+    mocks.role = "vendor";
+
+    expect(await submit({ email: "vendor1@example.test", password: "x" })).toBe("/runs");
+    expect(await submit({ email: "vendor1@example.test", password: "x", next: RUN_URL })).toBe(RUN_URL);
+    // явний next="/" — це запитана сторінка, а не відсутній параметр
+    expect(await submit({ email: "vendor1@example.test", password: "x", next: "/" })).toBe("/");
   });
 
   it("помилка входу лишає на сторінці входу й зберігає next", async () => {

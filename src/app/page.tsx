@@ -25,6 +25,8 @@ export default async function Home() {
     .eq("id", claims.sub)
     .maybeSingle();
 
+  const isVendor = profile?.role === "vendor";
+
   return (
     <PageShell>
       <h1 className="text-2xl font-semibold">Property Workflows</h1>
@@ -35,15 +37,20 @@ export default async function Home() {
         <dd data-testid="user-role">{profile?.role ?? "profile not found"}</dd>
       </dl>
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/runs/new" className={linkButtonClass()}>
-          New run
-        </Link>
-        <Link href="/runs" className={linkButtonClass({ variant: "outline" })}>
+        {/* Вендор не запускає шаблони й не відкриває їх: йому лишається лише «Runs» (рішення до solomchaak/property-workflows-spec#44) */}
+        {isVendor ? null : (
+          <Link href="/runs/new" className={linkButtonClass()}>
+            New run
+          </Link>
+        )}
+        <Link href="/runs" className={linkButtonClass({ variant: isVendor ? "default" : "outline" })}>
           Runs
         </Link>
-        <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
-          Templates
-        </Link>
+        {isVendor ? null : (
+          <Link href="/templates" className={linkButtonClass({ variant: "outline" })}>
+            Templates
+          </Link>
+        )}
       </div>
       <form action={signOut}>
         <Button type="submit" variant="ghost">

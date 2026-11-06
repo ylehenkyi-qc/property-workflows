@@ -140,6 +140,12 @@ describe("AC-DSYS-03: відвідувач без входу відкриває 
 
     expect(login).toContain('name="next" value="/"');
   });
+
+  it("без next в адресі сторінка входу не додає поля next: дія відрізняє це від явного «/»", async () => {
+    const login = html(await LoginPage(listPage()));
+
+    expect(login).not.toContain('name="next"');
+  });
 });
 
 describe("AC-EDITOR-07: менеджер відкриває список версій за прямим посиланням", () => {
