@@ -49,7 +49,7 @@ Done when: AC-VENDOR-08
 ## 6. UAT-специфікації й прогін на проді (C)
 
 - [x] 6.1 `tests/e2e/vendor-access.spec.ts` (Vitest їх не запускає): специфікація Playwright на **кожен** із 10 AC — назва з AC ID, анотація `ac`, тег `@uat`, `given`/`when`/`thenStep`, «Тоді» — твердженнями з дослівним текстом AC PM; невидимі частини («що не змінилося») теж твердженнями; AC-VENDOR-07 і AC-VENDOR-09 (прямі запити) — сесія вендора викликає `rpc` із токеном користувача, потім під менеджером A екран показує, що задача 1 лишилась «to do», а список запусків не змінився; дані UAT — лише синтетичні, з прибиранням після себе. Промпт F03 домашки WS9.
-- [ ] 6.2 Прогін проти проду `npm run uat -- --url https://pmwp-ylehenkyi.vercel.app` (вхід — окремий крок без запису), рецензент «наосліп» (`npm run uat:review`), негативний контроль `npm run uat:nc` → FAIL; звіт у `docs/qa/uat/<YYYY-MM-DD>/` (`report.md`, `manifest.json`, `frames/`), відео — вкладенням в описі PR; вердикт руками не правимо; жодних паролів і токенів у кадрах. Звіт UAT бажано до кінця Вт 10.11.
+- [x] 6.2 Прогін проти проду `npm run uat -- --url https://pmwp-ylehenkyi.vercel.app` (вхід — окремий крок без запису), рецензент «наосліп» (`npm run uat:review`), негативний контроль `npm run uat:nc` → FAIL; звіт у `docs/qa/uat/<YYYY-MM-DD>/` (`report.md`, `manifest.json`, `frames/`), відео — вкладенням в описі PR; вердикт руками не правимо; жодних паролів і токенів у кадрах. Звіт UAT бажано до кінця Вт 10.11.
 
 Done when: AC-VENDOR-01, AC-VENDOR-02, AC-VENDOR-03, AC-VENDOR-04, AC-VENDOR-05, AC-VENDOR-06, AC-VENDOR-07, AC-VENDOR-08, AC-VENDOR-09, AC-VENDOR-10
 
