@@ -1,9 +1,9 @@
 {
   "kind": "uat",
-  "generatedAt": "2026-11-06T10:15:30.038Z",
+  "generatedAt": "2026-11-06T10:55:42.439Z",
   "baseURL": "https://pmwp-ylehenkyi.vercel.app",
   "deployedSha": "41788a7e34b031cf630d2501f032c8f54c580b00",
-  "testsCommit": "e7ef911354cb4d15d678df25f8851954640ac5d1",
+  "testsCommit": "50e70cbd14104038b9d43bee34d8a50ac90a46b5",
   "reviewer": {
     "model": "claude-haiku-5-5",
     "disputes": "claude-sonnet-5-5"
@@ -21,7 +21,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно лише заголовок «Not enough rights» і посилання «Back to templates» на порожньому світлому фоні; кнопки «Save version» і полів редактора немає. Окремої шапки чи навігації на кадрі немає, тож порівняти «той самий макет, що й інші сторінки» з одного кадру не можна, але цей пункт у переліку видимих частин не значиться. Версію шаблону та прапорець незбережених змін перевіряють з бази, тому їх не оцінював."
+        "notes": "На кадрі frame-then-1.png видно заголовок «Not enough rights» і посилання «Back to templates» на порожній світлій сторінці; кнопки «Save version» і полів редактора немає. Порівняти макет із іншими сторінками за одним кадром неможливо, але цієї частини в переліку видимих частин «Тоді» немає."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -50,9 +50,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 21152,
-      "reviewCostUsd": 0.00205,
-      "reviewWallMs": 13733
+      "playwrightMs": 19836,
+      "reviewCostUsd": 0.00214,
+      "reviewWallMs": 11598
     },
     {
       "id": "AC-DSYS-04",
@@ -65,7 +65,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі сторінки «Runs» видно повідомлення «No runs yet. Launch a template to start one.» і посилання «Launch a template» (кольором посилання, без підкреслення). Таблиці на кадрі немає, хоча це не з кадрів і не оцінюється."
+        "notes": "На кадрі /runs (заголовок «Runs») видно текст «No runs yet. Launch a template to start one.» і посилання «Launch a template» під ним; таблиці на кадрі не видно. Текст збігається з критерієм посимвольно. Відсутність таблиці перевіряють автоматичні перевірки, тому її я не оцінював."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -86,9 +86,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 8738,
-      "reviewCostUsd": 0.00174,
-      "reviewWallMs": 11041
+      "playwrightMs": 8266,
+      "reviewCostUsd": 0.00185,
+      "reviewWallMs": 9913
     },
     {
       "id": "AC-EDITOR-07",
@@ -101,7 +101,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі frame-then-1.png видно заголовок «Not enough rights» і посилання «Back to templates». Таблиці, рядків «Version N» і списку версій на сторінці немає. Для другої частини цитата — весь видимий текст екрана, бо це відсутність елементів, а не написаний текст."
+        "notes": "На кадрі великий заголовок «Not enough rights» і посилання «Back to templates», більше тексту немає: ні таблиці, ні рядків «Version N». Кадр не обрізаний і не виглядає як завантаження. Адресного рядка на кадрі немає, тому сам перехід за прямим посиланням з кадру не видно; але частина «Тоді» стосується лише того, що показано на екрані."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -126,9 +126,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 8941,
-      "reviewCostUsd": 0.00186,
-      "reviewWallMs": 11719
+      "playwrightMs": 8590,
+      "reviewCostUsd": 0.00189,
+      "reviewWallMs": 10421
     },
     {
       "id": "AC-VENDOR-01",
@@ -141,62 +141,42 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На сторінці запуску «Apartment 12, move-in» задачі 3 і 4 («Hand over the keys», «Record meter readings») показують email з суфіксом -v@, а задачі 1, 2 і 5 — email з суфіксом -a@. Суфікси v/a відповідають vendor V і manager A, але самі облікові записи на кадрі не підписані."
+        "notes": "На кадрі сторінка «Apartment 12, move-in» зі списком із 5 завдань у порядку шаблону: «Inspect the apartment» (1), «Collect the signed lease» (2), «Hand over the keys» (3), «Record meter readings» (4), «Send welcome information» (5). Завдання 3 і 4 мають виконавцем uat-261106105029-v01-v@example.test (V), а завдання 1, 2 і 5 — uat-261106105029-v01-a@example.test (A). Призначення в базі не перевірялося, бо це за межами кадрів."
       },
-      "agentModel": "claude-sonnet-5-5",
+      "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
-        "claude-haiku-5-5": "NEEDS-HUMAN",
-        "claude-sonnet-5-5": "PASS"
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
       },
-      "escalated": true,
+      "escalated": false,
       "quotesVerified": [
         {
-          "quote": "Hand over the keys",
+          "quote": "uat-261106105029-v01-v@example.test",
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v01-v@example.test",
+          "quote": "uat-261106105029-v01-v@example.test",
           "onPage": true
         },
         {
-          "quote": "Record meter readings",
+          "quote": "uat-261106105029-v01-a@example.test",
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v01-v@example.test",
+          "quote": "uat-261106105029-v01-a@example.test",
           "onPage": true
         },
         {
-          "quote": "Inspect the apartment",
-          "onPage": true
-        },
-        {
-          "quote": "uat-261106101016-v01-a@example.test",
-          "onPage": true
-        },
-        {
-          "quote": "Collect the signed lease",
-          "onPage": true
-        },
-        {
-          "quote": "uat-261106101016-v01-a@example.test",
-          "onPage": true
-        },
-        {
-          "quote": "Send welcome information",
-          "onPage": true
-        },
-        {
-          "quote": "uat-261106101016-v01-a@example.test",
+          "quote": "uat-261106105029-v01-a@example.test",
           "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 27479,
-      "reviewCostUsd": 0.03266,
-      "reviewWallMs": 24829
+      "playwrightMs": 26358,
+      "reviewCostUsd": 0.00198,
+      "reviewWallMs": 10146
     },
     {
       "id": "AC-VENDOR-02",
@@ -209,25 +189,25 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі відкритий випадаючий список виконавця: «Me» і далі лише email-адреси, включно з v02-b, v02-adm і v02-v. Поруч з жодним записом немає імені чи ролі."
+        "notes": "На кадрі /runs/new відкритий випадаючий список виконавця: перший пункт «Me», далі лише адреси електронної пошти, без імен і ролей поруч. Список закінчується видимою нижньою межею в кадрі, додаткових прокручуваних пунктів не видно. Відповідність «B / адміністратор / V» встановлено за написами в самих адресах (v02-b, v02-adm, v02-v), бо на кадрі немає іншої прив'язки до ролей; це читання тексту на екрані, а не припущення з назв файлів."
       },
-      "agentModel": "claude-sonnet-5-5",
+      "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
-        "claude-haiku-5-5": "NEEDS-HUMAN",
-        "claude-sonnet-5-5": "PASS"
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
       },
-      "escalated": true,
+      "escalated": false,
       "quotesVerified": [
         {
-          "quote": "uat-261106101016-v02-b@example.test",
+          "quote": "uat-261106105029-v02-b@example.test",
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v02-adm@example.test",
+          "quote": "uat-261106105029-v02-adm@example.test",
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v02-v@example.test",
+          "quote": "uat-261106105029-v02-v@example.test",
           "onPage": true
         },
         {
@@ -259,20 +239,32 @@
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v01-a@example.test",
+          "quote": "uat-261106105029-v01-a@example.test",
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v01-v@example.test",
+          "quote": "uat-261106105029-v01-v@example.test",
+          "onPage": true
+        },
+        {
+          "quote": "uat-261106105029-v02-adm@example.test",
+          "onPage": true
+        },
+        {
+          "quote": "uat-261106105029-v02-b@example.test",
+          "onPage": true
+        },
+        {
+          "quote": "uat-261106105029-v02-v@example.test",
           "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 22198,
-      "reviewCostUsd": 0.03305,
-      "reviewWallMs": 29725
+      "playwrightMs": 23121,
+      "reviewCostUsd": 0.00299,
+      "reviewWallMs": 17990
     },
     {
       "id": "AC-VENDOR-03",
@@ -285,7 +277,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі сторінки /runs видно один рядок таблиці «Apartment 12, move-in» зі статусом «in progress» і написом «Your tasks: 0 of 2 done». Жодного рядка або тексту «Apartment 14, repair» на сторінці немає. Відсутність «Apartment 14, repair» видима на всьому кадрі, тому цитати для цієї частини немає (quoted_text порожній за самою природою відсутнього тексту)."
+        "notes": "На кадрі сторінки /runs (заголовок «Runs») видно лише один рядок: «Apartment 12, move-in», статус «in progress» і «Your tasks: 0 of 2 done». Тексту «Apartment 14, repair» на сторінці немає. Останню частину оцінено за відсутністю тексту на видимому кадрі; цитата — єдиний видимий рядок таблиці."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -305,14 +297,18 @@
         {
           "quote": "Your tasks: 0 of 2 done",
           "onPage": true
+        },
+        {
+          "quote": "Apartment 12, move-in",
+          "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 14286,
-      "reviewCostUsd": 0.00226,
-      "reviewWallMs": 12916
+      "playwrightMs": 13889,
+      "reviewCostUsd": 0.00194,
+      "reviewWallMs": 9891
     },
     {
       "id": "AC-VENDOR-04",
@@ -325,7 +321,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі сторінка «Apartment 12, move-in» з єдиним заголовком секції «Move-in day» і двома завданнями: «Hand over the keys» (required, to do) та «Record meter readings» (optional, to do). Email-адрес і прогресу всього запуску немає, лише «Your tasks: 0 of 2 done». Номери завдань на кадрі не показано, тож відповідність завдань 3 і 4 судилася за кількістю (два з п'яти)."
+        "notes": "На кадрі сторінка «Apartment 12, move-in» з рядком «Your tasks: 0 of 2 done» і розділом «Move-in day», де рівно два завдання: «Hand over the keys» (required, to do) та «Record meter readings» (optional, to do). Email-адрес і прогресу всього запуску не видно. Кадр показує лише два завдання, тому решти завдань немає."
       },
       "agentModel": "claude-sonnet-5-5",
       "agentVerdicts": {
@@ -371,7 +367,11 @@
           "onPage": true
         },
         {
-          "quote": "Your tasks: 0 of 2 done",
+          "quote": "Hand over the keys",
+          "onPage": true
+        },
+        {
+          "quote": "Record meter readings",
           "onPage": true
         },
         {
@@ -382,9 +382,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 16945,
-      "reviewCostUsd": 0.03599,
-      "reviewWallMs": 28847
+      "playwrightMs": 19029,
+      "reviewCostUsd": 0.03488,
+      "reviewWallMs": 24337
     },
     {
       "id": "AC-VENDOR-05",
@@ -397,7 +397,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно картку «Hand over the keys» (позначка required) зі статусом «done» і текст «Your tasks: 1 of 2 done» під заголовком «Apartment 12, move-in». Кадр не показує номер завдання, тож відповідність «task 3» ґрунтується на назві, яку вказано в критерії."
+        "notes": "На кадрі сторінка «Apartment 12, move-in»: у рядку «Hand over the keys» (позначка required) стоїть статус «done», а під заголовком написано «Your tasks: 1 of 2 done». Обидві видимі частини «Тоді» підтверджені дослівно. Статус задачі в базі даних не оцінювався, бо це не видно на кадрі."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -422,9 +422,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 19867,
+      "playwrightMs": 21124,
       "reviewCostUsd": 0.00184,
-      "reviewWallMs": 9179
+      "reviewWallMs": 8999
     },
     {
       "id": "AC-VENDOR-06",
@@ -437,7 +437,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно заголовок «Run not found» і посилання «Back to runs», більше нічого немає: завдань цього запуску на сторінці не показано. Кадр повний, не обрізаний і читабельний, тому вердикт PASS."
+        "notes": "На кадрі frame-then-1.png видно заголовок «Run not found» і посилання «Back to runs», більше нічого: жодних завдань цього запуску на сторінці немає. Сторінка повністю відрендерена, без ознак завантаження чи обрізання."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -462,9 +462,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 13896,
-      "reviewCostUsd": 0.00176,
-      "reviewWallMs": 8682
+      "playwrightMs": 26129,
+      "reviewCostUsd": 0.00187,
+      "reviewWallMs": 9800
     },
     {
       "id": "AC-VENDOR-07",
@@ -477,7 +477,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На сторінці запуску «Apartment 12, move-in» перше завдання «Inspect the apartment» має статус «to do» і виконавця a@example.test. Завдання 3 і 4 призначені v@example.test, лічильник «0 of 5 done». Кадр прямо не показує, хто залогінений, але статус першого завдання видно чітко."
+        "notes": "На сторінці запуску «Apartment 12, move-in» перше завдання «Inspect the apartment» має статус «to do» і призначене на uat-261106105029-v07-a@example.test. Лічильник показує «0 of 5 done». Частини «Не з кадрів» не оцінювались."
       },
       "agentModel": "claude-sonnet-5-5",
       "agentVerdicts": {
@@ -495,16 +495,16 @@
           "onPage": true
         },
         {
-          "quote": "uat-261106101016-v07-a@example.test",
+          "quote": "uat-261106105029-v07-a@example.test",
           "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 17403,
-      "reviewCostUsd": 0.03232,
-      "reviewWallMs": 21892
+      "playwrightMs": 16417,
+      "reviewCostUsd": 0.03251,
+      "reviewWallMs": 25845
     },
     {
       "id": "AC-VENDOR-08",
@@ -517,7 +517,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно сторінку з заголовком «Not enough rights» і посиланням «Back to runs», більше тексту немає. Таблиці та назв шаблонів на кадрі немає, тому друга частина «Тоді» виконана. Для другої частини цитата — це весь видимий текст сторінки, бо саме відсутність шаблонів є ознакою."
+        "notes": "На кадрі frame-then-1.png видно заголовок «Not enough rights» і посилання «Back to runs», більше нічого: ні таблиці, ні назв шаблонів. Друга частина «Тоді» підтверджена відсутністю будь-якого контенту шаблонів; цитата в quoted_text — весь видимий текст сторінки, бо окремого напису про відсутність шаблонів немає."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -542,9 +542,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 8462,
-      "reviewCostUsd": 0.00178,
-      "reviewWallMs": 9276
+      "playwrightMs": 9045,
+      "reviewCostUsd": 0.00182,
+      "reviewWallMs": 8998
     },
     {
       "id": "AC-VENDOR-09",
@@ -557,7 +557,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі frame-then-1.png (сторінка «Runs») видно єдиний рядок: «Apartment 12, move-in», статус «in progress», «Your tasks: 0 of 2 done». Рядка «Direct launch by vendor» або іншого нового запуску немає. Кадр один і повний, обрізання немає, тож вердикт PASS. Частини з розділу «Не з кадрів» не оцінювалися."
+        "notes": "На кадрі /runs видно рівно один рядок: «Apartment 12, move-in» зі статусом «in progress» і «Your tasks: 0 of 2 done». Рядка «Direct launch by vendor» або інших нових рядків немає, тож друга частина підтверджується відсутністю. Кадр один, тому повторне відкриття сторінки як окрема подія з нього не видно; вердикт спирається на вміст цього кадру."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -582,9 +582,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 16966,
-      "reviewCostUsd": 0.00212,
-      "reviewWallMs": 10613
+      "playwrightMs": 18347,
+      "reviewCostUsd": 0.00205,
+      "reviewWallMs": 11236
     },
     {
       "id": "AC-VENDOR-10",
@@ -597,7 +597,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі сторінки /runs (заголовок «Runs») видно текст «No tasks assigned to you yet.», посимвольно збігається з критерієм. Таблиці на сторінці немає, решта кадру порожня."
+        "notes": "На кадрі сторінки /runs видно текст \"No tasks assigned to you yet.\" дослівно, з крапкою в кінці, і жодного регістрового чи пунктуаційного розходження з критерієм. Таблиці на сторінці немає: під заголовком \"Runs\" є лише це повідомлення, решта кадру порожня."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -609,43 +609,55 @@
         {
           "quote": "No tasks assigned to you yet.",
           "onPage": true
+        },
+        {
+          "quote": "Home",
+          "onPage": true
+        },
+        {
+          "quote": "Runs",
+          "onPage": true
+        },
+        {
+          "quote": "No tasks assigned to you yet.",
+          "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 12612,
-      "reviewCostUsd": 0.00163,
-      "reviewWallMs": 7813
+      "playwrightMs": 12066,
+      "reviewCostUsd": 0.00185,
+      "reviewWallMs": 9718
     }
   ],
   "negativeControls": [],
   "cleanup": {
-    "at": "2026-11-06T10:14:19.430Z",
+    "at": "2026-11-06T10:54:42.303Z",
     "deleted": [
-      "uat-261106101016-empty@example.test",
-      "uat-261106101016-v@example.test",
-      "uat-261106101016-b@example.test",
-      "uat-261106101016-v10-v@example.test",
-      "uat-261106101016-v09-v@example.test",
-      "uat-261106101016-v09-a@example.test",
-      "uat-261106101016-v08-v@example.test",
-      "uat-261106101016-v07-v@example.test",
-      "uat-261106101016-v07-a@example.test",
-      "uat-261106101016-v06-v@example.test",
-      "uat-261106101016-v06-a@example.test",
-      "uat-261106101016-v05-v@example.test",
-      "uat-261106101016-v05-a@example.test",
-      "uat-261106101016-v04-v@example.test",
-      "uat-261106101016-v04-a@example.test",
-      "uat-261106101016-v03-v@example.test",
-      "uat-261106101016-v03-a@example.test",
-      "uat-261106101016-v02-v@example.test",
-      "uat-261106101016-v02-adm@example.test",
-      "uat-261106101016-v02-b@example.test",
-      "uat-261106101016-v02-a@example.test",
-      "uat-261106101016-v01-v@example.test",
-      "uat-261106101016-v01-a@example.test"
+      "uat-261106105029-empty@example.test",
+      "uat-261106105029-v@example.test",
+      "uat-261106105029-b@example.test",
+      "uat-261106105029-v10-v@example.test",
+      "uat-261106105029-v09-v@example.test",
+      "uat-261106105029-v09-a@example.test",
+      "uat-261106105029-v08-v@example.test",
+      "uat-261106105029-v07-v@example.test",
+      "uat-261106105029-v07-a@example.test",
+      "uat-261106105029-v06-v@example.test",
+      "uat-261106105029-v06-a@example.test",
+      "uat-261106105029-v05-v@example.test",
+      "uat-261106105029-v05-a@example.test",
+      "uat-261106105029-v04-v@example.test",
+      "uat-261106105029-v04-a@example.test",
+      "uat-261106105029-v03-v@example.test",
+      "uat-261106105029-v03-a@example.test",
+      "uat-261106105029-v02-v@example.test",
+      "uat-261106105029-v02-adm@example.test",
+      "uat-261106105029-v02-b@example.test",
+      "uat-261106105029-v02-a@example.test",
+      "uat-261106105029-v01-v@example.test",
+      "uat-261106105029-v01-a@example.test"
     ],
     "remaining": [],
     "leftoverRequests": 0
