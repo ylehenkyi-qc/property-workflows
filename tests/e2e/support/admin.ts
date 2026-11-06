@@ -17,7 +17,12 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * Якщо таких таблиць немає (або всі FK — cascade), лишіть порожнім.
  */
 // runs.manager_id посилається на profiles без cascade; run_sections і run_tasks видаляються разом із запуском (cascade).
-const OWNED_ROWS: { table: string; column: string }[] = [{ table: "runs", column: "manager_id" }];
+// run_tasks.assignee_id теж без cascade: вендор зі зрізу 3 може бути видалений раніше за менеджера запуску, тож його
+// призначення прибираємо першими (решту задач запуску забере видалення запуску менеджера).
+const OWNED_ROWS: { table: string; column: string }[] = [
+  { table: "run_tasks", column: "assignee_id" },
+  { table: "runs", column: "manager_id" },
+];
 
 /** Лише такі адреси прибирання має право видалити: uat-<run>[-<суфікс>]@example.test. */
 export const UAT_EMAIL = /^uat-[0-9a-z-]+@example\.test$/;

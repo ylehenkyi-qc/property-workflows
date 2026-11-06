@@ -113,5 +113,6 @@ export async function signIn(page: Page, email: string, password: string) {
     (el as HTMLInputElement).value = value;
   }, password);
   await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL((url) => url.pathname === "/");
+  // Менеджер і адміністратор після входу потрапляють на «/», вендор — на «/runs» (рішення до solomchaak/property-workflows-spec#44).
+  await page.waitForURL((url) => url.pathname === "/" || url.pathname === "/runs");
 }
