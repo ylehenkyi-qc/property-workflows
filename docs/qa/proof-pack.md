@@ -80,7 +80,7 @@ Proof pack WS8 (зріз 2) збережено в docs/qa/proof-pack-ws8.md.
 ## D. Прод і ретро
 
 - `/api/health` після злиття всіх задач: на 06.11 о 12:50 прод віддавав `41788a7` (за звітом UAT); після злиття #51 (`74ae60c`) змінено лише документацію й тести — SHA перевірити перед здачею.
-- Нові ролі й акаунти: роль `vendor`; демо-акаунти `vendor1@example.test`, `vendor2@example.test` у `supabase/demo-users.json`. **Ще не виконано**: `npm run users:demo` на проді й оновлений `accounts.zip` (задачі 5.1–5.2 плану).
+- Нові ролі й акаунти: роль `vendor`; демо-акаунти `vendor1@example.test`, `vendor2@example.test` у `supabase/demo-users.json`. `npm run users:demo` виконано проти проду 06.11.2026 (обидва вендори створені). Вхід `vendor1@example.test` на проді перевірено вручну: головна показує email, роль `vendor` і єдине посилання «Runs» (рішення до solomchaak/property-workflows-spec#44). Оновлений зашифрований `accounts.zip` — у [PR #53](https://github.com/ylehenkyi-qc/property-workflows/pull/53) (посилання на файл на SHA — після злиття). Повідомлення PM у чаті команди: ще не надіслано.
 - `docs/conformance.md`: [`docs/conformance.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/74ae60cad3f4831b8581186d00b96c881427d387/docs/conformance.md) — усі AC-VENDOR «реалізовано»; у колонку «Тест» додано UAT-специфікацію (цей PR).
 
 ### Ретро: що б ми взяли з фабрики у свій звичайний процес
