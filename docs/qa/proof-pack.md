@@ -42,9 +42,9 @@ Proof pack WS8 (зріз 2) збережено в docs/qa/proof-pack-ws8.md.
 
 ## A. Вимоги й спека
 
-- `/requirements-sync` — PR «Оновлення вимог»: [#35](https://github.com/ylehenkyi-qc/property-workflows/pull/35) (`8139e93`, знімок 2026-11-02). Повторний `/requirements-sync` після уточнень PM (дедлайн PM — кінець Пт 06.11) ще не виконано: станом на 06.11 відповідей на питання немає.
+- `/requirements-sync` — PR «Оновлення вимог»: [#35](https://github.com/ylehenkyi-qc/property-workflows/pull/35) (`8139e93`, знімок 2026-11-02). Повторний `/requirements-sync` 09.11.2026 (після дедлайну PM, кінець Пт 06.11): «Вимоги актуальні» — ті самі 6 issues (#1, #2, #3, #19, #20, #39) із тими самими `updatedAt`, знімок 2026-11-02; відповідей на питання немає.
 - Спека `add-vendor-access` і план — PR «Специфікація»: [#43](https://github.com/ylehenkyi-qc/property-workflows/pull/43) (`e5508d7`), [#44](https://github.com/ylehenkyi-qc/property-workflows/pull/44) (`fb8940f`); журнал читання вимог — [#36](https://github.com/ylehenkyi-qc/property-workflows/pull/36) (`87d08d6`).
-- Зміна `clarify-vendor-access`: поки не потрібна, PM AC не змінював.
+- Зміна `clarify-vendor-access`: не потрібна, PM AC не змінював (перевірено 09.11.2026).
 - Питання PM: мої — solomchaak/property-workflows-spec#[48](https://github.com/solomchaak/property-workflows-spec/issues/48), #[49](https://github.com/solomchaak/property-workflows-spec/issues/49), #[50](https://github.com/solomchaak/property-workflows-spec/issues/50); питання колег #[41](https://github.com/solomchaak/property-workflows-spec/issues/41)–#[47](https://github.com/solomchaak/property-workflows-spec/issues/47) не дублював (журнал — `docs/spec-reading.md`).
 
 ## B. Реалізація
@@ -80,7 +80,7 @@ Proof pack WS8 (зріз 2) збережено в docs/qa/proof-pack-ws8.md.
 ## D. Прод і ретро
 
 - `/api/health` після злиття всіх задач: на 06.11 о 12:50 прод віддавав `41788a7` (за звітом UAT); після злиття #51 (`74ae60c`) змінено лише документацію й тести — SHA перевірити перед здачею.
-- Нові ролі й акаунти: роль `vendor`; демо-акаунти `vendor1@example.test`, `vendor2@example.test` у `supabase/demo-users.json`. `npm run users:demo` виконано проти проду 06.11.2026 (обидва вендори створені). Вхід `vendor1@example.test` на проді перевірено вручну: головна показує email, роль `vendor` і єдине посилання «Runs» (рішення до solomchaak/property-workflows-spec#44). Оновлений зашифрований `accounts.zip` — у [PR #53](https://github.com/ylehenkyi-qc/property-workflows/pull/53) (посилання на файл на SHA — після злиття). Повідомлення PM у чаті команди: ще не надіслано.
+- Нові ролі й акаунти: роль `vendor`; демо-акаунти `vendor1@example.test`, `vendor2@example.test` у `supabase/demo-users.json`. `npm run users:demo` виконано проти проду 06.11.2026 (обидва вендори створені). Вхід `vendor1@example.test` на проді перевірено вручну: головна показує email, роль `vendor` і єдине посилання «Runs» (рішення до solomchaak/property-workflows-spec#44). Оновлений зашифрований `accounts.zip` ([PR #53](https://github.com/ylehenkyi-qc/property-workflows/pull/53), файл на SHA: [`accounts.zip`](https://github.com/ylehenkyi-qc/property-workflows/blob/0ded852/accounts.zip)). Повідомлення PM у чаті команди (прод-URL, роль `vendor`, `accounts.zip`, звіт UAT і proof pack) надіслано 09.11.2026.
 - `docs/conformance.md`: [`docs/conformance.md`](https://github.com/ylehenkyi-qc/property-workflows/blob/74ae60cad3f4831b8581186d00b96c881427d387/docs/conformance.md) — усі AC-VENDOR «реалізовано»; у колонку «Тест» додано UAT-специфікацію (цей PR).
 
 ### Ретро: що б ми взяли з фабрики у свій звичайний процес
