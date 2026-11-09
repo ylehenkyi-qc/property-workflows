@@ -44,7 +44,7 @@ Done when: AC-VENDOR-08
 ## 5. Демо-вендори й акаунти для PM (D)
 
 - [x] 5.1 Усі PR груп 1–4 злито, `db-deploy` зелений, `/api/health` показує SHA `main`; `npm run users:demo` (потрібні `.env.local` із `SUPABASE_SECRET_KEY` і `DEMO_USER_PASSWORD`; значень не друкуємо) створює `vendor1@example.test` і `vendor2@example.test` на проді; ручна перевірка входу вендора на проді (без запису паролів).
-- [ ] 5.2 Оновити `accounts.txt` (у `.gitignore`) і `accounts.zip` (AES-256, пароль курсу не записуємо ніде); у чаті команди — прод-URL і ролі зрізу 3 (пароль — лише в `accounts.zip`); перевірка: `accounts.zip` у корені `main`, хибний пароль його не відкриває (D0.5).
+- [x] 5.2 Оновити `accounts.txt` (у `.gitignore`) і `accounts.zip` (AES-256, пароль курсу не записуємо ніде); у чаті команди — прод-URL і ролі зрізу 3 (пароль — лише в `accounts.zip`); перевірка: `accounts.zip` у корені `main`, хибний пароль його не відкриває (D0.5).
 
 ## 6. UAT-специфікації й прогін на проді (C)
 
