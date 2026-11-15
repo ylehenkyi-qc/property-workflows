@@ -2,7 +2,7 @@
 
 ## Context
 
-- Специфікація: `openspec/specs/document-parsing/` (AC-DOCAI-01…09, тимчасові). Джерело правил — solomchaak/property-workflows-spec#40 (10 golden cases) і рядок WS10 у `requirements/product.md`. Вимоги PM зрізу 4 немає (на 2026-11-15), тому три рішення нижче — **робочі, за рекомендованим варіантом питань Q26–Q28** (`docs/spec-reading.md`, «Зріз 4»); коли PM відповість — міняємо тут і в коді, не в сценаріях.
+- Специфікація: `openspec/specs/document-parsing/` (AC-DOCAI-01…09, тимчасові). Джерело правил — solomchaak/property-workflows-spec#40 (10 golden cases) і рядок WS10 у `requirements/product.md`. Вимоги PM зрізу 4 немає (на 2026-11-15), тому три рішення нижче — **робочі, за рекомендованим варіантом питань Q26–Q28** (solomchaak/property-workflows-spec#52, #53, #54; журнал — `docs/spec-reading.md`, «Зріз 4»); коли PM відповість — міняємо тут і в коді, не в сценаріях.
 - Що є: сторінка запуску `src/app/runs/[id]/page.tsx` (менеджер/адмін; вендор має власну `vendor-run.tsx`), `requireRole(...)` з `src/lib/auth/require-role.ts`, `runs.manager_id`, `private.current_app_role()`, `private.can_see_run()`; тести бази — PGlite (`tests/db/`), користувачі — `supabase/demo-users.json`.
 - Набір курсу `koldovsky/2026-quitcode-10-ai-features-hw/materials/ai-feature/` — основа обгортки моделі (схема, ланцюжок `:free` моделей, `openrouter.ts` із `server-only`, офлайн-реплей, живий eval); переносимо й міняємо під наш домен.
 
