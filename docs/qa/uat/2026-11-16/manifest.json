@@ -1,0 +1,217 @@
+{
+  "kind": "uat",
+  "generatedAt": "2026-11-16T21:13:10.452Z",
+  "baseURL": "https://pmwp-ylehenkyi.vercel.app",
+  "deployedSha": "d91543fdf1c80351ae8aed033b8f50627b4b3d75",
+  "testsCommit": "ce73e23e0e3300d241b982d5babba11ab7093a5f",
+  "reviewer": {
+    "model": "claude-haiku-5-5",
+    "disputes": "claude-sonnet-5-5"
+  },
+  "note": "Відео й траси не в git (test-results/ локально, артефакт CI). check-recordings конвеєра WS9 вимагає відео на диску — для нього цей manifest треба доповнити.",
+  "results": [
+    {
+      "id": "AC-DOCAI-04",
+      "proof": "AC-DOCAI-04",
+      "title": "AC-DOCAI-04: run manager A changes Urgency to \"urgent\" and saves; the page of the run shows one saved record with the type, the values, the email of A and the date and time",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-04-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--05e1a--of-A-and-the-date-and-time-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--05e1a--of-A-and-the-date-and-time-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі видно розділ «Saved records» з одним записом «Maintenance request», у якому Phone 555-0101, Category plumbing і Urgency urgent, а також рядок «Confirmed by» з email uat-261116211050-d04-a@example.test і датою 16 Nov 2026, 23:11. Запис містить також Description, якого критерій не вимагає, — це не вада. Email відповідає адресі учасника A з рядків «Move-in day», але сама особа A на кадрі безпосередньо не позначена."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Saved records",
+          "onPage": true
+        },
+        {
+          "quote": "Maintenance request",
+          "onPage": true
+        },
+        {
+          "quote": "Phone",
+          "onPage": true
+        },
+        {
+          "quote": "555-0101",
+          "onPage": true
+        },
+        {
+          "quote": "Category",
+          "onPage": true
+        },
+        {
+          "quote": "plumbing",
+          "onPage": true
+        },
+        {
+          "quote": "Urgency",
+          "onPage": true
+        },
+        {
+          "quote": "urgent",
+          "onPage": true
+        },
+        {
+          "quote": "Confirmed by uat-261116211050-d04-a@example.test · 16 Nov 2026, 23:11",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 35805,
+      "reviewCostUsd": 0.00549,
+      "reviewWallMs": 11988
+    },
+    {
+      "id": "AC-DOCAI-09",
+      "proof": "AC-DOCAI-09",
+      "title": "AC-DOCAI-09: run manager A pastes a restaurant menu; the block shows \"This document is not a maintenance request or an estimate.\" and no value is proposed",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-09-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--7f1fa-te-and-no-value-is-proposed-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--7f1fa-te-and-no-value-is-proposed-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі під полем із текстом меню («Tonight's menu: tomato soup 6.50, roast chicken 14.00, apple pie 5.00») з'явилося червоне повідомлення «This document is not a maintenance request or an estimate.», текст збігається з критерієм посимвольно. У блоці «Parse a document» немає поля Document type, запропонованих значень і кнопки «Save values»; для цієї частини цитата порожня, бо перевірено відсутність елементів."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "This document is not a maintenance request or an estimate.",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 18217,
+      "reviewCostUsd": 0.00528,
+      "reviewWallMs": 10503
+    },
+    {
+      "id": "AC-DOCAI-14",
+      "proof": "AC-DOCAI-14",
+      "title": "AC-DOCAI-14: vendor V who is the assignee of tasks 3 and 4 opens the page of the run and does not see the block \"Parse a document\"",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-14-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--f0ea4-the-block-Parse-a-document--chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--f0ea4-the-block-Parse-a-document--chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі сторінка запуску «Apartment 12, move-in» з написом «Your tasks: 0 of 2 done» і двома задачами (Hand over the keys, Record meter readings). Блоків «Parse a document» чи «Propose values» на всій видимій сторінці немає."
+      },
+      "agentModel": "claude-sonnet-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "NEEDS-HUMAN",
+        "claude-sonnet-5-5": "PASS"
+      },
+      "escalated": true,
+      "quotesVerified": [
+        {
+          "quote": "Apartment 12, move-in",
+          "onPage": true
+        },
+        {
+          "quote": "Your tasks: 0 of 2 done",
+          "onPage": true
+        },
+        {
+          "quote": "Hand over the keys",
+          "onPage": true
+        },
+        {
+          "quote": "Record meter readings",
+          "onPage": true
+        },
+        {
+          "quote": "Move-in day",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 10020,
+      "reviewCostUsd": 0.07287,
+      "reviewWallMs": 25109
+    },
+    {
+      "id": "AC-DOCAI-16",
+      "proof": "AC-DOCAI-16",
+      "title": "AC-DOCAI-16: vendor V, or manager B who is not the run manager, tries to ask the AI for values or to save values for the run directly, bypassing the pages; they receive no value and no record is saved",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-16-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--2a7d3-alue-and-no-record-is-saved-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--2a7d3-alue-and-no-record-is-saved-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі під блоком «Parse a document» є лише форма вставки тексту, підказка «Nothing is saved until you save the values.» і кнопки «Propose values» та «Upload a text file»; розділу «Saved records» і жодного запису немає. Кадр не показує, під яким користувачем зайдено, тож що це сторінка саме менеджера A, підтверджено лише адресою сторінки з ac.md, а не екраном."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Parse a document",
+          "onPage": true
+        },
+        {
+          "quote": "Paste the text. Up to 4000 characters. Nothing is saved until you save the values.",
+          "onPage": true
+        },
+        {
+          "quote": "Propose values",
+          "onPage": true
+        },
+        {
+          "quote": "Upload a text file",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 32930,
+      "reviewCostUsd": 0.00489,
+      "reviewWallMs": 15471
+    }
+  ],
+  "negativeControls": [],
+  "cleanup": {
+    "at": "2026-11-16T21:12:42.220Z",
+    "deleted": [
+      "uat-261116211050-d16-b@example.test",
+      "uat-261116211050-d16-v@example.test",
+      "uat-261116211050-d16-a@example.test",
+      "uat-261116211050-d14-v@example.test",
+      "uat-261116211050-d14-a@example.test",
+      "uat-261116211050-d09-a@example.test",
+      "uat-261116211050-d04-a@example.test"
+    ],
+    "remaining": [],
+    "leftoverRequests": 0
+  }
+}

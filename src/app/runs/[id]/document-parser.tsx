@@ -21,14 +21,22 @@ export function DocumentParser({ runId }: { runId: string }) {
   const propose = async () => {
     dispatch({ type: "propose" });
     if (state.text.trim() === "") return; // AC-DOCAI-11: до моделі не звертаємось
-    const result = await proposeDocumentValues(runId, state.text);
-    dispatch(result.status === "ok" ? { type: "proposed", proposal: result.proposal } : { type: "denied" });
+    try {
+      const result = await proposeDocumentValues(runId, state.text);
+      dispatch(result.status === "ok" ? { type: "proposed", proposal: result.proposal } : { type: "denied" });
+    } catch {
+      dispatch({ type: "failed" }); // мережа чи сервер не відповіли: ручна форма, а не вічне «Reading the document…»
+    }
   };
 
   const save = (saved: SavedValues) =>
     startSaving(async () => {
-      const result = await confirmDocumentValues(runId, saved.kind, saved.values);
-      dispatch({ type: "save_result", status: SAVE_STATUS[result.status] });
+      try {
+        const result = await confirmDocumentValues(runId, saved.kind, saved.values);
+        dispatch({ type: "save_result", status: SAVE_STATUS[result.status] });
+      } catch {
+        dispatch({ type: "save_result", status: "error" });
+      }
     });
 
   return (
