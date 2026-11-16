@@ -6,11 +6,10 @@ import { scoreProposal, type GoldenCase } from "@/lib/ai/scorer";
 import casesJson from "./fixtures/golden/cases.json";
 import recordedJson from "./fixtures/golden/recorded.json";
 
-// Офлайн-реплей 10 golden cases PM (solomchaak/property-workflows-spec#40), тимчасових, від розробника: вимоги PM зрізу 4
-// немає на 2026-11-15, тож AC-DOCAI-NN — наші. Без мережі й без ключа, тож працює в CI (`npm test`, job `app`).
+// Офлайн-реплей 10 golden cases PM (solomchaak/property-workflows-spec#40), за вимогою PM solomchaak/property-workflows-spec#59 (AC-DOCAI-01…16). Без мережі й без ключа, тож працює в CI (`npm test`, job `app`).
 // Перевіряє КОД навколо моделі (промпт з межею <document>, схема, правила з коду, оцінювач), а НЕ якість моделі:
 // відповіді моделі беруться з tests/fixtures/golden/recorded.json, а справжні записує `RECORD=1 npm run eval`.
-// Кейс → AC: 1→01, 2→02, 3→10, 4→03, 5→11, 6→12, 7→04, 8→05, 9→06, 10→07.
+// Кейс → AC: 1→01, 7→02, 4→06, 5→07, 8→08, 9→09, 10→10; кейси 2, 3, 6 окремого AC не мають. Поріг PM: 8 з 10, кейси 9 і 10 завжди.
 
 type Recording = { modelId: string; recordedAt: string; promptVersion: string; text: string };
 const cases = casesJson as GoldenCase[];
@@ -50,15 +49,16 @@ const only = (id: string) => cases.filter((c) => c.id === id);
 
 describe("golden cases, офлайн-реплей", () => {
   it.each(only("GC-01"))("AC-DOCAI-01: golden $id (чітка заявка)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-02"))("AC-DOCAI-02: golden $id (аварія)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-04"))("AC-DOCAI-03: golden $id (немає телефону)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-07"))("AC-DOCAI-04: golden $id (кошторис зі збіжною сумою)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-08"))("AC-DOCAI-05: golden $id (кошторис із розбіжною сумою)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-09"))("AC-DOCAI-06: golden $id (не заявка й не кошторис)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-10"))("AC-DOCAI-07: golden $id (інструкція всередині листа)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-03"))("AC-DOCAI-10: golden $id (транскрипт дзвінка)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-05"))("AC-DOCAI-11: golden $id (дві проблеми)", async (c) => expect(await replayCase(c)).toEqual([]));
-  it.each(only("GC-06"))("AC-DOCAI-12: golden $id (запах газу)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-07"))("AC-DOCAI-02: golden $id (кошторис зі збіжною сумою)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-04"))("AC-DOCAI-06: golden $id (немає телефону)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-05"))("AC-DOCAI-07: golden $id (дві проблеми)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-08"))("AC-DOCAI-08: golden $id (кошторис із розбіжною сумою)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-09"))("AC-DOCAI-09: golden $id (не заявка й не кошторис)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-10"))("AC-DOCAI-10: golden $id (інструкція всередині листа)", async (c) => expect(await replayCase(c)).toEqual([]));
+  // Кейси без окремого AC у вимозі PM (solomchaak/property-workflows-spec#59): лише оцінка якості, входять у поріг 8 з 10.
+  it.each(only("GC-02"))("golden-кейс 2 (без окремого AC): $id (аварія)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-03"))("golden-кейс 3 (без окремого AC): $id (транскрипт дзвінка)", async (c) => expect(await replayCase(c)).toEqual([]));
+  it.each(only("GC-06"))("golden-кейс 6 (без окремого AC): $id (запах газу)", async (c) => expect(await replayCase(c)).toEqual([]));
 });
 
 describe("golden cases, цілісність набору", () => {
@@ -72,10 +72,12 @@ describe("golden cases, цілісність набору", () => {
     expect(stale).toEqual([]);
   });
 
-  it("10 кейсів PM, кожен позначений як тимчасовий від розробника й прив'язаний до окремого AC", () => {
+  it("10 кейсів PM: сім прив'язані до окремих AC вимоги PM, три (2, 3, 6) — лише для оцінки якості", () => {
     expect(cases).toHaveLength(10);
-    expect(new Set(cases.map((c) => c.ac)).size).toBe(10);
-    for (const c of cases) expect(c.source).toContain("тимчасовий, від розробника");
+    const withAc = cases.filter((c) => c.ac).map((c) => c.ac);
+    expect(new Set(withAc).size).toBe(7);
+    expect(withAc.sort()).toEqual(["AC-DOCAI-01", "AC-DOCAI-02", "AC-DOCAI-06", "AC-DOCAI-07", "AC-DOCAI-08", "AC-DOCAI-09", "AC-DOCAI-10"]);
+    for (const c of cases) expect(c.source).toContain("solomchaak/property-workflows-spec#40");
   });
 
   it("кожен кейс із rubric — заявка: суддя оцінює лише вільний текст опису", () => {

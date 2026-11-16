@@ -117,6 +117,21 @@ describe("сторінка запуску вендора", () => {
     expect(client.calls.from).not.toContain("templates");
   });
 
+  it("AC-DOCAI-14: вендор V із задачами 3 і 4 не бачить блоку «Parse a document» і збережених записів, їх навіть не запитують", async () => {
+    const client = asVendor(
+      { list_vendor_runs: { data: [vendorRun()] } },
+      { run_sections: { data: SECTIONS }, run_tasks: { data: [TASK_3, TASK_4] }, run_document_values: { data: [{ id: "d1" }] } },
+    );
+
+    const markup = html(await RunPage({ params: Promise.resolve({ id: RUN_12 }), searchParams: Promise.resolve({}) }));
+
+    expect(markup).toContain("Apartment 12, move-in");
+    expect(markup).not.toContain("Parse a document");
+    expect(markup).not.toContain("Propose values");
+    expect(markup).not.toContain("document-record");
+    expect(client.calls.from).not.toContain("run_document_values");
+  });
+
   it("AC-VENDOR-06: запуск, де вендор без задач, — «Run not found» і жодна задача запуску не читається", async () => {
     const client = asVendor(
       { list_vendor_runs: { data: [] } },

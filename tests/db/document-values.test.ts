@@ -56,7 +56,7 @@ const insertValues = (userId: string, values: unknown, kind = "request", authorI
 const confirmed = { phone: "555-0101", description: "Kitchen tap in apartment 12 has been dripping", category: "plumbing", urgency: "urgent" };
 
 describe("збереження підтверджених значень", () => {
-  it("AC-DOCAI-08: до підтвердження нічого не збережено, після підтвердження менеджер запуску зберігає виправлене значення «urgent»", async () => {
+  it("AC-DOCAI-04: до підтвердження нічого не збережено, після підтвердження менеджер запуску зберігає виправлене значення «urgent»", async () => {
     expect(await saved()).toHaveLength(0);
 
     await insertValues(u[A], confirmed);
@@ -64,19 +64,19 @@ describe("збереження підтверджених значень", () =>
     expect(await saved()).toEqual([{ author_id: u[A], kind: "request", values: confirmed }]);
   });
 
-  it("AC-DOCAI-08: підтверджені значення кошторису зберігаються як є", async () => {
+  it("AC-DOCAI-04: підтверджені значення кошторису зберігаються як є", async () => {
     const estimate = { items: [{ name: "Labour", quantity: 2, unitPrice: 60 }], total: 120 };
     await insertValues(u[A], estimate, "estimate");
     expect(await saved()).toEqual([{ author_id: u[A], kind: "estimate", values: estimate }]);
   });
 
-  it("AC-DOCAI-08: адміністратор зберігає й читає значення будь-якого запуску", async () => {
+  it("AC-DOCAI-04: адміністратор зберігає й читає значення будь-якого запуску", async () => {
     await insertValues(u[ADMIN], confirmed);
     const rows = await t.asUser(u[ADMIN], "select author_id from public.run_document_values where run_id = $1", [runId]);
     expect(rows).toEqual([{ author_id: u[ADMIN] }]);
   });
 
-  it("AC-DOCAI-08: менеджер запуску читає записане, а інший менеджер, вендор і відвідувач — нічого", async () => {
+  it("AC-DOCAI-16: менеджер запуску читає записане, а інший менеджер, вендор і відвідувач — нічого", async () => {
     await insertValues(u[A], confirmed);
     const read = (userId: string) =>
       t.asUser(userId, "select id from public.run_document_values where run_id = $1", [runId]);

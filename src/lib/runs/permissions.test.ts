@@ -51,10 +51,18 @@ describe("canVendorMarkDone", () => {
 });
 
 describe("canParseDocuments", () => {
-  it("AC-DOCAI-08: блок «Parse a document» лише менеджеру цього запуску й адміністратору", () => {
+  it("AC-DOCAI-14: вендор не бачить блоку «Parse a document»", () => {
+    expect(canParseDocuments(RUN, { userId: "a", role: "vendor" })).toBe(false);
+    expect(canParseDocuments(RUN, { userId: "v", role: "vendor" })).toBe(false);
+  });
+
+  it("AC-DOCAI-15: менеджер, який лише виконавець задачі й не менеджер запуску, не бачить блоку", () => {
+    expect(canParseDocuments(RUN, { userId: "b", role: "manager" })).toBe(false);
+    expect(canParseDocuments(RUN, { userId: "c", role: "manager" })).toBe(false);
+  });
+
+  it("AC-DOCAI-01: блок бачать менеджер цього запуску й адміністратор будь-якого запуску", () => {
     expect(canParseDocuments(RUN, { userId: "a", role: "manager" })).toBe(true);
     expect(canParseDocuments(RUN, { userId: "x", role: "admin" })).toBe(true);
-    expect(canParseDocuments(RUN, { userId: "c", role: "manager" })).toBe(false);
-    expect(canParseDocuments(RUN, { userId: "a", role: "vendor" })).toBe(false);
   });
 });

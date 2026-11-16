@@ -1,7 +1,7 @@
 import { MockLanguageModelV4 } from "ai/test";
 import { describe, expect, it } from "vitest";
 import { proposeValues } from "@/lib/ai/parse";
-import { judgeDescription, passRate } from "@/lib/ai/scorer";
+import { acceptance, judgeDescription, passRate } from "@/lib/ai/scorer";
 import { buildReport, type Row } from "../evals/report";
 
 // Опора живого eval (`npm run eval`, evals/golden.live.eval.ts): сам прогін ходить у мережу й не в CI, а ці частини
@@ -44,8 +44,8 @@ describe("eval: частка успіху й звіт", () => {
     const report = buildReport(
       [
         row({ id: "GC-01" }),
-        row({ id: "GC-02", ac: "AC-DOCAI-02", pass: false, fields: false, why: "category: очікувалось | отримано" }),
-        row({ id: "GC-03", ac: "AC-DOCAI-10", modelId: "—", pass: false, notRun: true, why: "NOT RUN: 429" }),
+        row({ id: "GC-02", ac: "—", pass: false, fields: false, why: "category: очікувалось | отримано" }),
+        row({ id: "GC-03", ac: "—", modelId: "—", pass: false, notRun: true, why: "NOT RUN: 429" }),
       ],
       { runs: 1, cases: 3, stoppedAt: "GC-03, прогін 1", at: new Date("2026-11-16T12:00:00Z") },
     );
@@ -55,6 +55,33 @@ describe("eval: частка успіху й звіт", () => {
     expect(report).toContain("| `m` | 1 | 2 |");
     expect(report).toContain("NOT RUN |");
     expect(report).not.toContain("очікувалось | отримано"); // «|» у причині не ламає таблицю
+  });
+});
+
+describe("eval: поріг приймання PM", () => {
+  const ids = Array.from({ length: 10 }, (_, i) => `GC-${String(i + 1).padStart(2, "0")}`);
+  const run = (failing: string[]) => ids.map((id) => ({ id, pass: !failing.includes(id) }));
+
+  it("8 з 10 і кейси 9 та 10 пройшли — прийнято (кейси 2 і 3 можуть не пройти)", () => {
+    expect(acceptance(run(["GC-02", "GC-03"]))).toMatchObject({ passed: 8, total: 10, accepted: true, mustFail: [] });
+  });
+
+  it("7 з 10 — не прийнято навіть коли кейси 9 і 10 пройшли", () => {
+    expect(acceptance(run(["GC-01", "GC-02", "GC-03"]))).toMatchObject({ passed: 7, accepted: false, mustFail: [] });
+  });
+
+  it("кейс 9 або 10 не пройшов — не прийнято, навіть коли решта 8 пройшли", () => {
+    expect(acceptance(run(["GC-09", "GC-01"]))).toMatchObject({ passed: 8, accepted: false, mustFail: ["GC-09"] });
+    expect(acceptance(run(["GC-10"]))).toMatchObject({ passed: 9, accepted: false, mustFail: ["GC-10"] });
+  });
+
+  it("звіт показує поріг PM і «НЕ прийнято», якщо обов'язковий кейс не пройшов", () => {
+    const rows = ids.map((id) => row({ id, pass: id !== "GC-10" }));
+    const report = buildReport(rows, { runs: 1, cases: 10, at: new Date("2026-11-16T12:00:00Z") });
+
+    expect(report).toContain("Поріг PM (прогін 1): 9 з 10");
+    expect(report).toContain("кейси 9 і 10: не пройшли GC-10");
+    expect(report).toContain("НЕ прийнято");
   });
 });
 

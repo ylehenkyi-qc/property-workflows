@@ -1,6 +1,6 @@
 import { JUDGE_MODEL, PRODUCT_MODELS } from "@/lib/ai/models";
 import { PARSE_PROMPT_VERSION } from "@/lib/ai/prompts/parse";
-import { passRate } from "@/lib/ai/scorer";
+import { acceptance, passRate } from "@/lib/ai/scorer";
 
 // Рядок звіту живого прогону golden cases. notRun — кейс не запускали через ліміт (429): у частку успіху не входить.
 export type Row = {
@@ -29,6 +29,16 @@ function byModel(ran: Row[]): string[] {
 const rowLine = (r: Row) =>
   `| ${r.run} | ${r.id} | ${r.ac} | \`${r.modelId}\` | ${mark(r.fields)} | ${mark(r.judge)} | ${result(r)} | ${(r.why ?? "").replaceAll("|", "/")} |`;
 
+// Поріг PM для кожного прогону окремо: 8 з 10, кейси 9 і 10 — завжди. NOT RUN — не FAIL, але й не прийнято, поки кейс не пройдено.
+function acceptanceLines(rows: Row[]): string[] {
+  const runs = [...new Set(rows.map((r) => r.run))];
+  return runs.map((run) => {
+    const a = acceptance(rows.filter((r) => r.run === run));
+    const must = a.mustFail.length === 0 ? "кейси 9 і 10 пройшли" : `кейси 9 і 10: не пройшли ${a.mustFail.join(", ")}`;
+    return `- Поріг PM (прогін ${run}): ${a.passed} з ${a.total} (потрібно ≥ 8), ${must} — **${a.accepted ? "прийнято" : "НЕ прийнято"}**`;
+  });
+}
+
 // Звіт: частка успіху загалом і за моделлю + кожен кейс. Файл комітять (він без секретів).
 export function buildReport(rows: Row[], meta: ReportMeta): string {
   const ran = rows.filter((r) => !r.notRun);
@@ -40,6 +50,7 @@ export function buildReport(rows: Row[], meta: ReportMeta): string {
     `- Промпт: \`${PARSE_PROMPT_VERSION}\`; ланцюжок моделей: ${PRODUCT_MODELS.map((m) => `\`${m}\``).join(" → ")}; суддя: \`${JUDGE_MODEL}\``,
     `- Прогонів: ${meta.runs}; кейсів у прогоні: ${meta.cases}`,
     `- **Частка успіху: ${total.passed}/${total.total} (${Math.round(total.rate * 100)}%)** — з кейсів, що отримали відповідь`,
+    ...acceptanceLines(rows),
     `- Не запущено (NOT RUN): ${notRun}${meta.stoppedAt ? ` — ліміт 429, зупинено на: ${meta.stoppedAt}` : ""}`,
     "",
     "| Модель, що відповіла | Пройшло | Усього |",

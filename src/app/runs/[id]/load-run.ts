@@ -40,3 +40,15 @@ export async function loadRunDetails(supabase: Supabase, id: string) {
 
   return { run, sections: body.sections, tasks: body.tasks, users: usersResult.data };
 }
+
+// Збережені записи AI-розбору документа (AC-DOCAI-04): найновіший першим. Читає лише той, кому RLS дозволяє
+// (менеджер цього запуску й адміністратор): іншим база нічого не поверне, а блок їм і не показують.
+export async function loadDocumentRecords(supabase: Supabase, runId: string) {
+  const { data, error } = await supabase
+    .from("run_document_values")
+    .select("id, kind, values, author_id, created_at")
+    .eq("run_id", runId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Failed to load document records");
+  return data;
+}

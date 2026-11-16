@@ -15,17 +15,17 @@ async function loadProductModel() {
 }
 
 describe("productModel без ключа", () => {
-  it("AC-DOCAI-09: немає ключа — функція повертає null (помічник недоступний), а не падає", async () => {
+  it("AC-DOCAI-13: немає ключа — функція повертає null (помічник недоступний), а не падає", async () => {
     vi.stubEnv("OPENROUTER_API_KEY", "");
     expect((await loadProductModel())()).toBeNull();
   });
 
-  it("AC-DOCAI-09: ключ із самих пробілів теж означає «ключа немає»", async () => {
+  it("AC-DOCAI-13: ключ із самих пробілів теж означає «ключа немає»", async () => {
     vi.stubEnv("OPENROUTER_API_KEY", "   ");
     expect((await loadProductModel())()).toBeNull();
   });
 
-  it("AC-DOCAI-09: коли ключ заданий, повертається модель", async () => {
+  it("AC-DOCAI-13: коли ключ заданий, повертається модель", async () => {
     vi.stubEnv("OPENROUTER_API_KEY", "test-not-a-real-key");
     expect((await loadProductModel())()).not.toBeNull();
   });

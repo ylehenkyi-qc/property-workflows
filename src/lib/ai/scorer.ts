@@ -19,7 +19,7 @@ type EstimateExpected = { kind: "estimate"; items: EstimateItem[]; total: number
 type RefusedExpected = { kind: "refused"; message: string };
 
 export type GoldenExpected = RequestExpected | EstimateExpected | RefusedExpected;
-export type GoldenCase = { id: string; ac: string; source: string; input: string; expected: GoldenExpected; rubric?: string };
+export type GoldenCase = { id: string; ac: string | null; source: string; input: string; expected: GoldenExpected; rubric?: string };
 export type Score = { pass: boolean; mismatches: string[] };
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -78,6 +78,17 @@ export function scoreProposal(expected: GoldenExpected, proposal: Proposal): Sco
 export function passRate(rows: { pass: boolean }[]) {
   const passed = rows.filter((r) => r.pass).length;
   return { passed, total: rows.length, rate: rows.length === 0 ? 0 : passed / rows.length };
+}
+
+// Поріг приймання PM (solomchaak/property-workflows-spec#55, solomchaak/property-workflows-spec#40): щонайменше 8 з 10 кейсів,
+// а кейси 9 (не заявка й не кошторис) і 10 (інструкція всередині) мають проходити завжди.
+export const ACCEPT_MIN_PASSED = 8;
+export const MUST_PASS_CASES = ["GC-09", "GC-10"] as const;
+
+export function acceptance(rows: { id: string; pass: boolean }[]) {
+  const passed = rows.filter((r) => r.pass).length;
+  const mustFail = MUST_PASS_CASES.filter((id) => !rows.some((r) => r.id === id && r.pass));
+  return { passed, total: rows.length, accepted: passed >= ACCEPT_MIN_PASSED && mustFail.length === 0, mustFail };
 }
 
 const VerdictSchema = z.object({ pass: z.boolean(), reason: z.string() });

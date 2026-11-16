@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("server-only", () => ({}));
+vi.mock("next/cache", () => ({ revalidatePath: () => {} })); // поза Next.js revalidatePath кидає виняток
 vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: { getClaims: mocks.getClaims },
@@ -36,7 +37,7 @@ beforeEach(() => {
 });
 
 describe("proposeDocumentValues", () => {
-  it("AC-DOCAI-09: менеджер без ключа отримує стан «недоступний», а не помилку сторінки", async () => {
+  it("AC-DOCAI-13: менеджер без ключа отримує стан «недоступний», а не помилку сторінки", async () => {
     expect(await proposeDocumentValues(RUN_ID, "My phone is 555-0101")).toEqual({
       status: "ok",
       proposal: { state: "unavailable", reason: "no_key", message: "The assistant is not available now. Fill in the values yourself." },
@@ -44,19 +45,26 @@ describe("proposeDocumentValues", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: адміністратор теж може користуватися помічником", async () => {
+  it("AC-DOCAI-01: адміністратор теж може користуватися помічником", async () => {
     mocks.profile.mockReturnValue({ role: "admin" });
     expect(await proposeDocumentValues(RUN_ID, "x")).toMatchObject({ status: "ok" });
   });
 
-  it("AC-DOCAI-08: вендор: відмова, запуск не перевіряється, запису немає", async () => {
+  it("AC-DOCAI-16: вендор: відмова, запуск не перевіряється, запису немає", async () => {
     mocks.profile.mockReturnValue({ role: "vendor" });
     expect(await proposeDocumentValues(RUN_ID, "x")).toEqual({ status: "forbidden" });
     expect(mocks.rpc).not.toHaveBeenCalled();
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: без входу: відмова, запуск не перевіряється", async () => {
+  it("AC-DOCAI-16: менеджер, який не менеджер цього запуску, не дістає значень: відмова, модель не викликається", async () => {
+    mocks.rpc.mockResolvedValue({ data: false, error: null });
+    vi.stubEnv("OPENROUTER_API_KEY", "test-key-not-used");
+    expect(await proposeDocumentValues(RUN_ID, "x")).toEqual({ status: "forbidden" });
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+
+  it("AC-DOCAI-16: без входу: відмова, запуск не перевіряється", async () => {
     mocks.getClaims.mockResolvedValue({ data: null });
     expect(await proposeDocumentValues(RUN_ID, "x")).toEqual({ status: "unauthenticated" });
     expect(mocks.rpc).not.toHaveBeenCalled();
@@ -64,18 +72,24 @@ describe("proposeDocumentValues", () => {
 });
 
 describe("confirmDocumentValues", () => {
-  it("AC-DOCAI-08: менеджер зберігає підтверджені значення", async () => {
+  it("AC-DOCAI-04: менеджер зберігає підтверджені значення", async () => {
     expect(await confirmDocumentValues(RUN_ID, "request", confirmed)).toEqual({ status: "saved" });
     expect(mocks.insert).toHaveBeenCalledWith({ run_id: RUN_ID, kind: "request", values: confirmed });
   });
 
-  it("AC-DOCAI-08: вендор не зберігає — відмова, запису немає", async () => {
+  it("AC-DOCAI-16: менеджер, який не менеджер цього запуску, не зберігає — «forbidden» (UI: «Not enough rights»), запису немає", async () => {
+    mocks.rpc.mockResolvedValue({ data: false, error: null });
+    expect(await confirmDocumentValues(RUN_ID, "request", confirmed)).toEqual({ status: "forbidden" });
+    expect(mocks.insert).not.toHaveBeenCalled();
+  });
+
+  it("AC-DOCAI-16: вендор не зберігає — відмова, запису немає", async () => {
     mocks.profile.mockReturnValue({ role: "vendor" });
     expect(await confirmDocumentValues(RUN_ID, "request", confirmed)).toEqual({ status: "forbidden" });
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: без входу не зберігає — відмова, запису немає", async () => {
+  it("AC-DOCAI-16: без входу не зберігає — відмова, запису немає", async () => {
     mocks.getClaims.mockResolvedValue({ data: null });
     expect(await confirmDocumentValues(RUN_ID, "request", confirmed)).toEqual({ status: "unauthenticated" });
     expect(mocks.insert).not.toHaveBeenCalled();
