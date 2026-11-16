@@ -1,0 +1,225 @@
+{
+  "kind": "uat",
+  "generatedAt": "2026-11-16T18:06:07.848Z",
+  "baseURL": "https://pmwp-ylehenkyi.vercel.app",
+  "deployedSha": "d91543fdf1c80351ae8aed033b8f50627b4b3d75",
+  "testsCommit": "d91543fdf1c80351ae8aed033b8f50627b4b3d75",
+  "reviewer": {
+    "model": "claude-haiku-5-5",
+    "disputes": "claude-sonnet-5-5"
+  },
+  "note": "Відео й траси не в git (test-results/ локально, артефакт CI). check-recordings конвеєра WS9 вимагає відео на диску — для нього цей manifest треба доповнити.",
+  "results": [
+    {
+      "id": "AC-DOCAI-04",
+      "proof": "AC-DOCAI-04",
+      "title": "AC-DOCAI-04: run manager A changes Urgency to \"urgent\" and saves; the page of the run shows one saved record with the type, the values, the email of A and the date and time",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-04-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--05e1a--of-A-and-the-date-and-time-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--05e1a--of-A-and-the-date-and-time-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі видно один запис у розділі «Saved records» з типом «Maintenance request», телефоном 555-0101, категорією plumbing і терміновістю urgent. Підпис «Confirmed by» містить email з суфіксом -a@example.test та дату й час 16 Nov 2026, 20:04. Поле Description на кадрі не згадане в критерії, тому на оцінку не впливає."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Saved records",
+          "onPage": true
+        },
+        {
+          "quote": "Maintenance request",
+          "onPage": true
+        },
+        {
+          "quote": "Phone",
+          "onPage": true
+        },
+        {
+          "quote": "555-0101",
+          "onPage": true
+        },
+        {
+          "quote": "Category",
+          "onPage": true
+        },
+        {
+          "quote": "plumbing",
+          "onPage": true
+        },
+        {
+          "quote": "Urgency",
+          "onPage": true
+        },
+        {
+          "quote": "urgent",
+          "onPage": true
+        },
+        {
+          "quote": "Confirmed by uat-261116180417-d04-a@example.test · 16 Nov 2026, 20:04",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 32427,
+      "reviewCostUsd": 0.05609,
+      "reviewWallMs": 9525
+    },
+    {
+      "id": "AC-DOCAI-09",
+      "proof": "AC-DOCAI-09",
+      "title": "AC-DOCAI-09: run manager A pastes a restaurant menu; the block shows \"This document is not a maintenance request or an estimate.\" and no value is proposed",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-09-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--7f1fa-te-and-no-value-is-proposed-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--7f1fa-te-and-no-value-is-proposed-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "Під блоком «Parse a document» з вставленим текстом меню видно повідомлення «This document is not a maintenance request or an estimate.». Під ним немає ні «Document type», ні запропонованих значень, ні кнопки «Save values»; є лише кнопки «Propose values», «Upload a text file» та «Discard»."
+      },
+      "agentModel": "claude-sonnet-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "NEEDS-HUMAN",
+        "claude-sonnet-5-5": "PASS"
+      },
+      "escalated": true,
+      "quotesVerified": [
+        {
+          "quote": "This document is not a maintenance request or an estimate.",
+          "onPage": true
+        },
+        {
+          "quote": "Propose values",
+          "onPage": true
+        },
+        {
+          "quote": "Upload a text file",
+          "onPage": true
+        },
+        {
+          "quote": "Discard",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 19835,
+      "reviewCostUsd": 0.10238,
+      "reviewWallMs": 18290
+    },
+    {
+      "id": "AC-DOCAI-14",
+      "proof": "AC-DOCAI-14",
+      "title": "AC-DOCAI-14: vendor V who is the assignee of tasks 3 and 4 opens the page of the run and does not see the block \"Parse a document\"",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-14-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--f0ea4-the-block-Parse-a-document--chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--f0ea4-the-block-Parse-a-document--chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі видно сторінку run «Apartment 12, move-in» із блоком «Move-in day» і двома завданнями («Hand over the keys», «Record meter readings»). Блоків «Parse a document» і «Propose values» на сторінці немає, сторінка не обрізана. Кадр не показує, що ці два завдання саме номери 3 і 4, але це не входить у видимі частини «Тоді»."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "Apartment 12, move-in",
+          "onPage": true
+        },
+        {
+          "quote": "Your tasks: 0 of 2 done",
+          "onPage": true
+        },
+        {
+          "quote": "Hand over the keys",
+          "onPage": true
+        },
+        {
+          "quote": "Record meter readings",
+          "onPage": true
+        },
+        {
+          "quote": "Move-in day",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 12578,
+      "reviewCostUsd": 0.05562,
+      "reviewWallMs": 9755
+    },
+    {
+      "id": "AC-DOCAI-16",
+      "proof": "AC-DOCAI-16",
+      "title": "AC-DOCAI-16: vendor V, or manager B who is not the run manager, tries to save values for the run directly, bypassing the pages; no record is saved",
+      "screenshot": "docs/qa/uat/2026-11-16/frames/AC-DOCAI-16-then-1.png",
+      "video": "test-results/artifacts/document-parsing-AC-DOCAI--c383a-he-pages-no-record-is-saved-chromium/video.webm",
+      "trace": "test-results/artifacts/document-parsing-AC-DOCAI--c383a-he-pages-no-record-is-saved-chromium/trace.zip",
+      "asserted": true,
+      "vision": {
+        "met": true,
+        "readable": true,
+        "notes": "На кадрі сторінки запуску «Apartment 12, move-in» видно «0 of 5 done» і всі п'ять завдань у статусі «to do», без жодного збереженого значення чи запису. Підказка «Nothing is saved until you save the values.» також підтверджує, що нічого не збережено. Частини «Тоді» про відмову в правах і повідомлення «Not enough rights» не з кадрів, їх я не оцінював."
+      },
+      "agentModel": "claude-haiku-5-5",
+      "agentVerdicts": {
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
+      },
+      "escalated": false,
+      "quotesVerified": [
+        {
+          "quote": "0 of 5 done",
+          "onPage": true
+        },
+        {
+          "quote": "to do",
+          "onPage": true
+        },
+        {
+          "quote": "Nothing is saved until you save the values.",
+          "onPage": true
+        }
+      ],
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 13291,
+      "reviewCostUsd": 0.05704,
+      "reviewWallMs": 9825
+    }
+  ],
+  "negativeControls": [],
+  "cleanup": {
+    "at": "2026-11-16T18:05:47.117Z",
+    "deleted": [
+      "uat-261116180417-d16-b@example.test",
+      "uat-261116180417-d16-v@example.test",
+      "uat-261116180417-d16-a@example.test",
+      "uat-261116180417-d14-v@example.test",
+      "uat-261116180417-d14-a@example.test",
+      "uat-261116180417-d09-a@example.test",
+      "uat-261116180417-d04-a@example.test"
+    ],
+    "remaining": [],
+    "leftoverRequests": 0
+  }
+}

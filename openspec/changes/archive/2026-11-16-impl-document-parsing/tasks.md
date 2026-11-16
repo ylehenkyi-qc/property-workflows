@@ -44,6 +44,7 @@ Done when: AC-DOCAI-14, AC-DOCAI-15, AC-DOCAI-16.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-08, AC-DOCAI-09, AC-DOCAI-10.
 
 ## 7. Прод, UAT і здача
-- [ ] 7.1 `OPENROUTER_API_KEY` у Vercel Production; `/api/health` із SHA `main`; UAT на проді на 2 AC за вимогою PM (AC-DOCAI-04 — збереження підтверджених значень і AC-DOCAI-09 — відмова на сторонній текст), звіт у `docs/qa/uat/<дата>/`; `docs/conformance.md` на кожен AC.
-- [ ] 7.2 Archive `npx openspec archive impl-document-parsing -y`; файл здачі `submissions/property-workflows/ylehenkyi-qc.md` у репо домашки WS10.
+- [x] 7.1 `OPENROUTER_API_KEY` у Vercel Production; `/api/health` із SHA `main`; UAT на проді на 2 AC за вимогою PM (AC-DOCAI-04 — збереження підтверджених значень і AC-DOCAI-09 — відмова на сторонній текст), звіт у `docs/qa/uat/2026-11-16/` (AC-DOCAI-04, 09, 14, 16 — PASS, R6; прогін на проді, SHA main — `/api/health`); `docs/conformance.md` на кожен AC.
+- [x] 7.2 Archive `npx openspec archive impl-document-parsing -y` (в останньому PR зрізу).
+- [ ] 7.3 Файл здачі `submissions/property-workflows/ylehenkyi-qc.md` у репо домашки WS10 (PR у koldovsky/2026-quitcode-10-ai-features-hw; після merge цього PR: SHA main має містити звіт UAT).
 Done when: AC-DOCAI-04, AC-DOCAI-09.

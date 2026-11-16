@@ -75,6 +75,7 @@ test(
         const records = page.getByTestId("document-record");
         await expect(records).toHaveCount(1, { timeout: 30_000 });
         const record = records.first();
+        await record.scrollIntoViewIfNeeded(); // запис має бути в кадрі «Тоді»
         await expect(record).toContainText("Maintenance request");
         await expect(record).toContainText("555-0101");
         await expect(record).toContainText("plumbing");
@@ -111,7 +112,11 @@ test(
       },
       async () => {
         const main = page.getByRole("main");
-        await expect(main.getByText("This document is not a maintenance request or an estimate.")).toBeVisible({ timeout: AI_TIMEOUT });
+        const refusal = main.getByText("This document is not a maintenance request or an estimate.");
+        await expect(refusal).toBeVisible({ timeout: AI_TIMEOUT });
+        // Кадр «Тоді» — лише видима частина вікна: прокручуємо донизу, щоб у кадрі було повідомлення й порожнє місце під ним
+        // (ні типу документа, ні значень, ні «Save values»).
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
         await expect(main.getByText("Document type")).toHaveCount(0);
         await expect(main.getByRole("button", { name: "Save values" })).toHaveCount(0);
         await expect(page.getByTestId("document-record")).toHaveCount(0);
