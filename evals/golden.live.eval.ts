@@ -14,10 +14,13 @@ import { buildReport, type Row } from "./report";
 // Перший 429 (моделі чи судді) зупиняє прогін: цей і решта кейсів — NOT RUN з причиною у звіті, у частку успіху не входять.
 // Таймаут, помилка постачальника, відповідь не за схемою — FAIL з причиною (входять у частку успіху).
 //   RUNS=2    — кілька прогонів поспіль для частки успіху (pass rate); бюджет див. нижче.
+//   CASES=…   — лише вибрані кейси (id через кому); GAP_MS=… — пауза між кейсами, мс.
 //   RECORD=1  — успішні відповіді дописати в tests/fixtures/golden/recorded.json (для офлайн-реплею в CI).
 // PowerShell: $env:RECORD="1"; npm run eval   (а потім Remove-Item Env:RECORD)
 
-const cases = casesJson as GoldenCase[];
+// CASES=GC-07,GC-08 — лише ці кейси (економить денний ліміт, коли решту вже записано).
+const only = process.env.CASES?.split(",").map((id) => id.trim());
+const cases = (casesJson as GoldenCase[]).filter((c) => !only || only.includes(c.id));
 const key = process.env.OPENROUTER_API_KEY?.trim();
 const RECORD = process.env.RECORD === "1";
 const RUNS = Math.max(1, Number(process.env.RUNS ?? 1) || 1);
@@ -27,7 +30,8 @@ const REPORT_DIR = "evals/reports";
 // Бюджет: на прогін — 10 викликів моделі + до 10 викликів судді (лише кейси з rubric), з одного денного лічильника акаунта
 // (50/день без покупки ≥10 кредитів). Ланцюжок `models` цей ліміт не обходить, спроби fallback теж можуть рахуватися.
 const NEEDED = RUNS * (cases.length + cases.filter((c) => c.rubric).length);
-const GAP_MS = 3_000; // ≤ 20 запитів/хв навіть коли модель і суддя відповідають швидко
+// Пауза між кейсами: безкоштовні ендпоінти можуть давати 429 і до ліміту акаунта (на прогоні 1 так і було), тож за замовчуванням 8 с; GAP_MS=… змінює.
+const GAP_MS = Number(process.env.GAP_MS ?? 8_000) || 8_000;
 
 type Recording = { modelId: string; recordedAt: string; promptVersion: string; text: string };
 type Outcome = { row: Row; rateLimited: boolean; recording?: Recording };

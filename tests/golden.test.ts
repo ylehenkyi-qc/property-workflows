@@ -65,8 +65,9 @@ describe("golden cases, цілісність набору", () => {
   it("кожен golden case має запис, записаний поточною версією промпту", () => {
     expect(cases.map((c) => c.id).filter((id) => !recorded[id])).toEqual([]);
     // Змінили PARSE_PROMPT_VERSION — перезапишіть записи живим прогоном (`RECORD=1 npm run eval`).
+    // Заглушки (modelId "hand-written-stub") — не відповіді моделі: версія промпту їх не стосується; ці AC лишаються «відкладено».
     const stale = Object.entries(recorded)
-      .filter(([, r]) => r.promptVersion !== PARSE_PROMPT_VERSION)
+      .filter(([, r]) => r.modelId !== "hand-written-stub" && r.promptVersion !== PARSE_PROMPT_VERSION)
       .map(([id]) => id);
     expect(stale).toEqual([]);
   });
