@@ -44,19 +44,19 @@ describe("proposeDocumentValues", () => {
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("адміністратор теж може користуватися помічником", async () => {
+  it("AC-DOCAI-08: адміністратор теж може користуватися помічником", async () => {
     mocks.profile.mockReturnValue({ role: "admin" });
     expect(await proposeDocumentValues(RUN_ID, "x")).toMatchObject({ status: "ok" });
   });
 
-  it("вендор: відмова, запуск не перевіряється, запису немає", async () => {
+  it("AC-DOCAI-08: вендор: відмова, запуск не перевіряється, запису немає", async () => {
     mocks.profile.mockReturnValue({ role: "vendor" });
     expect(await proposeDocumentValues(RUN_ID, "x")).toEqual({ status: "forbidden" });
     expect(mocks.rpc).not.toHaveBeenCalled();
     expect(mocks.insert).not.toHaveBeenCalled();
   });
 
-  it("без входу: відмова, запуск не перевіряється", async () => {
+  it("AC-DOCAI-08: без входу: відмова, запуск не перевіряється", async () => {
     mocks.getClaims.mockResolvedValue({ data: null });
     expect(await proposeDocumentValues(RUN_ID, "x")).toEqual({ status: "unauthenticated" });
     expect(mocks.rpc).not.toHaveBeenCalled();
