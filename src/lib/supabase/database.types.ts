@@ -36,6 +36,32 @@ export type Database = {
                   Relationships: [
 
                   ]
+                },"run_document_values": {
+                  Row: {
+                    "author_id": string,"created_at": string,"id": string,"kind": string,"run_id": string,"values": Json
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"kind": string,"run_id": string,"values": Json
+                  }
+                  Update: {
+                    "author_id"?: string,"created_at"?: string,"id"?: string,"kind"?: string,"run_id"?: string,"values"?: Json
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "run_document_values_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "run_document_values_run_id_fkey"
+      columns: ["run_id"]
+isOneToOne: false
+      referencedRelation: "runs"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"run_sections": {
                   Row: {
                     "id": string,"name": string,"position": number,"run_id": string
@@ -266,7 +292,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "create_template":
+            "can_manage_run":
+{ Args: { "p_run_id": string }; Returns: boolean
+                           },
+"create_template":
 { Args: { "p_name": string }; Returns: string
                            },
 "launch_run":

@@ -14,7 +14,7 @@ Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-D
 
 ## 3. Збереження після підтвердження
 - [x] 3.1 Міграція `run_document_values` + `private.can_manage_run` + `public.can_manage_run` + `check (jsonb_typeof(values) = 'object')` + RLS; тести бази (PGlite): менеджер запуску й адмін пишуть і читають, інший менеджер, виконавець і вендор — ні.
-- [ ] 3.2 Server Actions `proposeValues` (нічого не пише) і `confirmValues` (повторна валідація, запис під сесією користувача); тест «пропозиція нічого не зберігає, зберігається виправлене значення».
+- [x] 3.2 Server Actions `proposeValues` (нічого не пише) і `confirmValues` (повторна валідація, запис під сесією користувача); тест «пропозиція нічого не зберігає, зберігається виправлене значення».
 Done when: AC-DOCAI-08.
 
 ## 4. Інтерфейс сторінки запуску
