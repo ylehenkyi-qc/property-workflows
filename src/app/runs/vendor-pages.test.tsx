@@ -15,6 +15,7 @@ vi.mock("next/navigation", () => ({
     throw new Error("NOT_FOUND");
   },
 }));
+vi.mock("server-only", () => ({})); // document-parser тягне openrouter.ts (server-only); Vitest не Server Component
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 import RunPage from "./[id]/page";

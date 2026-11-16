@@ -18,16 +18,16 @@ Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-D
 Done when: AC-DOCAI-08.
 
 ## 4. Інтерфейс сторінки запуску
-- [ ] 4.1 `npx shadcn@latest add textarea`; блок «Parse a document» на `/runs/[id]` для менеджера запуску й адміністратора; стани й тексти з design.md; `npm run check:design`, `npm run lint`.
-- [ ] 4.2 Тест сторінки: відмова, попередження, примітка, «not found», недоступність із ручною формою.
+- [x] 4.1 `npx shadcn@latest add textarea`; блок «Parse a document» на `/runs/[id]` для менеджера запуску й адміністратора; стани й тексти з design.md; `npm run check:design`, `npm run lint`.
+- [x] 4.2 Тест сторінки: відмова, попередження, примітка, «not found», недоступність із ручною формою.
 Done when: AC-DOCAI-03, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
 
 ## 5. Офлайн golden cases
-- [ ] 5.1 `tests/fixtures/golden/cases.json` (10 кейсів #40, позначка «тимчасові, від розробника»), `tests/golden.test.ts` з реплеєм `recorded.json`.
+- [x] 5.1 `tests/fixtures/golden/cases.json` (10 кейсів #40, позначка «тимчасові, від розробника»), `tests/golden.test.ts` з реплеєм `recorded.json`.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 6. Живий eval
-- [ ] 6.1 `RECORD=1 npm run eval` (запускає користувач), справжні відповіді в `recorded.json`, звіт `evals/reports/…md`, пояснення кожного FAIL.
+- [x] 6.1 `RECORD=1 npm run eval` (запускає користувач), справжні відповіді в `recorded.json`, звіт `evals/reports/…md`, пояснення кожного FAIL.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12 (звіт eval; чесний pass rate).
 
 ## 7. Прод, UAT і здача

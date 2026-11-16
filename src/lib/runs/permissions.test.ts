@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canMarkDone, canVendorMarkDone, isLastRequiredTask } from "./permissions";
+import { canMarkDone, canParseDocuments, canVendorMarkDone, isLastRequiredTask } from "./permissions";
 
 const RUN = { manager_id: "a" };
 const todo = { assignee_id: "b", status: "to_do" };
@@ -47,5 +47,14 @@ describe("canVendorMarkDone", () => {
     expect(canVendorMarkDone({ assignee_id: "v", status: "to_do" }, "v")).toBe(true);
     expect(canVendorMarkDone({ assignee_id: "a", status: "to_do" }, "v")).toBe(false);
     expect(canVendorMarkDone({ assignee_id: "v", status: "done" }, "v")).toBe(false);
+  });
+});
+
+describe("canParseDocuments", () => {
+  it("AC-DOCAI-08: блок «Parse a document» лише менеджеру цього запуску й адміністратору", () => {
+    expect(canParseDocuments(RUN, { userId: "a", role: "manager" })).toBe(true);
+    expect(canParseDocuments(RUN, { userId: "x", role: "admin" })).toBe(true);
+    expect(canParseDocuments(RUN, { userId: "c", role: "manager" })).toBe(false);
+    expect(canParseDocuments(RUN, { userId: "a", role: "vendor" })).toBe(false);
   });
 });

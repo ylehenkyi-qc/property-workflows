@@ -17,6 +17,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Дія «Mark as done» тягне next/cache; для рендеру сторінки вона не потрібна.
+vi.mock("server-only", () => ({})); // document-parser тягне openrouter.ts (server-only); Vitest не Server Component
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 import { StatusBadge } from "@/components/status-badge";
