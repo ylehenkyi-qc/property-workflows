@@ -11,6 +11,7 @@ export const REFUSED_MESSAGE = "This document is not a maintenance request or an
 export const UNAVAILABLE_MESSAGE = "The assistant is not available now. Fill in the values yourself.";
 export const INJECTION_NOTE = "the text contains instructions to the AI that were ignored";
 export const TWO_PROBLEMS_NOTE = "the email has two problems";
+export const EMPTY_MESSAGE = "Paste the text of a document"; // AC-DOCAI-11
 
 export type UnavailableReason = "no_key" | "rate_limited" | "timeout" | "invalid_output" | "provider_error";
 export type RequestField = "phone" | "description" | "category" | "urgency";
@@ -27,6 +28,7 @@ export type Proposal =
   | { state: "ok"; kind: "request"; request: RequestValues; notFound: RequestField[]; notes: string[]; warnings: string[] }
   | { state: "ok"; kind: "estimate"; items: EstimateItem[]; total: number | null; notes: string[]; warnings: string[] }
   | { state: "refused"; message: string; notes: string[] }
+  | { state: "empty"; message: string }
   | { state: "unavailable"; reason: UnavailableReason; message: string };
 
 // onResult — лише для живого eval: яка модель з ланцюжка відповіла й що вона повернула (для звіту й запису в recorded.json).
@@ -86,8 +88,9 @@ export function interpret(out: ParseOutput): Proposal {
 
 // Будь-який збій виклику моделі — стан unavailable, а не виняток (AC-DOCAI-09): ручна форма працює далі.
 export async function proposeValues(text: string, model: LanguageModel | null, opts: ParseOptions = {}): Promise<Proposal> {
+  // AC-DOCAI-11: порожній текст чи самі пробіли — повідомлення без звернення до моделі й без значень.
+  if (!text.trim()) return { state: "empty", message: EMPTY_MESSAGE };
   if (!model) return unavailable("no_key");
-  if (!text.trim()) return { state: "refused", message: REFUSED_MESSAGE, notes: [] };
 
   try {
     const result = await generateText({

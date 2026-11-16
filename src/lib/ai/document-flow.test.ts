@@ -46,7 +46,7 @@ beforeEach(() => {
 });
 
 describe("runPropose", () => {
-  it("AC-DOCAI-08: пропозиція нічого не пише в базу — лише повертає її користувачу", async () => {
+  it("AC-DOCAI-01: пропозиція нічого не пише в базу — лише повертає її користувачу", async () => {
     const model = modelSaying(okOutput);
 
     const result = await runPropose(managerAuth, RUN_ID, "My phone is 555-0101", model);
@@ -57,7 +57,7 @@ describe("runPropose", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: без входу: відмова, перевірка запуску, модель і запис не викликаються", async () => {
+  it("AC-DOCAI-16: без входу: відмова, перевірка запуску, модель і запис не викликаються", async () => {
     const model = modelSaying(okOutput);
     expect(await runPropose({ status: "unauthenticated" }, RUN_ID, "x", model)).toEqual({ status: "unauthenticated" });
     expect(rpc).not.toHaveBeenCalled();
@@ -65,14 +65,14 @@ describe("runPropose", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: вендор (роль не з переліку): відмова до виклику моделі", async () => {
+  it("AC-DOCAI-16: вендор (роль не з переліку): відмова до виклику моделі", async () => {
     const model = modelSaying(okOutput);
     expect(await runPropose({ status: "forbidden", role: "vendor" }, RUN_ID, "x", model)).toEqual({ status: "forbidden" });
     expect(rpc).not.toHaveBeenCalled();
     expect(model.doGenerateCalls).toHaveLength(0);
   });
 
-  it("AC-DOCAI-08: запуск іншого менеджера: відмова ДО виклику моделі, ліміт ключа не витрачається", async () => {
+  it("AC-DOCAI-16: запуск іншого менеджера: відмова ДО виклику моделі, ліміт ключа не витрачається", async () => {
     const model = modelSaying(okOutput);
     rpc.mockResolvedValue({ data: false, error: null });
 
@@ -81,7 +81,7 @@ describe("runPropose", () => {
     expect(model.doGenerateCalls).toHaveLength(0);
   });
 
-  it("AC-DOCAI-08: помилка перевірки запуску (rpc без даних) — теж відмова, а не виклик моделі", async () => {
+  it("AC-DOCAI-16: помилка перевірки запуску (rpc без даних) — теж відмова, а не виклик моделі", async () => {
     const model = modelSaying(okOutput);
     rpc.mockResolvedValue({ data: null, error: { message: "boom" } });
 
@@ -89,7 +89,7 @@ describe("runPropose", () => {
     expect(model.doGenerateCalls).toHaveLength(0);
   });
 
-  it("AC-DOCAI-09: немає ключа (модель null) — стан «недоступний», запису немає", async () => {
+  it("AC-DOCAI-13: немає ключа (модель null) — стан «недоступний», запису немає", async () => {
     const result = await runPropose(managerAuth, RUN_ID, "My phone is 555-0101", null);
 
     expect(result).toEqual({
@@ -99,7 +99,7 @@ describe("runPropose", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-06: документ не заявка й не кошторис — відмова з повідомленням, без запису", async () => {
+  it("AC-DOCAI-09: документ не заявка й не кошторис — відмова з повідомленням, без запису", async () => {
     const model = modelSaying({ ...okOutput, status: "refused", documentType: null, request: null });
 
     const result = await runPropose(managerAuth, RUN_ID, "Tonight's menu: tomato soup 6.50", model);
@@ -115,7 +115,7 @@ describe("runPropose", () => {
 describe("runConfirm", () => {
   const confirmed = { phone: "555-0101", description: "Kitchen tap dripping", category: "plumbing", urgency: "urgent" };
 
-  it("AC-DOCAI-08: зберігає саме значення, які підтвердив користувач (виправлене «urgent»), а не пропозицію моделі", async () => {
+  it("AC-DOCAI-04: зберігає саме значення, які підтвердив користувач (виправлене «urgent»), а не пропозицію моделі", async () => {
     const result = await runConfirm(managerAuth, RUN_ID, "request", confirmed);
 
     expect(result).toEqual({ status: "saved" });
@@ -124,7 +124,7 @@ describe("runConfirm", () => {
     expect(insert).toHaveBeenCalledWith({ run_id: RUN_ID, kind: "request", values: confirmed });
   });
 
-  it("AC-DOCAI-08: порожній рядок форми зберігається як null, пробіли обрізаються; кошторис зберігається як є", async () => {
+  it("AC-DOCAI-04: порожній рядок форми зберігається як null, пробіли обрізаються; кошторис зберігається як є", async () => {
     await runConfirm(managerAuth, RUN_ID, "request", { ...confirmed, phone: "  ", description: "  Tap  " });
     expect(insert).toHaveBeenLastCalledWith({
       run_id: RUN_ID,
@@ -147,18 +147,18 @@ describe("runConfirm", () => {
     ["невідомий вид документа", "menu", confirmed],
     ["значення — не об'єкт", "request", "555-0101"],
     ["значення — null", "request", null],
-  ])("AC-DOCAI-08: %s — повторна валідація відхиляє, нічого не записано", async (_name, kind, values) => {
+  ])("AC-DOCAI-04: %s — повторна валідація відхиляє, нічого не записано", async (_name, kind, values) => {
     expect(await runConfirm(managerAuth, RUN_ID, kind, values)).toEqual({ status: "invalid" });
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: без входу чи вендор: відмова, нічого не записано", async () => {
+  it("AC-DOCAI-16: без входу чи вендор: відмова, нічого не записано", async () => {
     expect(await runConfirm({ status: "unauthenticated" }, RUN_ID, "request", confirmed)).toEqual({ status: "unauthenticated" });
     expect(await runConfirm({ status: "forbidden", role: "vendor" }, RUN_ID, "request", confirmed)).toEqual({ status: "forbidden" });
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("AC-DOCAI-08: відмова бази (RLS: чужий запуск) — помилка, а не «збережено»", async () => {
+  it("AC-DOCAI-16: відмова бази (RLS: чужий запуск) — помилка, а не «збережено»", async () => {
     insert.mockResolvedValue({ error: { message: "new row violates row-level security policy" } });
     expect(await runConfirm(managerAuth, RUN_ID, "request", confirmed)).toEqual({ status: "error" });
   });

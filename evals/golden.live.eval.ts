@@ -50,8 +50,10 @@ async function remainingQuota(): Promise<number | undefined> {
   return body.data?.free_model_daily_requests?.remaining;
 }
 
+const acOf = (c: GoldenCase) => c.ac ?? "—";
+
 function notRunRow(c: GoldenCase, run: number, why: string, modelId = "—"): Row {
-  return { run, id: c.id, ac: c.ac, modelId, fields: false, pass: false, notRun: true, why: `NOT RUN: ${why}` };
+  return { run, id: c.id, ac: acOf(c), modelId, fields: false, pass: false, notRun: true, why: `NOT RUN: ${why}` };
 }
 
 // Суддя оцінює лише опис заявки; 429 судді — окремий результат (кейс NOT RUN), інший збій — вердикт «ні» з причиною.
@@ -77,7 +79,7 @@ function describeFailure(error: unknown): string {
 function failedOutcome(c: GoldenCase, run: number, captured: Captured, proposal: Extract<Proposal, { state: "unavailable" }>): Outcome {
   if (proposal.reason === "rate_limited") return { row: notRunRow(c, run, `429 — ${proposal.message}`), rateLimited: true };
   const why = `${proposal.reason}: ${captured.failure ?? proposal.message}`;
-  return { row: { run, id: c.id, ac: c.ac, modelId: captured.modelId ?? "—", fields: false, pass: false, why }, rateLimited: false };
+  return { row: { run, id: c.id, ac: acOf(c), modelId: captured.modelId ?? "—", fields: false, pass: false, why }, rateLimited: false };
 }
 
 const verdictWhy = (verdict?: { pass: boolean; reason: string }) => (verdict && !verdict.pass ? `суддя: ${verdict.reason}` : "");
@@ -96,7 +98,7 @@ async function grade(c: GoldenCase, run: number, proposal: Proposal, captured: C
   if (verdict === "rate_limited") return { row: notRunRow(c, run, "суддя — 429", modelId), rateLimited: true };
   const pass = fields.pass && (verdict?.pass ?? true);
   const why = [...fields.mismatches, verdictWhy(verdict)].filter(Boolean).join("; ") || verdict?.reason;
-  const row: Row = { run, id: c.id, ac: c.ac, modelId, fields: fields.pass, judge: verdict?.pass, pass, why };
+  const row: Row = { run, id: c.id, ac: acOf(c), modelId, fields: fields.pass, judge: verdict?.pass, pass, why };
   return { row, rateLimited: false, recording: recordingOf(pass, captured) };
 }
 
@@ -143,7 +145,7 @@ describe.skipIf(!key)("golden cases, живий прогін (безкоштов
 
   for (let run = 1; run <= RUNS; run++) {
     for (const c of cases) {
-      it(`${c.ac}: прогін ${run}, golden ${c.id}`, async (ctx) => {
+      it(`${c.ac ?? "golden-кейс без AC"}: прогін ${run}, golden ${c.id}`, async (ctx) => {
         if (stoppedAt) {
           rows.push(notRunRow(c, run, `зупинено після 429 (${stoppedAt})`));
           return ctx.skip();

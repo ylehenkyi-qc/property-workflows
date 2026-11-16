@@ -59,6 +59,7 @@ async function renderRun(options: {
   managerId?: string;
   tasks?: ReturnType<typeof task>[];
   run?: unknown;
+  documents?: unknown[];
 }) {
   const { viewer, role = "manager", managerId = "user-a", tasks = TASKS } = options;
   const client = fakeSupabase({
@@ -73,6 +74,7 @@ async function renderRun(options: {
       },
       run_sections: { data: SECTIONS },
       run_tasks: { data: tasks },
+      run_document_values: { data: options.documents ?? [] },
     },
     rpc: { list_assignable_users: { data: USERS } },
   });
@@ -106,15 +108,51 @@ describe("AC-TASK-10: чужий запуск за прямим посиланн
 });
 
 describe("сторінка запуску: блок «Parse a document»", () => {
-  it("AC-DOCAI-08: блок бачать менеджер цього запуску й адміністратор, чужий менеджер — ні", async () => {
+  it("AC-DOCAI-15: менеджер B, який лише виконавець задачі в запуску менеджера A, не бачить блоку «Parse a document»", async () => {
+    const { markup } = await renderRun({ viewer: "user-b" });
+
+    expect(markup).toContain("Apartment 12"); // сторінку запуску відкрито
+    expect(markup).not.toContain("Parse a document");
+    expect(markup).not.toContain("Propose values");
+  });
+
+  it("AC-DOCAI-01: менеджер цього запуску й адміністратор бачать блок «Parse a document» із «Propose values»", async () => {
     const own = await renderRun({ viewer: "user-a" });
     const admin = await renderRun({ viewer: "user-x", role: "admin" });
-    const other = await renderRun({ viewer: "user-b" });
 
-    expect(own.markup).toContain("Parse a document");
-    expect(own.markup).toContain("Propose values");
-    expect(admin.markup).toContain("Parse a document");
-    expect(other.markup).not.toContain("Parse a document");
+    for (const { markup } of [own, admin]) {
+      expect(markup).toContain("Parse a document");
+      expect(markup).toContain("Propose values");
+      expect(markup).toContain("Upload a text file");
+    }
+  });
+
+  it("AC-DOCAI-04: на сторінці запуску менеджера показано збережений запис: тип, значення, email того, хто підтвердив, дата й час", async () => {
+    const { markup, client } = await renderRun({
+      viewer: "user-a",
+      documents: [
+        {
+          id: "d1",
+          kind: "request",
+          values: { phone: "555-0101", description: "Kitchen tap leaks", category: "plumbing", urgency: "urgent" },
+          author_id: "user-a",
+          created_at: "2026-11-12T08:15:00Z",
+        },
+      ],
+    });
+
+    expect(client.calls.from).toContain("run_document_values");
+    expect(markup).toContain('data-testid="document-record"');
+    expect(markup).toContain("Maintenance request");
+    expect(markup).toContain("555-0101");
+    expect(markup).toContain("manager-a@example.test");
+    expect(markup).toContain("12 Nov 2026, 10:15");
+  });
+
+  it("AC-DOCAI-15: чужий менеджер не читає записів документів: таблицю сторінка навіть не запитує", async () => {
+    const { client } = await renderRun({ viewer: "user-b" });
+
+    expect(client.calls.from).not.toContain("run_document_values");
   });
 });
 

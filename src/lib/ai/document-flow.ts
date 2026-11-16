@@ -17,6 +17,11 @@ export type ConfirmResult =
   | { status: "invalid" }
   | { status: "error" };
 
+async function canManageRun(supabase: Extract<RoleCheck, { status: "ok" }>["supabase"], runId: string): Promise<boolean> {
+  const { data } = await supabase.rpc("can_manage_run", { p_run_id: String(runId) });
+  return data === true;
+}
+
 // Лише ПРОПОНУЄ: нічого не пише в базу (AC-DOCAI-08). Спершу роль, потім — що користувач керує саме цим запуском, і
 // лише тоді викликаємо модель: чужий менеджер не витрачає ліміт ключа. Немає ключа (model = null) — стан «недоступний»
 // (AC-DOCAI-09).
@@ -24,8 +29,7 @@ export async function runPropose(auth: RoleCheck, runId: string, text: string, m
   if (auth.status === "unauthenticated") return { status: "unauthenticated" };
   if (auth.status === "forbidden") return { status: "forbidden" };
 
-  const { data: canManage } = await auth.supabase.rpc("can_manage_run", { p_run_id: String(runId) });
-  if (canManage !== true) return { status: "forbidden" };
+  if (!(await canManageRun(auth.supabase, runId))) return { status: "forbidden" };
 
   return { status: "ok", proposal: await proposeValues(String(text ?? ""), model) };
 }
@@ -35,6 +39,10 @@ export async function runPropose(auth: RoleCheck, runId: string, text: string, m
 export async function runConfirm(auth: RoleCheck, runId: string, kind: string, values: unknown): Promise<ConfirmResult> {
   if (auth.status === "unauthenticated") return { status: "unauthenticated" };
   if (auth.status === "forbidden") return { status: "forbidden" };
+
+  // AC-DOCAI-16: не менеджер цього запуску (і не адміністратор) дістає «Not enough rights» ще до перевірки значень; RLS таблиці
+  // лишається останнім бар'єром, якщо цю перевірку обійдено.
+  if (!(await canManageRun(auth.supabase, runId))) return { status: "forbidden" };
 
   const confirmed = parseConfirmed(kind, values);
   if (!confirmed.ok) return { status: "invalid" };

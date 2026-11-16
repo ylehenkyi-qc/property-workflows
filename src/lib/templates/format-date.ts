@@ -9,9 +9,14 @@ const KYIV = new Intl.DateTimeFormat("en-GB", {
   hourCycle: "h23",
 });
 
-export function formatVersionDate(iso: string): string {
+// Частини дати за форматером; null для неправильної дати. Спільне для формату версій і записів документів.
+export function kyivParts(formatter: Intl.DateTimeFormat, iso: string): Record<string, string> | null {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  const part = Object.fromEntries(KYIV.formatToParts(date).map(({ type, value }) => [type, value]));
-  return `${part.day}.${part.month}.${part.year} ${part.hour}:${part.minute}`;
+  if (Number.isNaN(date.getTime())) return null;
+  return Object.fromEntries(formatter.formatToParts(date).map(({ type, value }) => [type, value]));
+}
+
+export function formatVersionDate(iso: string): string {
+  const part = kyivParts(KYIV, iso);
+  return part ? `${part.day}.${part.month}.${part.year} ${part.hour}:${part.minute}` : "—";
 }

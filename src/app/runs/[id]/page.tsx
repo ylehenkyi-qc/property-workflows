@@ -10,7 +10,8 @@ import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors
 import { canMarkDone, canParseDocuments, isLastRequiredTask } from "@/lib/runs/permissions";
 import { formatRunProgress } from "@/lib/runs/progress";
 import { DocumentParser } from "./document-parser";
-import { loadRunDetails } from "./load-run";
+import { DocumentRecords } from "./document-records";
+import { loadDocumentRecords, loadRunDetails } from "./load-run";
 import { MarkDoneButton } from "./mark-done-button";
 import { TaskSections } from "./task-sections";
 import { renderVendorRun } from "./vendor-run";
@@ -34,6 +35,9 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
 
   const errorMessage = isMarkTaskErrorCode(error) ? MARK_TASK_ERRORS[error] : undefined;
   const { run, sections, tasks, users } = await loadRunDetails(supabase, id);
+  // Блок «Parse a document» і збережені записи — лише менеджеру цього запуску й адміністратору (AC-DOCAI-14, AC-DOCAI-15).
+  const canParse = canParseDocuments(run, { userId, role });
+  const records = canParse ? await loadDocumentRecords(supabase, run.id) : [];
 
   return (
     <PageShell>
@@ -82,7 +86,8 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
         )}
       />
 
-      {canParseDocuments(run, { userId, role }) ? <DocumentParser runId={run.id} /> : null}
+      {canParse ? <DocumentParser runId={run.id} /> : null}
+      <DocumentRecords records={records} users={users} />
     </PageShell>
   );
 }

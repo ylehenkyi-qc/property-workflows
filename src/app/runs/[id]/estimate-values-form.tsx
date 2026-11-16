@@ -35,8 +35,11 @@ export function EstimateValuesForm({
   saving: boolean;
   onSave: (values: { items: EstimateItem[]; total: number | null }) => void;
 }) {
+  // Без пропозиції (ручна форма, AC-DOCAI-13) — один порожній рядок; «Add item» додає ще.
   const [rows, setRows] = useState<Row[]>(
-    items.map((i) => ({ name: i.name, quantity: String(i.quantity), unitPrice: String(i.unitPrice) })),
+    items.length > 0
+      ? items.map((i) => ({ name: i.name, quantity: String(i.quantity), unitPrice: String(i.unitPrice) }))
+      : [{ name: "", quantity: "", unitPrice: "" }],
   );
   const [totalText, setTotalText] = useState(total === null ? "" : String(total));
   const [error, setError] = useState(false);
@@ -77,6 +80,14 @@ export function EstimateValuesForm({
           </div>
         </div>
       ))}
+      <Button
+        type="button"
+        variant="outline"
+        className="self-start"
+        onClick={() => setRows((prev) => [...prev, { name: "", quantity: "", unitPrice: "" }])}
+      >
+        Add item
+      </Button>
       <div className="flex flex-col gap-2">
         <Label htmlFor="estimate-total">
           Total
