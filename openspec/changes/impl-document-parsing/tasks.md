@@ -5,15 +5,15 @@
 ## 1. Основа: ADR, залежності, обгортка моделі
 - [ ] 1.1 ADR `docs/decisions/0005-ai-document-parsing-openrouter.md` (шаблон набору курсу); точні залежності `ai@7.0.162`, `@openrouter/ai-sdk-provider@3.1.0`, `zod@4.6.7`, `server-only@0.0.1`; скрипти `eval`, `ai:models`, `ai:quota`; `OPENROUTER_API_KEY=` у `.env.example`.
 - [ ] 1.2 `src/lib/ai/{openrouter,models}.ts`, `tests/ai-key.test.ts`: ключ лише в одному файлі з `server-only`, жодного `NEXT_PUBLIC_`, `productModel()` без ключа (і з пробілами) повертає `null`.
-Done when: `npm test` і `npm run lint` зелені без ключа; `tests/ai-key.test.ts` зелений (межа ключа; окремого AC немає).
+Done when: AC-DOCAI-09 (частина «немає ключа»: `productModel()` без ключа чи з пробілами повертає `null`, функція недоступна, а не падає); `npm test` і `npm run lint` зелені без ключа, `tests/ai-key.test.ts` зелений (межа ключа).
 
 ## 2. Схема, промпт і пропозиція значень
 - [ ] 2.1 `src/lib/ai/schema.ts`, `prompts/parse.ts` (`PARSE_PROMPT_VERSION`, межі `<document>`), `parse.ts`, правила з коду (сума рядків, перелік категорій, тексти відмови й приміток); збої → стан unavailable.
-- [ ] 2.2 Тести з мок-моделлю: значення з «Тоді» кожного AC, відмова без значень, ін'єкція, збої.
+- [ ] 2.2 Тести з мок-моделлю: значення з «Тоді» кожного AC, відмова без значень, ін'єкція, збої (429, HTTP 5xx, мережева помилка, таймаут, не за схемою, немає ключа: будь-який збій → unavailable), `proposeValues` для чужого запуску не викликає модель.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 3. Збереження після підтвердження
-- [ ] 3.1 Міграція `run_document_values` + `private.can_manage_run` + RLS; тести бази (PGlite): менеджер запуску й адмін пишуть і читають, інший менеджер, виконавець і вендор — ні.
+- [ ] 3.1 Міграція `run_document_values` + `private.can_manage_run` + `public.can_manage_run` + `check (jsonb_typeof(values) = 'object')` + RLS; тести бази (PGlite): менеджер запуску й адмін пишуть і читають, інший менеджер, виконавець і вендор — ні.
 - [ ] 3.2 Server Actions `proposeValues` (нічого не пише) і `confirmValues` (повторна валідація, запис під сесією користувача); тест «пропозиція нічого не зберігає, зберігається виправлене значення».
 Done when: AC-DOCAI-08.
 
