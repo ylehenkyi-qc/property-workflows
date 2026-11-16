@@ -1,7 +1,10 @@
+import { Output, generateText, type LanguageModel } from "ai";
+import { z } from "zod";
+import { JUDGE_INSTRUCTIONS, judgePrompt } from "./prompts/judge";
 import type { EstimateItem, Proposal } from "./parse";
 
 // Оцінювач golden cases (AC-DOCAI-01…07, 10…12): точні поля порівнює код; вільний текст опису за rubric оцінює LLM-суддя
-// (лише в живому прогоні `npm run eval`, група 6). Кейси — 10 golden cases PM (solomchaak/property-workflows-spec#40), тимчасові:
+// (лише в живому прогоні `npm run eval`). Кейси — 10 golden cases PM (solomchaak/property-workflows-spec#40), тимчасові:
 // вимоги PM зрізу 4 немає (на 2026-11-15), тож AC-DOCAI-NN — від розробника.
 
 type RequestExpected = {
@@ -70,4 +73,25 @@ export function scoreProposal(expected: GoldenExpected, proposal: Proposal): Sco
         ? scoreEstimate(expected, proposal)
         : scoreRefused(expected, proposal);
   return { pass: mismatches.length === 0, mismatches };
+}
+
+export function passRate(rows: { pass: boolean }[]) {
+  const passed = rows.filter((r) => r.pass).length;
+  return { passed, total: rows.length, rate: rows.length === 0 ? 0 : passed / rows.length };
+}
+
+const VerdictSchema = z.object({ pass: z.boolean(), reason: z.string() });
+
+// Суддя оцінює лише вільний текст опису за rubric PM; вердикт двійковий + причина. Користуються лише в живому eval.
+export async function judgeDescription(model: LanguageModel, rubric: string, description: string | null) {
+  const { output } = await generateText({
+    model,
+    instructions: JUDGE_INSTRUCTIONS,
+    messages: [{ role: "user", content: [{ type: "text", text: judgePrompt(rubric, description ?? "") }] }],
+    output: Output.object({ name: "verdict", schema: VerdictSchema }),
+    temperature: 0,
+    maxRetries: 0,
+    timeout: 90_000,
+  });
+  return output;
 }

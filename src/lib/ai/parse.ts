@@ -29,7 +29,12 @@ export type Proposal =
   | { state: "refused"; message: string; notes: string[] }
   | { state: "unavailable"; reason: UnavailableReason; message: string };
 
-export type ParseOptions = { maxRetries?: number; timeoutMs?: number };
+// onResult — лише для живого eval: яка модель з ланцюжка відповіла й що вона повернула (для звіту й запису в recorded.json).
+export type ParseOptions = {
+  maxRetries?: number;
+  timeoutMs?: number;
+  onResult?: (info: { modelId: string; output: ParseOutput }) => void;
+};
 
 const unavailable = (reason: UnavailableReason): Proposal => ({ state: "unavailable", reason, message: UNAVAILABLE_MESSAGE });
 
@@ -93,6 +98,7 @@ export async function proposeValues(text: string, model: LanguageModel | null, o
       maxRetries: opts.maxRetries ?? 1,
       timeout: opts.timeoutMs ?? 45_000,
     });
+    opts.onResult?.({ modelId: result.response.modelId, output: result.output });
     return interpret(result.output);
   } catch (error) {
     return unavailable(classifyFailure(error));
