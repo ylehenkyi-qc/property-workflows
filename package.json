@@ -27,6 +27,9 @@
     "test:e2e": "playwright test",
     "uat": "node scripts/uat/run.mjs",
     "uat:nc": "node scripts/uat/run.mjs --negative-controls",
+    "eval": "vitest run -c vitest.eval.config.mts",
+    "ai:models": "node scripts/free-models.mjs",
+    "ai:quota": "node --env-file-if-exists=.env.local scripts/quota.mjs",
     "uat:review": "node scripts/uat/review.mjs && node scripts/uat/report.mjs"
   },
   "dependencies": {

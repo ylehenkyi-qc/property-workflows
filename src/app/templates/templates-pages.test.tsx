@@ -17,6 +17,7 @@ vi.mock("next/navigation", () => ({
   // клієнтський редактор після збереження версії веде на сторінку шаблону
   useRouter: () => ({ push: () => {} }),
 }));
+vi.mock("server-only", () => ({})); // document-parser тягне openrouter.ts (server-only); Vitest не Server Component
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 import LoginPage from "@/app/login/page";

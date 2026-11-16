@@ -27,3 +27,12 @@ export function makeProductModel(apiKey: string | undefined) {
     reasoning: { effort: "low", exclude: true },
   });
 }
+
+// Суддя для живого eval — інша родина, ніж основна модель продукту (не оцінює відповіді своєї родини).
+// Якщо відповідь дала резервна super-vl, суддя тієї ж родини: колонка modelId у звіті це показує.
+export const JUDGE_MODEL = "nvidia/nemotron-3.5-super-vl:free";
+
+export function makeJudgeModel(apiKey: string | undefined) {
+  const openrouter = createOpenRouter({ apiKey, appName: "QuitCode slice 4 eval" });
+  return openrouter.chat(JUDGE_MODEL);
+}
