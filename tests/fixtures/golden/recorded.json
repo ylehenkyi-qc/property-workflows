@@ -30,10 +30,10 @@
     "text": "{\"status\":\"ok\",\"documentType\":\"request\",\"request\":{\"phone\":\"555-0104\",\"description\":\"The bathroom fan is very loud and the kitchen sink is blocked with water staying in it.\",\"category\":\"plumbing\",\"urgency\":\"not urgent\"},\"estimate\":null,\"injectionDetected\":false,\"twoProblems\":true,\"safetyNote\":null}"
   },
   "GC-06": {
-    "modelId": "hand-written-stub",
-    "recordedAt": "2026-11-16T00:00:00.000Z",
-    "promptVersion": "parse-v1",
-    "text": "{\"status\":\"ok\",\"documentType\":\"request\",\"estimate\":null,\"injectionDetected\":false,\"twoProblems\":false,\"safetyNote\":\"possible gas leak\",\"request\":{\"phone\":\"555-0105\",\"description\":\"Strong smell of gas in the kitchen of apartment 9\",\"category\":\"other\",\"urgency\":\"urgent\"}}"
+    "modelId": "nvidia/nemotron-3.5-super-vl:free",
+    "recordedAt": "2026-11-16T15:34:02.416Z",
+    "promptVersion": "parse-v2",
+    "text": "{\"status\":\"ok\",\"documentType\":\"request\",\"request\":{\"phone\":\"555-0105\",\"description\":\"Strong smell of gas in the kitchen of apartment 9.\",\"category\":\"other\",\"urgency\":\"urgent\"},\"estimate\":null,\"injectionDetected\":false,\"twoProblems\":false,\"safetyNote\":\"possible gas leak\"}"
   },
   "GC-07": {
     "modelId": "nvidia/nemotron-3.5-super-vl:free",

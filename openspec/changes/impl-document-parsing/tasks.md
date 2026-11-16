@@ -27,7 +27,7 @@ Done when: AC-DOCAI-03, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 6. Живий eval
-- [ ] 6.1 `RECORD=1 npm run eval` (запускає користувач), справжні відповіді в `recorded.json`, звіт `evals/reports/…md`, пояснення кожного FAIL.
+- [x] 6.1 `RECORD=1 npm run eval` (запускає користувач), справжні відповіді в `recorded.json`, звіт `evals/reports/…md`, пояснення кожного FAIL.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12 (звіт eval; чесний pass rate).
 
 ## 7. Прод, UAT і здача
