@@ -10,7 +10,7 @@ Done when: `npm test` і `npm run lint` зелені без ключа; `tests/a
 ## 2. Схема, промпт і пропозиція значень
 - [ ] 2.1 `src/lib/ai/schema.ts`, `prompts/parse.ts` (`PARSE_PROMPT_VERSION`, межі `<document>`), `parse.ts`, правила з коду (сума рядків, перелік категорій, тексти відмови й приміток); збої → стан unavailable.
 - [ ] 2.2 Тести з мок-моделлю: значення з «Тоді» кожного AC, відмова без значень, ін'єкція, збої.
-Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
+Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 3. Збереження після підтвердження
 - [ ] 3.1 Міграція `run_document_values` + `private.can_manage_run` + RLS; тести бази (PGlite): менеджер запуску й адмін пишуть і читають, інший менеджер, виконавець і вендор — ні.
@@ -24,11 +24,11 @@ Done when: AC-DOCAI-03, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
 
 ## 5. Офлайн golden cases
 - [ ] 5.1 `tests/fixtures/golden/cases.json` (10 кейсів #40, позначка «тимчасові, від розробника»), `tests/golden.test.ts` з реплеєм `recorded.json`.
-Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07.
+Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 6. Живий eval
 - [ ] 6.1 `RECORD=1 npm run eval` (запускає користувач), справжні відповіді в `recorded.json`, звіт `evals/reports/…md`, пояснення кожного FAIL.
-Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07 (звіт eval; чесний pass rate).
+Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12 (звіт eval; чесний pass rate).
 
 ## 7. Прод, UAT і здача
 - [ ] 7.1 `OPENROUTER_API_KEY` у Vercel Production; `/api/health` із SHA `main`; UAT на проді на 2 AC (AC-DOCAI-08 і AC-DOCAI-06 чи AC-DOCAI-09), звіт у `docs/qa/uat/<дата>/`; `docs/conformance.md` на кожен AC.

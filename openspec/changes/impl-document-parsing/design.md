@@ -2,7 +2,7 @@
 
 ## Context
 
-- Специфікація: `openspec/specs/document-parsing/` (AC-DOCAI-01…09, тимчасові). Джерело правил — solomchaak/property-workflows-spec#40 (10 golden cases) і рядок WS10 у `requirements/product.md`. Вимоги PM зрізу 4 немає (на 2026-11-15), тому три рішення нижче — **робочі, за рекомендованим варіантом питань Q26–Q28** (solomchaak/property-workflows-spec#52, #53, #54; журнал — `docs/spec-reading.md`, «Зріз 4»); коли PM відповість — міняємо тут і в коді, не в сценаріях.
+- Специфікація: `openspec/specs/document-parsing/` (AC-DOCAI-01…12, тимчасові). Джерело правил — solomchaak/property-workflows-spec#40 (10 golden cases) і рядок WS10 у `requirements/product.md`. Вимоги PM зрізу 4 немає (на 2026-11-15), тому три рішення нижче — **робочі, за рекомендованим варіантом питань Q26–Q28** (solomchaak/property-workflows-spec#52, #53, #54; журнал — `docs/spec-reading.md`, «Зріз 4»); коли PM відповість — міняємо тут і в коді, не в сценаріях.
 - Що є: сторінка запуску `src/app/runs/[id]/page.tsx` (менеджер/адмін; вендор має власну `vendor-run.tsx`), `requireRole(...)` з `src/lib/auth/require-role.ts`, `runs.manager_id`, `private.current_app_role()`, `private.can_see_run()`; тести бази — PGlite (`tests/db/`), користувачі — `supabase/demo-users.json`.
 - Набір курсу `koldovsky/2026-quitcode-10-ai-features-hw/materials/ai-feature/` — основа обгортки моделі (схема, ланцюжок `:free` моделей, `openrouter.ts` із `server-only`, офлайн-реплей, живий eval); переносимо й міняємо під наш домен.
 
@@ -43,8 +43,8 @@
 - **Збої → AC-DOCAI-09:** немає ключа, 429 (зокрема в тілі HTTP 200), таймаут, відповідь не за схемою → стан «unavailable» з текстом Q26 і ручною формою; без повторів у циклі.
 - **Запис:** лише `confirmValues` після кнопки «Save values» (AC-DOCAI-08): ті значення, що були у формі, а не пропозиція моделі.
 
-## Evals (AC-DOCAI-01…09)
+## Evals (AC-DOCAI-01…12)
 
 - `tests/fixtures/golden/cases.json` — 10 кейсів #40 (ID `GC-01…GC-10`), `expected` — значення з #40, `rubric` — словами #40; позначка «тимчасові, від розробника: вимоги PM немає на 2026-11-15».
-- `tests/golden.test.ts` — `it.each` з назвою, що починається з AC ID (кейси 1, 3, 5 → AC-DOCAI-01; 2, 6 → AC-DOCAI-02; 4 → AC-DOCAI-03; 7 → AC-DOCAI-04; 8 → AC-DOCAI-05; 9 → AC-DOCAI-06; 10 → AC-DOCAI-07); реплей справжніх відповідей з `recorded.json` (`RECORD=1`); тести збоїв (429, таймаут, не за схемою, немає ключа → AC-DOCAI-09) і «пропозиція нічого не пише» (AC-DOCAI-08); `tests/ai-key.test.ts`.
+- `tests/golden.test.ts` — `it.each` з назвою, що починається з AC ID (кейс 1 → AC-DOCAI-01; 2 → AC-DOCAI-02; 3 → AC-DOCAI-10; 5 → AC-DOCAI-11; 6 → AC-DOCAI-12; 4 → AC-DOCAI-03; 7 → AC-DOCAI-04; 8 → AC-DOCAI-05; 9 → AC-DOCAI-06; 10 → AC-DOCAI-07); реплей справжніх відповідей з `recorded.json` (`RECORD=1`); тести збоїв (429, таймаут, не за схемою, немає ключа → AC-DOCAI-09) і «пропозиція нічого не пише» (AC-DOCAI-08); `tests/ai-key.test.ts`.
 - Живий `npm run eval` — окремий конфіг, у CI його немає; звіт `evals/reports/<дата й час>.md`.
