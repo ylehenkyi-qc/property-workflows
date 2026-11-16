@@ -1,6 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { NoObjectGeneratedError } from "ai";
 import { JUDGE_MODEL, makeJudgeModel, makeProductModel } from "@/lib/ai/models";
 import { proposeValues, type Proposal } from "@/lib/ai/parse";
 import { PARSE_PROMPT_VERSION } from "@/lib/ai/prompts/parse";
@@ -63,13 +64,20 @@ async function judge(c: GoldenCase, proposal: Proposal): Promise<{ pass: boolean
   }
 }
 
-type Captured = { modelId?: string; output?: ParseOutput };
+type Captured = { modelId?: string; output?: ParseOutput; failure?: string };
+
+// Для звіту: відповідь не за схемою — що повернула модель і що не так (користувач цього не бачить, лише повідомлення про недоступність).
+function describeFailure(error: unknown): string {
+  if (!NoObjectGeneratedError.isInstance(error)) return error instanceof Error ? error.message.slice(0, 200) : "збій";
+  const cause = error.cause instanceof Error ? error.cause.message : "";
+  return `${cause.slice(0, 300)} | відповідь моделі: ${(error.text ?? "").slice(0, 300)}`.replace(/s+/g, " ");
+}
 
 // Збій виклику моделі: 429 — кейс NOT RUN (зупиняє прогін), решта (таймаут, помилка постачальника, не за схемою) — FAIL з причиною.
-function failedOutcome(c: GoldenCase, run: number, modelId: string, proposal: Extract<Proposal, { state: "unavailable" }>): Outcome {
+function failedOutcome(c: GoldenCase, run: number, captured: Captured, proposal: Extract<Proposal, { state: "unavailable" }>): Outcome {
   if (proposal.reason === "rate_limited") return { row: notRunRow(c, run, `429 — ${proposal.message}`), rateLimited: true };
-  const why = `${proposal.reason}: ${proposal.message}`;
-  return { row: { run, id: c.id, ac: c.ac, modelId, fields: false, pass: false, why }, rateLimited: false };
+  const why = `${proposal.reason}: ${captured.failure ?? proposal.message}`;
+  return { row: { run, id: c.id, ac: c.ac, modelId: captured.modelId ?? "—", fields: false, pass: false, why }, rateLimited: false };
 }
 
 const verdictWhy = (verdict?: { pass: boolean; reason: string }) => (verdict && !verdict.pass ? `суддя: ${verdict.reason}` : "");
@@ -99,8 +107,11 @@ async function evaluate(c: GoldenCase, run: number): Promise<Outcome> {
     maxRetries: 0,
     timeoutMs: 90_000,
     onResult: (info) => Object.assign(captured, info),
+    onFailure: (error) => {
+      captured.failure = describeFailure(error);
+    },
   });
-  if (proposal.state === "unavailable") return failedOutcome(c, run, captured.modelId ?? "—", proposal);
+  if (proposal.state === "unavailable") return failedOutcome(c, run, captured, proposal);
   return grade(c, run, proposal, captured);
 }
 

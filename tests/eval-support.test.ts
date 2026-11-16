@@ -80,4 +80,15 @@ describe("eval: суддя й зворотний виклик", () => {
     expect(proposal.state).toBe("refused");
     expect(seen).toEqual([{ modelId: "mock-model", status: "refused" }]);
   });
+
+  it("proposeValues передає в onFailure причину збою (відповідь не за схемою), а користувач бачить лише недоступність", async () => {
+    const failures: unknown[] = [];
+
+    const proposal = await proposeValues("x", modelSaying('{"status":"ok","documentType":"dragons"}'), {
+      onFailure: (error) => failures.push(error),
+    });
+
+    expect(proposal).toMatchObject({ state: "unavailable", reason: "invalid_output" });
+    expect(failures).toHaveLength(1);
+  });
 });

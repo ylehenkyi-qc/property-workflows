@@ -34,6 +34,8 @@ export type ParseOptions = {
   maxRetries?: number;
   timeoutMs?: number;
   onResult?: (info: { modelId: string; output: ParseOutput }) => void;
+  // Лише для eval: що саме пішло не так (відповідь не за схемою тощо), бо користувач бачить лише UNAVAILABLE_MESSAGE.
+  onFailure?: (error: unknown) => void;
 };
 
 const unavailable = (reason: UnavailableReason): Proposal => ({ state: "unavailable", reason, message: UNAVAILABLE_MESSAGE });
@@ -101,6 +103,7 @@ export async function proposeValues(text: string, model: LanguageModel | null, o
     opts.onResult?.({ modelId: result.response.modelId, output: result.output });
     return interpret(result.output);
   } catch (error) {
+    opts.onFailure?.(error);
     return unavailable(classifyFailure(error));
   }
 }
