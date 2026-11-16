@@ -19,7 +19,9 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 // runs.manager_id посилається на profiles без cascade; run_sections і run_tasks видаляються разом із запуском (cascade).
 // run_tasks.assignee_id теж без cascade: вендор зі зрізу 3 може бути видалений раніше за менеджера запуску, тож його
 // призначення прибираємо першими (решту задач запуску забере видалення запуску менеджера).
+// run_document_values.author_id (зріз 4) теж без cascade: записи автора прибираємо до видалення користувача.
 const OWNED_ROWS: { table: string; column: string }[] = [
+  { table: "run_document_values", column: "author_id" },
   { table: "run_tasks", column: "assignee_id" },
   { table: "runs", column: "manager_id" },
 ];
