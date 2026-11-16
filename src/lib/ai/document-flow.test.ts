@@ -57,7 +57,7 @@ describe("runPropose", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("без входу: відмова, перевірка запуску, модель і запис не викликаються", async () => {
+  it("AC-DOCAI-08: без входу: відмова, перевірка запуску, модель і запис не викликаються", async () => {
     const model = modelSaying(okOutput);
     expect(await runPropose({ status: "unauthenticated" }, RUN_ID, "x", model)).toEqual({ status: "unauthenticated" });
     expect(rpc).not.toHaveBeenCalled();
@@ -65,14 +65,14 @@ describe("runPropose", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("вендор (роль не з переліку): відмова до виклику моделі", async () => {
+  it("AC-DOCAI-08: вендор (роль не з переліку): відмова до виклику моделі", async () => {
     const model = modelSaying(okOutput);
     expect(await runPropose({ status: "forbidden", role: "vendor" }, RUN_ID, "x", model)).toEqual({ status: "forbidden" });
     expect(rpc).not.toHaveBeenCalled();
     expect(model.doGenerateCalls).toHaveLength(0);
   });
 
-  it("запуск іншого менеджера: відмова ДО виклику моделі, ліміт ключа не витрачається", async () => {
+  it("AC-DOCAI-08: запуск іншого менеджера: відмова ДО виклику моделі, ліміт ключа не витрачається", async () => {
     const model = modelSaying(okOutput);
     rpc.mockResolvedValue({ data: false, error: null });
 
@@ -81,7 +81,7 @@ describe("runPropose", () => {
     expect(model.doGenerateCalls).toHaveLength(0);
   });
 
-  it("помилка перевірки запуску (rpc без даних) — теж відмова, а не виклик моделі", async () => {
+  it("AC-DOCAI-08: помилка перевірки запуску (rpc без даних) — теж відмова, а не виклик моделі", async () => {
     const model = modelSaying(okOutput);
     rpc.mockResolvedValue({ data: null, error: { message: "boom" } });
 
@@ -152,13 +152,13 @@ describe("runConfirm", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("без входу чи вендор: відмова, нічого не записано", async () => {
+  it("AC-DOCAI-08: без входу чи вендор: відмова, нічого не записано", async () => {
     expect(await runConfirm({ status: "unauthenticated" }, RUN_ID, "request", confirmed)).toEqual({ status: "unauthenticated" });
     expect(await runConfirm({ status: "forbidden", role: "vendor" }, RUN_ID, "request", confirmed)).toEqual({ status: "forbidden" });
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("відмова бази (RLS: чужий запуск) — помилка, а не «збережено»", async () => {
+  it("AC-DOCAI-08: відмова бази (RLS: чужий запуск) — помилка, а не «збережено»", async () => {
     insert.mockResolvedValue({ error: { message: "new row violates row-level security policy" } });
     expect(await runConfirm(managerAuth, RUN_ID, "request", confirmed)).toEqual({ status: "error" });
   });
