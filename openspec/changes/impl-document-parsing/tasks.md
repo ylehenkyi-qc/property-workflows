@@ -23,7 +23,7 @@ Done when: AC-DOCAI-08.
 Done when: AC-DOCAI-03, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
 
 ## 5. Офлайн golden cases
-- [ ] 5.1 `tests/fixtures/golden/cases.json` (10 кейсів #40, позначка «тимчасові, від розробника»), `tests/golden.test.ts` з реплеєм `recorded.json`.
+- [x] 5.1 `tests/fixtures/golden/cases.json` (10 кейсів #40, позначка «тимчасові, від розробника»), `tests/golden.test.ts` з реплеєм `recorded.json`.
 Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-10, AC-DOCAI-11, AC-DOCAI-12.
 
 ## 6. Живий eval
