@@ -25,6 +25,12 @@ export function isLastRequiredTask(
   return tasks.every((item) => item.id === taskId || !item.required || item.status === "done");
 }
 
+// Блок «Parse a document» (AC-DOCAI-08) — лише менеджеру цього запуску й адміністратору; вендор і виконавець його не бачать.
+// Підказка інтерфейсу: право гарантують Server Actions і RLS (private.can_manage_run).
+export function canParseDocuments(run: { manager_id: string }, viewer: Viewer): boolean {
+  return viewer.role === "admin" || (viewer.role === "manager" && viewer.userId === run.manager_id);
+}
+
 // Кнопка «Mark as done» для вендора (AC-VENDOR-05): лише на його власній задачі «to do». Це підказка інтерфейсу: право
 // гарантує mark_task_done у базі (AC-VENDOR-07), а вендор бачить лише свої задачі й так.
 export function canVendorMarkDone(task: { assignee_id: string; status: string }, userId: string): boolean {

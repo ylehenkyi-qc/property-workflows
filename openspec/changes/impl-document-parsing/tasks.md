@@ -18,8 +18,8 @@ Done when: AC-DOCAI-01, AC-DOCAI-02, AC-DOCAI-03, AC-DOCAI-04, AC-DOCAI-05, AC-D
 Done when: AC-DOCAI-08.
 
 ## 4. Інтерфейс сторінки запуску
-- [ ] 4.1 `npx shadcn@latest add textarea`; блок «Parse a document» на `/runs/[id]` для менеджера запуску й адміністратора; стани й тексти з design.md; `npm run check:design`, `npm run lint`.
-- [ ] 4.2 Тест сторінки: відмова, попередження, примітка, «not found», недоступність із ручною формою.
+- [x] 4.1 `npx shadcn@latest add textarea`; блок «Parse a document» на `/runs/[id]` для менеджера запуску й адміністратора; стани й тексти з design.md; `npm run check:design`, `npm run lint`.
+- [x] 4.2 Тест сторінки: відмова, попередження, примітка, «not found», недоступність із ручною формою.
 Done when: AC-DOCAI-03, AC-DOCAI-05, AC-DOCAI-06, AC-DOCAI-07, AC-DOCAI-09.
 
 ## 5. Офлайн golden cases

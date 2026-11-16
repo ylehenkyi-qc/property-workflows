@@ -7,8 +7,9 @@ import { requireRole } from "@/lib/auth/require-role";
 import { loginPath } from "@/lib/auth/safe-next";
 import { assigneeLabel } from "@/lib/runs/labels";
 import { isMarkTaskErrorCode, MARK_TASK_ERRORS } from "@/lib/runs/markTaskErrors";
-import { canMarkDone, isLastRequiredTask } from "@/lib/runs/permissions";
+import { canMarkDone, canParseDocuments, isLastRequiredTask } from "@/lib/runs/permissions";
 import { formatRunProgress } from "@/lib/runs/progress";
+import { DocumentParser } from "./document-parser";
 import { loadRunDetails } from "./load-run";
 import { MarkDoneButton } from "./mark-done-button";
 import { TaskSections } from "./task-sections";
@@ -80,6 +81,8 @@ export default async function RunPage({ params, searchParams }: PageProps<"/runs
           </>
         )}
       />
+
+      {canParseDocuments(run, { userId, role }) ? <DocumentParser runId={run.id} /> : null}
     </PageShell>
   );
 }

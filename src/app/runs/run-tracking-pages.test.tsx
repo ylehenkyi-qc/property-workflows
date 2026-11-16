@@ -15,6 +15,7 @@ vi.mock("next/navigation", () => ({
     throw new Error("NOT_FOUND");
   },
 }));
+vi.mock("server-only", () => ({})); // document-parser тягне openrouter.ts (server-only); Vitest не Server Component
 vi.mock("next/cache", () => ({ revalidatePath: () => {} }));
 
 import RunNotFound from "./[id]/not-found";
@@ -101,6 +102,19 @@ describe("AC-TASK-10: чужий запуск за прямим посиланн
     const notFound = html(RunNotFound());
     expect(notFound).toContain("Run not found");
     expect(notFound).not.toContain("run-task");
+  });
+});
+
+describe("сторінка запуску: блок «Parse a document»", () => {
+  it("AC-DOCAI-08: блок бачать менеджер цього запуску й адміністратор, чужий менеджер — ні", async () => {
+    const own = await renderRun({ viewer: "user-a" });
+    const admin = await renderRun({ viewer: "user-x", role: "admin" });
+    const other = await renderRun({ viewer: "user-b" });
+
+    expect(own.markup).toContain("Parse a document");
+    expect(own.markup).toContain("Propose values");
+    expect(admin.markup).toContain("Parse a document");
+    expect(other.markup).not.toContain("Parse a document");
   });
 });
 
