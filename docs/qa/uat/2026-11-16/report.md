@@ -1,18 +1,18 @@
 # Звіт UAT — 16.11.2026
 
 - **Застосунок:** https://pmwp-ylehenkyi.vercel.app (/api/health: коміт `d91543f`)
-- **Код тестів:** `task/uat-docai` @ `7fd0f4c` + незакомічені зміни
-- **Прогін:** 16.11.2026, 20:42 (Київ), Playwright 99.3 с; AC: 4 — PASS 3, FAIL 0, NEEDS-HUMAN 1
-- **Рецензент:** `claude-haiku-5-5`; суперечки → `claude-sonnet-5-5`. Разом за розбір: $0.3466 (ціни API; за підпискою — у межах ліміту плану)
+- **Код тестів:** `task/uat-docai` @ `ce73e23`
+- **Прогін:** 16.11.2026, 23:10 (Київ), Playwright 113.2 с; AC: 4 — PASS 4, FAIL 0, NEEDS-HUMAN 0
+- **Рецензент:** `claude-haiku-5-5`; суперечки → `claude-sonnet-5-5`. Разом за розбір: $0.0885 (ціни API; за підпискою — у межах ліміту плану)
 - **Прибирання:** синтетичних uat-*@example.test видалено 7, лишилось 0, їхніх рядків, що лишились: 0
 - **Відео й траси:** не в git — `test-results/` локально або артефакт CI; трасу відкриває `npx playwright show-trace <trace.zip>`
 
 | AC | Перевірки | Агент | Підсумок | Чому | Playwright | Розбір |
 |---|---|---|---|---|---|---|
-| AC-DOCAI-04 | пройшли | Haiku: NEEDS-HUMAN, Sonnet: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 29.7 с | $0.1133, 23.3 с |
-| AC-DOCAI-09 | пройшли | Haiku: NEEDS-HUMAN, Sonnet: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 16.0 с | $0.1124, 23.6 с |
-| AC-DOCAI-14 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 10.0 с | $0.0620, 13.0 с |
-| AC-DOCAI-16 | пройшли | Haiku: PASS | **NEEDS-HUMAN** | R5: помилка сторінки або 5xx під час сценарію | 29.6 с | $0.0589, 9.5 с |
+| AC-DOCAI-04 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 35.8 с | $0.0055, 12.0 с |
+| AC-DOCAI-09 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 18.2 с | $0.0053, 10.5 с |
+| AC-DOCAI-14 | пройшли | Haiku: NEEDS-HUMAN, Sonnet: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 10.0 с | $0.0729, 25.1 с |
+| AC-DOCAI-16 | пройшли | Haiku: PASS | **PASS** | R6: перевірки, агент і цитати збігаються | 32.9 с | $0.0049, 15.5 с |
 
 ## AC-DOCAI-04 — PASS
 
@@ -26,9 +26,7 @@
 
 **Кроки:** ✔ Дано: run manager A with Document type "Maintenance request", Phone "555-0101", Category "plumbing" and Urgency "not urgent" proposed in the block → ✔ Коли: A changes Urgency to "urgent" and chooses "Save values" → ✔ Тоді: The page of the run shows one saved record with Document type "Maintenance request", Phone "555-0101", Category "plumbing" and Urgency "urgent", the email of A and the date and time of the confirmation.
 
-**Агент (claude-sonnet-5-5, PASS):** У розділі «Saved records» видно одну картку «Maintenance request» з Phone 555-0101, Category plumbing, Urgency urgent. Також є рядок «Confirmed by» з email і датою та часом. Додатково показано поле Description, що критерію не суперечить. Підпису «Document type» на кадрі немає: тип документа відображено як заголовок картки.
-
-Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; рішення агента — за Sonnet.
+**Агент (claude-haiku-5-5, PASS):** На кадрі видно розділ «Saved records» з одним записом «Maintenance request», у якому Phone 555-0101, Category plumbing і Urgency urgent, а також рядок «Confirmed by» з email uat-261116211050-d04-a@example.test і датою 16 Nov 2026, 23:11. Запис містить також Description, якого критерій не вимагає, — це не вада. Email відповідає адресі учасника A з рядків «Move-in day», але сама особа A на кадрі безпосередньо не позначена.
 
 **Цитати агента, звірені зі сторінкою (aria):**
 - «Saved records» — є на сторінці
@@ -39,7 +37,7 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 - «plumbing» — є на сторінці
 - «Urgency» — є на сторінці
 - «urgent» — є на сторінці
-- «Confirmed by uat-261116184227-d04-a@example.test · 16 Nov 2026, 20:42» — є на сторінці
+- «Confirmed by uat-261116211050-d04-a@example.test · 16 Nov 2026, 23:11» — є на сторінці
 
 **Правило:** R6: перевірки, агент і цитати збігаються
 
@@ -59,12 +57,9 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 
 **Кроки:** ✔ Дано: run manager A and the pasted text "Tonight's menu: tomato soup 6.50, roast chicken 14.00, apple pie 5.00" → ✔ Коли: A chooses "Propose values" → ✔ Тоді: The block shows "This document is not a maintenance request or an estimate." and no value is proposed.
 
-**Агент (claude-sonnet-5-5, PASS):** Під кнопками «Propose values / Upload a text file / Discard» видно блок із точним текстом «This document is not a maintenance request or an estimate.». Підписів «Document type», запропонованих значень чи кнопки «Save values» на кадрі немає; повідомлення — єдиний вміст блоку. Цитата для другої частини — лише єдиний текст блоку, бо відсутність цитувати неможливо.
-
-Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; рішення агента — за Sonnet.
+**Агент (claude-haiku-5-5, PASS):** На кадрі під полем із текстом меню («Tonight's menu: tomato soup 6.50, roast chicken 14.00, apple pie 5.00») з'явилося червоне повідомлення «This document is not a maintenance request or an estimate.», текст збігається з критерієм посимвольно. У блоці «Parse a document» немає поля Document type, запропонованих значень і кнопки «Save values»; для цієї частини цитата порожня, бо перевірено відсутність елементів.
 
 **Цитати агента, звірені зі сторінкою (aria):**
-- «This document is not a maintenance request or an estimate.» — є на сторінці
 - «This document is not a maintenance request or an estimate.» — є на сторінці
 
 **Правило:** R6: перевірки, агент і цитати збігаються
@@ -85,7 +80,9 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 
 **Кроки:** ✔ Дано: vendor V who is the assignee of tasks 3 and 4 in the run "Apartment 12, move-in" → ✔ Коли: V opens the page of this run → ✔ Тоді: V does not see the block "Parse a document".
 
-**Агент (claude-haiku-5-5, PASS):** На кадрі видно сторінку запуску «Apartment 12, move-in» із заголовком «Your tasks: 0 of 2 done» і двома завданнями: «Hand over the keys» та «Record meter readings». Блоків «Parse a document» і «Propose values» на кадрі немає, сторінка повністю завантажена і читабельна. Для негативної частини цитата є лише як доказ видимого вмісту сторінки, бо саме тексту, якого мало б не бути, немає.
+**Агент (claude-sonnet-5-5, PASS):** На кадрі сторінка запуску «Apartment 12, move-in» з написом «Your tasks: 0 of 2 done» і двома задачами (Hand over the keys, Record meter readings). Блоків «Parse a document» чи «Propose values» на всій видимій сторінці немає.
+
+Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; рішення агента — за Sonnet.
 
 **Цитати агента, звірені зі сторінкою (aria):**
 - «Apartment 12, move-in» — є на сторінці
@@ -93,8 +90,6 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 - «Hand over the keys» — є на сторінці
 - «Record meter readings» — є на сторінці
 - «Move-in day» — є на сторінці
-- «Hand over the keys» — є на сторінці
-- «Record meter readings» — є на сторінці
 
 **Правило:** R6: перевірки, агент і цитати збігаються
 
@@ -102,7 +97,7 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 
 **Рішення PM:** ☐ приймаю · ☐ відхилення від вимог (issue «Відхилення від вимог: AC-DOCAI-14 — …») · @login: ____
 
-## AC-DOCAI-16 — NEEDS-HUMAN
+## AC-DOCAI-16 — PASS
 
 **Тест:** AC-DOCAI-16: vendor V, or manager B who is not the run manager, tries to ask the AI for values or to save values for the run directly, bypassing the pages; they receive no value and no record is saved
 
@@ -114,15 +109,15 @@ Haiku сказав NEEDS-HUMAN, тож розбір повторив Sonnet; р�
 
 **Кроки:** ✔ Дано: vendor V, or manager B who is not the run manager, in the run "Apartment 12, move-in" → ✔ Коли: they try to ask the AI for values or to save values for this run directly, bypassing the pages of the application → ✔ Тоді: They receive no value, no record is saved, and they see the message "Not enough rights".
 
-**Агент (claude-haiku-5-5, PASS):** На кадрі видно сторінку запуску «Apartment 12, move-in» із блоком «Parse a document», який закінчується кнопками «Propose values» і «Upload a text file». Нижче немає секції «Saved records» і жодного збереженого запису; кадр не обрізаний (внизу порожнє місце).
+**Агент (claude-haiku-5-5, PASS):** На кадрі під блоком «Parse a document» є лише форма вставки тексту, підказка «Nothing is saved until you save the values.» і кнопки «Propose values» та «Upload a text file»; розділу «Saved records» і жодного запису немає. Кадр не показує, під яким користувачем зайдено, тож що це сторінка саме менеджера A, підтверджено лише адресою сторінки з ac.md, а не екраном.
 
 **Цитати агента, звірені зі сторінкою (aria):**
 - «Parse a document» — є на сторінці
-- «Email, call transcript or estimate» — є на сторінці
+- «Paste the text. Up to 4000 characters. Nothing is saved until you save the values.» — є на сторінці
 - «Propose values» — є на сторінці
 - «Upload a text file» — є на сторінці
 
-**Правило:** R5: помилка сторінки або 5xx під час сценарію
+**Правило:** R6: перевірки, агент і цитати збігаються
 
 **Відео:** `test-results/artifacts/document-parsing-AC-DOCAI--2a7d3-alue-and-no-record-is-saved-chromium/video.webm` · **траса:** `test-results/artifacts/document-parsing-AC-DOCAI--2a7d3-alue-and-no-record-is-saved-chromium/trace.zip` (не в git)
 

@@ -1,9 +1,9 @@
 {
   "kind": "uat",
-  "generatedAt": "2026-11-16T18:44:30.151Z",
+  "generatedAt": "2026-11-16T21:13:10.452Z",
   "baseURL": "https://pmwp-ylehenkyi.vercel.app",
   "deployedSha": "d91543fdf1c80351ae8aed033b8f50627b4b3d75",
-  "testsCommit": "7fd0f4c188a4b23339981b9c8b875092bcf08a6d",
+  "testsCommit": "ce73e23e0e3300d241b982d5babba11ab7093a5f",
   "reviewer": {
     "model": "claude-haiku-5-5",
     "disputes": "claude-sonnet-5-5"
@@ -21,14 +21,14 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "У розділі «Saved records» видно одну картку «Maintenance request» з Phone 555-0101, Category plumbing, Urgency urgent. Також є рядок «Confirmed by» з email і датою та часом. Додатково показано поле Description, що критерію не суперечить. Підпису «Document type» на кадрі немає: тип документа відображено як заголовок картки."
+        "notes": "На кадрі видно розділ «Saved records» з одним записом «Maintenance request», у якому Phone 555-0101, Category plumbing і Urgency urgent, а також рядок «Confirmed by» з email uat-261116211050-d04-a@example.test і датою 16 Nov 2026, 23:11. Запис містить також Description, якого критерій не вимагає, — це не вада. Email відповідає адресі учасника A з рядків «Move-in day», але сама особа A на кадрі безпосередньо не позначена."
       },
-      "agentModel": "claude-sonnet-5-5",
+      "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
-        "claude-haiku-5-5": "NEEDS-HUMAN",
-        "claude-sonnet-5-5": "PASS"
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
       },
-      "escalated": true,
+      "escalated": false,
       "quotesVerified": [
         {
           "quote": "Saved records",
@@ -63,16 +63,16 @@
           "onPage": true
         },
         {
-          "quote": "Confirmed by uat-261116184227-d04-a@example.test · 16 Nov 2026, 20:42",
+          "quote": "Confirmed by uat-261116211050-d04-a@example.test · 16 Nov 2026, 23:11",
           "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 29742,
-      "reviewCostUsd": 0.11333,
-      "reviewWallMs": 23292
+      "playwrightMs": 35805,
+      "reviewCostUsd": 0.00549,
+      "reviewWallMs": 11988
     },
     {
       "id": "AC-DOCAI-09",
@@ -85,19 +85,15 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "Під кнопками «Propose values / Upload a text file / Discard» видно блок із точним текстом «This document is not a maintenance request or an estimate.». Підписів «Document type», запропонованих значень чи кнопки «Save values» на кадрі немає; повідомлення — єдиний вміст блоку. Цитата для другої частини — лише єдиний текст блоку, бо відсутність цитувати неможливо."
+        "notes": "На кадрі під полем із текстом меню («Tonight's menu: tomato soup 6.50, roast chicken 14.00, apple pie 5.00») з'явилося червоне повідомлення «This document is not a maintenance request or an estimate.», текст збігається з критерієм посимвольно. У блоці «Parse a document» немає поля Document type, запропонованих значень і кнопки «Save values»; для цієї частини цитата порожня, бо перевірено відсутність елементів."
       },
-      "agentModel": "claude-sonnet-5-5",
+      "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
-        "claude-haiku-5-5": "NEEDS-HUMAN",
-        "claude-sonnet-5-5": "PASS"
+        "claude-haiku-5-5": "PASS",
+        "claude-sonnet-5-5": null
       },
-      "escalated": true,
+      "escalated": false,
       "quotesVerified": [
-        {
-          "quote": "This document is not a maintenance request or an estimate.",
-          "onPage": true
-        },
         {
           "quote": "This document is not a maintenance request or an estimate.",
           "onPage": true
@@ -106,9 +102,9 @@
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 16012,
-      "reviewCostUsd": 0.11243,
-      "reviewWallMs": 23561
+      "playwrightMs": 18217,
+      "reviewCostUsd": 0.00528,
+      "reviewWallMs": 10503
     },
     {
       "id": "AC-DOCAI-14",
@@ -121,14 +117,14 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно сторінку запуску «Apartment 12, move-in» із заголовком «Your tasks: 0 of 2 done» і двома завданнями: «Hand over the keys» та «Record meter readings». Блоків «Parse a document» і «Propose values» на кадрі немає, сторінка повністю завантажена і читабельна. Для негативної частини цитата є лише як доказ видимого вмісту сторінки, бо саме тексту, якого мало б не бути, немає."
+        "notes": "На кадрі сторінка запуску «Apartment 12, move-in» з написом «Your tasks: 0 of 2 done» і двома задачами (Hand over the keys, Record meter readings). Блоків «Parse a document» чи «Propose values» на всій видимій сторінці немає."
       },
-      "agentModel": "claude-haiku-5-5",
+      "agentModel": "claude-sonnet-5-5",
       "agentVerdicts": {
-        "claude-haiku-5-5": "PASS",
-        "claude-sonnet-5-5": null
+        "claude-haiku-5-5": "NEEDS-HUMAN",
+        "claude-sonnet-5-5": "PASS"
       },
-      "escalated": false,
+      "escalated": true,
       "quotesVerified": [
         {
           "quote": "Apartment 12, move-in",
@@ -149,22 +145,14 @@
         {
           "quote": "Move-in day",
           "onPage": true
-        },
-        {
-          "quote": "Hand over the keys",
-          "onPage": true
-        },
-        {
-          "quote": "Record meter readings",
-          "onPage": true
         }
       ],
       "verdict": "PASS",
       "factoryGate": "PASS",
       "rule": "R6: перевірки, агент і цитати збігаються",
-      "playwrightMs": 10027,
-      "reviewCostUsd": 0.062,
-      "reviewWallMs": 12974
+      "playwrightMs": 10020,
+      "reviewCostUsd": 0.07287,
+      "reviewWallMs": 25109
     },
     {
       "id": "AC-DOCAI-16",
@@ -177,7 +165,7 @@
       "vision": {
         "met": true,
         "readable": true,
-        "notes": "На кадрі видно сторінку запуску «Apartment 12, move-in» із блоком «Parse a document», який закінчується кнопками «Propose values» і «Upload a text file». Нижче немає секції «Saved records» і жодного збереженого запису; кадр не обрізаний (внизу порожнє місце)."
+        "notes": "На кадрі під блоком «Parse a document» є лише форма вставки тексту, підказка «Nothing is saved until you save the values.» і кнопки «Propose values» та «Upload a text file»; розділу «Saved records» і жодного запису немає. Кадр не показує, під яким користувачем зайдено, тож що це сторінка саме менеджера A, підтверджено лише адресою сторінки з ac.md, а не екраном."
       },
       "agentModel": "claude-haiku-5-5",
       "agentVerdicts": {
@@ -191,7 +179,7 @@
           "onPage": true
         },
         {
-          "quote": "Email, call transcript or estimate",
+          "quote": "Paste the text. Up to 4000 characters. Nothing is saved until you save the values.",
           "onPage": true
         },
         {
@@ -203,25 +191,25 @@
           "onPage": true
         }
       ],
-      "verdict": "NEEDS-HUMAN",
-      "factoryGate": "NOT-EARNED",
-      "rule": "R5: помилка сторінки або 5xx під час сценарію",
-      "playwrightMs": 29558,
-      "reviewCostUsd": 0.05886,
-      "reviewWallMs": 9492
+      "verdict": "PASS",
+      "factoryGate": "PASS",
+      "rule": "R6: перевірки, агент і цитати збігаються",
+      "playwrightMs": 32930,
+      "reviewCostUsd": 0.00489,
+      "reviewWallMs": 15471
     }
   ],
   "negativeControls": [],
   "cleanup": {
-    "at": "2026-11-16T18:44:05.121Z",
+    "at": "2026-11-16T21:12:42.220Z",
     "deleted": [
-      "uat-261116184227-d16-b@example.test",
-      "uat-261116184227-d16-v@example.test",
-      "uat-261116184227-d16-a@example.test",
-      "uat-261116184227-d14-v@example.test",
-      "uat-261116184227-d14-a@example.test",
-      "uat-261116184227-d09-a@example.test",
-      "uat-261116184227-d04-a@example.test"
+      "uat-261116211050-d16-b@example.test",
+      "uat-261116211050-d16-v@example.test",
+      "uat-261116211050-d16-a@example.test",
+      "uat-261116211050-d14-v@example.test",
+      "uat-261116211050-d14-a@example.test",
+      "uat-261116211050-d09-a@example.test",
+      "uat-261116211050-d04-a@example.test"
     ],
     "remaining": [],
     "leftoverRequests": 0
