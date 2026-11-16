@@ -58,6 +58,13 @@ describe("стан блоку «Parse a document»", () => {
     expect(state.proposal).toBeNull();
   });
 
+  it("AC-DOCAI-13: виклик дії не вдався (мережа) — очікування знято й показано «assistant is not available», а не вічне «Reading…»", () => {
+    const state = run([{ type: "text", text: "x" }, { type: "propose" }, { type: "failed" }]);
+
+    expect(state.reading).toBe(false);
+    expect(state.proposal?.value).toMatchObject({ state: "unavailable", message: "The assistant is not available now. Fill in the values yourself." });
+  });
+
   it("AC-DOCAI-04: після збереження блок порожній, а повідомлення «Values saved» показано", () => {
     const state = run([{ type: "text", text: "x" }, { type: "propose" }, { type: "proposed", proposal: okProposal }, { type: "save_result", status: "saved" }]);
 

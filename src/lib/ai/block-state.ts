@@ -1,4 +1,4 @@
-import { EMPTY_MESSAGE, type Proposal } from "./parse";
+import { EMPTY_MESSAGE, UNAVAILABLE_MESSAGE, type Proposal } from "./parse";
 import type { TextFileResult } from "./text-file";
 
 // Стан блоку «Parse a document» як чиста функція (вимога PM solomchaak/property-workflows-spec#59): так його перевіряють без
@@ -28,6 +28,7 @@ export type BlockAction =
   | { type: "propose" }
   | { type: "proposed"; proposal: Proposal }
   | { type: "denied" }
+  | { type: "failed" } // виклик дії не вдався (мережа): те саме, що «помічник недоступний» (AC-DOCAI-13)
   | { type: "discard" }
   | { type: "file"; result: TextFileResult }
   | { type: "save_result"; status: Exclude<BlockStatus, null> };
@@ -47,6 +48,8 @@ export function blockReducer(state: BlockState, action: BlockAction): BlockState
       return { ...state, reading: true, status: null, fileError: null, proposal: null };
     case "proposed":
       return { ...state, reading: false, proposal: shown(state, action.proposal) };
+    case "failed":
+      return { ...state, reading: false, proposal: shown(state, { state: "unavailable", reason: "provider_error", message: UNAVAILABLE_MESSAGE }) };
     case "denied":
       return { ...state, reading: false, status: "denied" };
     case "discard":

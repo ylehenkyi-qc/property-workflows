@@ -4,7 +4,7 @@
 // AC-DOCAI-04 і AC-DOCAI-09 ходять до справжньої безкоштовної моделі на проді: ліміт — 20 запитів на хвилину й 50 на добу
 // на акаунт, тож їх запускають по одному (`npm run uat -- --url … --grep "AC-DOCAI-04"`). Користувачі й запуски синтетичні
 // (uat-<запуск>-<мітка>@example.test), їх прибирає deleteUatUsers() з ./admin разом із записами документів.
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "@playwright/test";
 import { deleteUatUsers } from "./support/admin";
 import type { UatUser } from "./support/data";
 import { attachRuntimeErrors, given, signIn, thenStep, when } from "./support/uat";
@@ -156,30 +156,83 @@ test(
   },
 );
 
+/** Запит Server Action «Propose values», перехоплений на сторінці менеджера A: адреса, ідентифікатор дії й тіло. */
+type CapturedAction = { url: string; actionId: string; body: string };
+
+async function captureProposeAction(page: Page, runId: string): Promise<CapturedAction> {
+  let captured: CapturedAction | undefined;
+  // Перехоплюємо POST Server Action лише щоб запам'ятати його й пропускаємо далі: запит менеджера A справжній (одне звернення
+  // до моделі), тож сторінка A не отримує мережевої помилки, а сам запит ми повторимо від сесій V і B.
+  await page.route("**/runs/**", async (route) => {
+    const request = route.request();
+    const actionId = request.headers()["next-action"];
+    if (request.method() === "POST" && actionId) {
+      captured = { url: request.url(), actionId, body: request.postData() ?? "" };
+    }
+    return route.continue();
+  });
+  await page.goto(`/runs/${runId}`);
+  await page.getByLabel("Email, call transcript or estimate").fill(LEAK_EMAIL);
+  await page.getByRole("button", { name: "Propose values" }).click();
+  await expect.poll(() => captured, { message: "не вдалося перехопити Server Action «Propose values»" }).toBeDefined();
+  // Чекаємо відповіді A (пропозиція чи «assistant is not available»): навігація посеред запиту дала б помилку сторінки.
+  await expect(page.getByLabel("Phone")).toBeVisible({ timeout: AI_TIMEOUT });
+  await page.unroute("**/runs/**");
+  return captured!;
+}
+
+/** Той самий запит Server Action від імені іншого користувача (його сесія в окремому контексті браузера). */
+async function replayProposeAs(browser: Browser, baseURL: string | undefined, user: UatUser, action: CapturedAction): Promise<string> {
+  const context = await browser.newContext({ baseURL });
+  try {
+    const other = await context.newPage();
+    await signIn(other, user.email, user.password);
+    const response = await context.request.post(action.url, {
+      headers: {
+        "next-action": action.actionId,
+        "content-type": "text/plain;charset=UTF-8",
+        accept: "text/x-component",
+        origin: new URL(action.url).origin, // Server Actions перевіряють Origin (захист від CSRF)
+      },
+      data: action.body,
+    });
+    return await response.text();
+  } finally {
+    await context.close();
+  }
+}
+
 test(
-  'AC-DOCAI-16: vendor V, or manager B who is not the run manager, tries to save values for the run directly, bypassing the pages; no record is saved',
+  'AC-DOCAI-16: vendor V, or manager B who is not the run manager, tries to ask the AI for values or to save values for the run directly, bypassing the pages; they receive no value and no record is saved',
   { tag: ["@uat", "@writes"], annotation: { type: "ac", description: "AC-DOCAI-16" } },
-  async ({ page }) => {
+  async ({ page, browser }) => {
     let managerA!: UatUser;
     let vendorV!: UatUser;
     let managerB!: UatUser;
     let runId!: string;
-    const rejected: Record<string, boolean> = {};
+    let action!: CapturedAction;
+    const answers: Record<string, string> = {};
+    const rejectedSave: Record<string, boolean> = {};
 
     await given('vendor V, or manager B who is not the run manager, in the run "Apartment 12, move-in"', async () => {
       managerA = await createUatUser("d16-a", "manager");
       vendorV = await createUatUser("d16-v", "vendor");
       managerB = await createUatUser("d16-b", "manager");
       runId = await launchUatRun(managerA, "Apartment 12, move-in", { vendor: vendorV, taskNumbers: [3, 4] });
+      await signedInAs(page, managerA);
+      action = await captureProposeAction(page, runId);
     });
     await when("they try to ask the AI for values or to save values for this run directly, bypassing the pages of the application", async () => {
+      const baseURL = test.info().project.use.baseURL;
       for (const [who, user] of [["V", vendorV], ["B", managerB]] as const) {
+        // 1) прямий запит значень: той самий Server Action, що викликає кнопка «Propose values», але з сесією V чи B;
+        answers[who] = await replayProposeAs(browser, baseURL, user, action);
+        // 2) прямий запис значень у базу (Data API) із сесією V чи B.
         const client = await userClient(user);
-        const { data: canManage } = await client.rpc("can_manage_run", { p_run_id: runId });
         const { error } = await client
           .from("run_document_values")
           .insert({ run_id: runId, kind: "request", values: { phone: "555-0101", description: null, category: null, urgency: null } });
-        rejected[who] = canManage !== true && error !== null;
+        rejectedSave[who] = error !== null;
       }
     });
 
@@ -187,19 +240,28 @@ test(
       page,
       {
         clause: 'They receive no value, no record is saved, and they see the message "Not enough rights".',
-        visible: ["the page of the run of manager A shows no saved record after the direct requests"],
+        visible: ['the end of the page of the run of manager A: under the block "Parse a document" there is no section "Saved records" and no record after the direct requests'],
         hidden: [
-          "the check of the right on the run answered no for V and for B",
-          "the direct insert was refused by the database for V and for B",
-          'the message "Not enough rights" of a refused Server Action is proved by tests/document-actions.test.ts (the direct request has no screen)',
+          'the Server Action that asks the AI for values answered {"status":"forbidden"} for V and for B, without any proposal (the model is not called)',
+          "the direct insert of values was refused by the database for V and for B",
+          'the page shows "Not enough rights" for the status "forbidden" of a Server Action: proved by src/lib/ai/block-state.test.ts and tests/document-actions.test.ts (a direct request has no screen)',
         ],
       },
       async () => {
-        expect(rejected, "прямі запити мали бути відхилені для V і для B").toEqual({ V: true, B: true });
+        for (const who of ["V", "B"]) {
+          expect(answers[who], `${who}: Server Action мав відповісти forbidden`).toContain('"status":"forbidden"');
+          expect(answers[who], `${who}: жодної пропозиції`).not.toContain('"proposal"');
+        }
+        expect(rejectedSave, "прямий запис значень мав бути відхилений для V і для B").toEqual({ V: true, B: true });
         await signedInAs(page, managerA);
         await page.goto(`/runs/${runId}`);
         await expect(page.getByRole("heading", { level: 2, name: "Parse a document" })).toBeVisible();
         await expect(page.getByTestId("document-record")).toHaveCount(0);
+        await expect(page.getByRole("heading", { name: "Saved records" })).toHaveCount(0);
+        // Кадр «Тоді» — лише видима частина вікна: робимо вікно вищим, щоб уся сторінка з порожнім місцем під блоком була в кадрі
+        // і було видно, що розділу «Saved records» нижче немає.
+        await page.setViewportSize({ width: 1280, height: 1300 });
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       },
     );
   },
