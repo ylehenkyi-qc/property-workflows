@@ -26,6 +26,17 @@ updates:
     groups:
       npm-minor-and-patch:
         update-types: [minor, patch]
+        # Закріплений стек з AGENTS.md (Next.js, React, Supabase, Vitest) не оновлюємо «пачкою»: кожне його оновлення —
+        # окремий PR, який читає людина (за потреби — з ADR). Дрібні залежності лишаються в групі.
+        exclude-patterns:
+          - "next"
+          - "eslint-config-next"
+          - "react"
+          - "react-dom"
+          - "@supabase/*"
+          - "supabase"
+          - "vitest"
+          - "@vitest/*"
     ignore:
       - dependency-name: supabase
         update-types: ["version-update:semver-major"]
@@ -34,6 +45,13 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: eslint
         update-types: ["version-update:semver-major"]
+      # Типи Node мають збігатися з середовищем (Node 24.x, engines у package.json): мажор @types/node не пропонуємо.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # @vitest/eslint-plugin 1.6.28+ вимагає typescript >= 6 (peer), а проєкт на TypeScript 5: `npm ci` падає з ERESOLVE
+      # (CI зелений, а деплой Vercel червоний — PR #70). Повернемо, коли перейдемо на TypeScript 6+ через ADR.
+      - dependency-name: "@vitest/eslint-plugin"
+        versions: [">=1.6.28"]
       # OpenSpec CLI має збігатися з глобальним (1.14.1, AGENTS.md) — оновлюємо вручну разом із ним.
       - dependency-name: "@fission-ai/openspec"
     open-pull-requests-limit: 5
