@@ -1,10 +1,12 @@
-// D0: публічна перевірка здоров'я проду — GET /api/health → { ok, sha, env, db, reason }.
+// D0: публічна перевірка здоров'я — GET /api/health → { ok, sha, env, appEnv, supabaseRef, db, reason }.
+// WS11: appEnv — середовище застосунку (на staging "staging" з APP_ENV гілки), supabaseRef — ref проєкту бази з адреси
+// Supabase (не секрет): так видно, що staging і preview ходять у базу staging, а прод — у прод.
 // Без секретів і без даних користувачів: коміт збірки (Vercel) і чи відповідає база (один дешевий запит публічним
 // ключем). Шлях — у PUBLIC_PATHS (src/lib/supabase/proxy.ts), інакше proxy віддав би 307 на /login.
 // Читають: scripts/smoke.mjs, .github/workflows/smoke.yml і перевірка розгортань курсу.
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { classifyDbProbe } from "@/lib/health";
+import { appEnvFrom, classifyDbProbe, supabaseRefFrom } from "@/lib/health";
 import type { Database } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +30,14 @@ export async function GET() {
     health = { db: "down", reason: "exception" };
   }
   return NextResponse.json(
-    { ok: health.db === "ok", sha, env, ...health },
+    {
+      ok: health.db === "ok",
+      sha,
+      env,
+      appEnv: appEnvFrom(process.env.APP_ENV, process.env.VERCEL_ENV),
+      supabaseRef: supabaseRefFrom(process.env.NEXT_PUBLIC_SUPABASE_URL),
+      ...health,
+    },
     { status: health.db === "ok" ? 200 : 503, headers: { "cache-control": "no-store" } },
   );
 }
