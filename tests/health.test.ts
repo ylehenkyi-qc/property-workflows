@@ -1,6 +1,6 @@
 // D0: /api/health відрізняє «база відповіла» від «база недоступна, призупинена чи ключ хибний».
 import { describe, expect, it } from "vitest";
-import { classifyDbProbe } from "@/lib/health";
+import { appEnvFrom, classifyDbProbe, supabaseRefFrom } from "@/lib/health";
 
 describe("classifyDbProbe (/api/health)", () => {
   it("рахує базу живою, коли запит пройшов або Postgres відмовив у правах (42501)", () => {
@@ -29,5 +29,33 @@ describe("classifyDbProbe (/api/health)", () => {
       reason: "status-503-PGRST002",
     });
     expect(classifyDbProbe({ status: 0, error: { message: "fetch failed" } })).toEqual({ db: "down", reason: "status-0" });
+  });
+});
+
+describe("supabaseRefFrom (/api/health, WS11)", () => {
+  it("бере ref з адреси проєкту Supabase", () => {
+    expect(supabaseRefFrom("https://abcdefghijklmnopqrst.supabase.co")).toBe("abcdefghijklmnopqrst");
+    expect(supabaseRefFrom("https://abcdefghijklmnopqrst.supabase.co/rest/v1/")).toBe("abcdefghijklmnopqrst");
+  });
+
+  it("повертає unknown для локальної адреси, чужого хоста, порожнього й хибного значення", () => {
+    for (const url of ["http://127.0.0.1:54321", "https://example.test", "https://evil.example/abc.supabase.co", "", "not a url", undefined]) {
+      expect(supabaseRefFrom(url)).toBe("unknown");
+    }
+  });
+});
+
+describe("appEnvFrom (/api/health, WS11)", () => {
+  it("віддає перевагу APP_ENV, потім VERCEL_ENV, інакше local", () => {
+    expect(appEnvFrom("staging", "preview")).toBe("staging");
+    expect(appEnvFrom(undefined, "production")).toBe("production");
+    expect(appEnvFrom(" staging ", "preview")).toBe("staging");
+    expect(appEnvFrom(undefined, undefined)).toBe("local");
+  });
+
+  it("не пускає в health довільний текст зі змінної", () => {
+    expect(appEnvFrom("Bearer sb_secret_abc def", "preview")).toBe("preview");
+    expect(appEnvFrom("x".repeat(40), undefined)).toBe("local");
+    expect(appEnvFrom("", "")).toBe("local");
   });
 });

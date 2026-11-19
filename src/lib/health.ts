@@ -21,3 +21,22 @@ export function classifyDbProbe({ status, error }: DbProbe): DbHealth {
   // 0 — мережа (Supabase недоступний або хибний URL), 5xx, PGRST000–003.
   return { db: "down", reason: `status-${status}${code ? `-${code}` : ""}` };
 }
+
+/** ref проєкту Supabase з адреси `https://<ref>.supabase.co`. Не секрет: браузер і так бачить адресу в NEXT_PUBLIC_SUPABASE_URL. */
+export function supabaseRefFrom(url: string | undefined): string {
+  try {
+    const match = /^([a-z0-9]+)\.supabase\.co$/.exec(new URL(url ?? "").hostname);
+    return match ? match[1] : "unknown";
+  } catch {
+    return "unknown";
+  }
+}
+
+/**
+ * Середовище застосунку: APP_ENV (на staging — лише для гілки staging у Vercel), інакше VERCEL_ENV (production, preview,
+ * development), інакше «local». Лише коротке слово з літер, цифр і дефіса: довільне значення змінної в health не потрапляє.
+ */
+export function appEnvFrom(appEnv: string | undefined, vercelEnv: string | undefined): string {
+  const word = (value: string | undefined) => (/^[a-z][a-z0-9-]{0,19}$/.test(value?.trim() ?? "") ? value!.trim() : null);
+  return word(appEnv) ?? word(vercelEnv) ?? "local";
+}
