@@ -1,4 +1,5 @@
 import { APICallError, NoObjectGeneratedError, Output, RetryError, generateText, type LanguageModel } from "ai";
+import { answerFrom, logParseCall, type ParseLog } from "./parse-log";
 import { PARSE_INSTRUCTIONS, wrapDocument } from "./prompts/parse";
 import { ParseSchema, type Category, type ParseOutput, type Urgency } from "./schema";
 
@@ -38,6 +39,8 @@ export type ParseOptions = {
   onResult?: (info: { modelId: string; output: ParseOutput }) => void;
   // Лише для eval: що саме пішло не так (відповідь не за схемою тощо), бо користувач бачить лише UNAVAILABLE_MESSAGE.
   onFailure?: (error: unknown) => void;
+  // WS11: куди писати llm.call (без тексту документа). Немає — журналу немає.
+  log?: ParseLog;
 };
 
 const unavailable = (reason: UnavailableReason): Proposal => ({ state: "unavailable", reason, message: UNAVAILABLE_MESSAGE });
@@ -92,6 +95,7 @@ export async function proposeValues(text: string, model: LanguageModel | null, o
   if (!text.trim()) return { state: "empty", message: EMPTY_MESSAGE };
   if (!model) return unavailable("no_key");
 
+  const started = performance.now();
   try {
     const result = await generateText({
       model,
@@ -104,10 +108,14 @@ export async function proposeValues(text: string, model: LanguageModel | null, o
       timeout: opts.timeoutMs ?? 45_000,
     });
     opts.onResult?.({ modelId: result.response.modelId, output: result.output });
-    return interpret(result.output);
+    const proposal = interpret(result.output);
+    logParseCall(opts.log, started, proposal, answerFrom(result));
+    return proposal;
   } catch (error) {
     opts.onFailure?.(error);
-    return unavailable(classifyFailure(error));
+    const proposal = unavailable(classifyFailure(error));
+    logParseCall(opts.log, started, proposal);
+    return proposal;
   }
 }
 
