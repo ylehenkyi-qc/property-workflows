@@ -2,6 +2,7 @@ import type { LanguageModel } from "ai";
 import type { RoleCheck } from "@/lib/auth/require-role";
 import type { Json } from "@/lib/supabase/database.types";
 import { parseConfirmed } from "./confirm";
+import { PRODUCT_MODELS } from "./models";
 import { proposeValues, type Proposal } from "./parse";
 
 // Логіка двох дій AI-розбору документа (AC-DOCAI-01…12). Сесію (RoleCheck) і модель дає викликач: так її тестують без
@@ -31,7 +32,9 @@ export async function runPropose(auth: RoleCheck, runId: string, text: string, m
 
   if (!(await canManageRun(auth.supabase, runId))) return { status: "forbidden" };
 
-  return { status: "ok", proposal: await proposeValues(String(text ?? ""), model) };
+  // WS11: рядок llm.call у журнал (без тексту документа); id запиту зв'язує його з іншими подіями цього запиту.
+  const log = { requestId: crypto.randomUUID(), route: "/runs/[id]", primaryModel: PRODUCT_MODELS[0] };
+  return { status: "ok", proposal: await proposeValues(String(text ?? ""), model, { log }) };
 }
 
 // Пише ПІСЛЯ дії людини: повторна валідація значень, запис під сесією користувача. author_id база бере з auth.uid(), а право
